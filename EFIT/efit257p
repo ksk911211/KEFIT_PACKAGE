@@ -1,0 +1,17 @@
+#!/usr/local/anaconda3/bin/python3
+import pexpect
+efit = pexpect.spawn('efitd257d')
+efit.expect("type mode")
+efit.sendline("2")
+efit.expect("number")
+efit.sendline( "1")
+efit.expect("#")
+efit.sendline("kfile_run")
+while not efit.terminated:
+	try:
+		efit.expect("it=")
+		print(efit.before)
+	except: (efit.before); exit()
+#show_data = efit.before
+#shot_out  = show_data.split('\r\n')
+#for data in shot_out: print(data)

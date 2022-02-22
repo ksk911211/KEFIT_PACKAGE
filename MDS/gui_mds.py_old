@@ -1,0 +1,765 @@
+#!/usr/local/anaconda2/bin/python2
+import ctypes as _C
+from MDSplus import Connection
+from MDSplus._mdsshr import _load_library, MdsException 
+#from MDSplus._mdsshr import MdsshrException as MdsException
+from exec_dirs import mds_ts,mds_ces
+
+from Tkinter import *
+import os,sys
+import numpy as np
+
+#ConnectToMds=_load_library('MdsIpShr').ConnectToMds
+#ConnectToMds.argtypes=[_C.c_char_p]
+#DisconnectFromMds = _load_library('MdsIpShr').DisconnectFromMds
+#DisconnectFromMds.argtypes = [_C.c_int]
+
+class _Connection( Connection):
+    """
+    Updating 'Connection' class in 'MDSplus' to manange the connection to the server
+    (1) hanging off the connection when termination
+    (2) retry the connection by 'reconnect' method
+    Written by D. K. Oh
+    Last Modification : Aug 2012
+    """
+    def __del__(self):
+        self.closeConnection()
+        
+    def closeConnection(self):
+        if self.socket != -1:
+             if False: #DisconnectFromMds(self.socket) == 0: 
+                raise Exception, "Error in disconnection"
+             else:
+                self.socket = -1
+                
+    def reconnect(self):
+        if self.hostspec == None:
+             raise MdsException, "Error: no host specified"
+        else:
+             if self.socket != -1:
+                print self.socket
+                try:
+                    self.closeConnection()
+                except:
+                    raise Exception, "Error in resetting connection to %s" %(self.hostspec,)
+             self.socket = ConnectToMds(self.hostspec)
+             if self.socket == -1:
+                raise Exception, "Error connecting to %s" %(self.hostspec,)   
+
+class MDS(object):
+    """
+    Implementation of a connection to the MDSplus tree based on the class mds by Y. M. Jeon
+    Written by D. K. Oh
+    Last modification : Aug 2012
+    """
+    __DefaultTree = "KSTAR"
+#    __DefaultServer = "172.17.250.21:8005"
+    __DefaultServer = "172.17.100.200:8005"
+
+    def __init__(self, shot=None, tree =__DefaultTree, server=__DefaultServer):
+        try:                    
+            self.alist = {"tree":None, "shot":None, "server":None}
+            self.__mds__ = _Connection(server)
+            if shot is not None:
+                self.open(shot, tree)
+        except MdsException:
+            raise MdsException, "Error in the connection %s" %(server)
+        except:
+            raise Exception, " Unknown error in the connection %s" %(server)
+        else:
+            self.alist = {"tree":tree, "shot":shot, "server":server}
+            
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
+        self.disconnect()
+        
+    def reset(self, shot=None, tree=None, server=__DefaultServer):
+        if tree is None:
+            tree = self.alist["tree"]
+        if shot is None:
+            shot = self.alist["shot"]
+        
+        self.alist = {"tree":tree, "shot":shot, "server":server}
+        alist = self.alist
+        __mds = self.__mds__ 
+        __mds.hostspec = alist["server"]
+        __mds.reconnect()
+        if (shot is not None) and (tree is not None):
+            self.open(tree, shot)
+
+    def open(self, shot, tree =__DefaultTree):
+        if shot is None:
+            shot = self.alist["shot"]
+        if shot is None:
+            self.alist["tree"] = None
+            self.alist["shot"] = None
+            raise MdsException, "Error in open : shot number is not specified"
+        else:    
+            self.close( self.alist["shot"], self.alist["tree"])
+            try:
+                self.__mds__.openTree(tree, shot)
+            except:
+                self.alist["tree"] = None
+                self.alist["shot"] = None
+                raise MdsException, "Error in open : unknown error"    
+            else:
+                self.alist["tree"] = tree
+                self.alist["shot"] = shot
+                return self.__mds__
+
+    def close(self, shot=None, tree=None): 
+        if tree is None:
+            tree = self.alist["tree"]
+        if shot is None:
+            shot = self.alist["shot"]
+        if (shot is not None) and (tree is not None):
+            try:
+                self.__mds__.closeTree(tree, shot)
+            except:
+                raise MdsException, "Error in close : unknown error"
+            else:
+                self.alist["shot"] = None
+                self.alist["tree"] = None
+
+    def disconnect(self):
+        self.__mds__.closeConnection()
+        
+    def get_T0(self):
+        try:
+            ret_str = self.__mds__.get('\T0_STR').data()
+        except:
+            ret_str = None            
+            raise MdsException, "Error in get"
+        return ret_str
+
+    def get_sig(self, sigstr):
+        try:
+            t = self.__mds__.get('dim_of(%s)' %(sigstr)).data();
+            v = self.__mds__.get(sigstr).data();
+        except:
+            t = numpy.ndarray([])
+            v = numpy.ndarray([])             
+            raise MdsException, "Error in get"
+        return t,v;
+
+def _run(choix):
+
+    monpath='./DATASAVE/'+eshot.get()
+    if os.path.isdir(monpath):
+        print monpath+' already created'
+    else:
+        comm='mkdir '+monpath
+        os.system(comm)
+        print monpath+' created'
+
+    prog=['ces5','ces5','ts5','ts5']
+    version=['0','1','0','1']
+    if choix < 2: dirs = mds_ces
+    else: dirs = mds_ts
+    command='python %s %s %s %s %s %s %s %s'%(dirs,eshot.get(),etime.get(),edt.get(),emult.get(),epour.get(),lprest.get(),version[choix])
+#    print command
+    os.system(command)
+
+def _savdat(myshot):
+    wdiafile='./DATASAVE/'+str(myshot)+'/WDIA.npz'
+    echfile='./DATASAVE/'+str(myshot)+'/ECH.npz'
+    nbifile='./DATASAVE/'+str(myshot)+'/NBI.dat'
+    WDIA='\\WDIA_DLM03'
+    NBIPAR=['\\NB11_PNB','\\NB12_PNB','\\NB13_PNB','\\NB2A_PNB','\\NB2B_PNB','\\NB2C_PNB']
+    NBIEPAR=['\\NB11_VG1','\\NB12_VG1','\\NB13_VG1','\\NB2A_VG1','\\NB2B_VG1','\\NB2C_VG1']
+    ECHPAR='\\EC2_PWR'
+
+    Snbi=[]
+    Pnbi=[]
+    Enbi=[]
+    Tnbi=[]
+
+# connection to MDSPlus data
+#    with MDS(server="172.17.250.21:8005") as mds:
+    with MDS(server="172.17.100.200:8005") as mds:
+        try:
+            treename='kstar'
+            eq=mds.open(shot=myshot, tree=treename)
+        except: 
+            print "Error #2"
+        else:
+
+            try:
+                time=eq.get('dim_of(%s)'%WDIA).data()
+                dat=WDIA
+                Wdia=eq.get(dat).data()
+            except:
+                print "No DIA data"
+                time=np.zeros(2)
+                time[0]=0.
+                time[1]=1.
+                Wdia=np.zeros(2)
+
+            if time[-1] > 2000.: # ms or s
+                trans=1000.
+            else:
+                trans=1.
+            np.savez(wdiafile,time/trans,Wdia)
+            comm='gzip -f '+wdiafile
+            os.system(comm)
+
+            try:
+                time=eq.get('dim_of(%s)'%ECHPAR).data()
+                dat=ECHPAR
+                Ech=eq.get(dat).data()
+            except:
+                print "No ECH data"
+                time=np.zeros(2)
+                time[0]=0.
+                time[1]=1.
+                Ech=np.zeros(2)
+
+            if time[-1] > 2000.: # ms or s
+                trans=1000.
+            else:
+                trans=1.
+            np.savez(echfile,time/trans,Ech)
+            comm='gzip -f '+echfile
+            os.system(comm)
+
+            for k in range(len(NBIPAR)):
+                try:
+                    signame=NBIPAR[k]
+#                        print signame
+                    Tnbi=eq.get('dim_of(%s)'%signame).data()  
+                    Pnbi = eq.get(signame).data()
+
+                    signame=NBIEPAR[k]
+                    Enbi = eq.get(signame).data()
+
+                except:
+                    print NBIPAR[k]+' data not available'
+                    Tnbi=np.zeros(2)
+                    Tnbi[0]=0.
+                    Tnbi[1]=1.
+                    Pnbi=np.zeros(2)
+                    Enbi=np.zeros(2)
+                    
+                signame=NBIPAR[k]
+                Snbi.append(signame[1:len(signame)])
+
+                if Tnbi[-1] > 2000.: # ms or s
+                    trans=1000.
+                else:
+                    trans=1.
+            
+                ftmp='./DATASAVE/'+str(myshot)+'/'+ str(Snbi[k])+'.npz'
+                np.savez(ftmp,Tnbi/trans,Pnbi,Enbi)
+
+                comm='gzip -f '+ftmp
+                os.system(comm)
+
+            f=open(nbifile,'w')
+            for i in range(len(NBIPAR)):
+                f.write('%s '%Snbi[i])
+            f.close()
+
+def _rungfit(root,noefit):
+    mtime=float(etime.get())
+    shot=int(eshot.get())
+    fname1='ti_%d_%d.dat'%(shot,int(mtime*1000))
+    fname2='vt_%d_%d.dat'%(shot,int(mtime*1000))
+    fname3='ne_%d_%d.dat'%(shot,int(mtime*1000))
+    fname4='te_%d_%d.dat'%(shot,int(mtime*1000))
+    fname5='ne_%d_%d_edge.dat'%(shot,int(mtime*1000))
+    fname6='te_%d_%d_edge.dat'%(shot,int(mtime*1000))
+    gname='g%s.%s'%(str(shot).zfill(6),str(int(mtime*1000)).zfill(6))
+    kname='k%s.%s'%(str(shot).zfill(6),str(int(mtime*1000)).zfill(6))
+    wdiafile='./DATASAVE/'+str(shot)+'/WDIA.npz'
+    echfile='./DATASAVE/'+str(shot)+'/ECH.npz'
+    nbifile='./DATASAVE/'+str(shot)+'/NBI.dat'
+    if noefit == 'y': efitpass = True
+    else: efitpass = False
+
+    try: os.mkdir('DATASAVE')
+    except: pass
+    try: os.mkdir('DATASAVE/%i'%shot)
+    except: pass
+# check if wdia, ech, nbi file exist
+    if not os.path.isfile(wdiafile+'.gz'):
+        _savdat(shot)
+    if efitpass: print('Skip EFIT load')
+    ok = 0
+    if ((os.path.isfile('./'+gname) and os.path.isfile('./'+kname)) or efitpass):
+        # gfile and kfile already here, no need to copy
+        ok=1
+    else:
+
+        year=0
+        if 12289 <= shot and shot <= 14388: # 2015
+            year=2015
+            command='scp 172.17.250.21:/home/users/efit/EFIT_RUN/EFITDATA_2015/EFIT04/1st/EXP%s/%s .'%(str(shot).zfill(6),gname)
+            os.system(command)
+            command='scp 172.17.250.21:/home/users/efit/EFIT_RUN/EFITDATA_2015/EFIT04/1st/EXP%s/%s .'%(str(shot).zfill(6),kname)
+            os.system(command)
+            if os.path.isfile('./'+gname) and os.path.isfile('./'+kname):
+            # copy successful
+                ok=1
+
+            if ok == 0:
+                command='scp 172.17.250.21:/home/users/efit/EFIT_RUN/EFITDATA_2015/EFIT04/2nd-2/EXP%s/%s .'%(str(shot).zfill(6),gname)
+                os.system(command)
+                command='scp 172.17.250.21:/home/users/efit/EFIT_RUN/EFITDATA_2015/EFIT04/2nd-2/EXP%s/%s .'%(str(shot).zfill(6),kname)
+                os.system(command)
+                if os.path.isfile('./'+gname) and os.path.isfile('./'+kname):
+            # copy successful
+                    ok=1
+
+            if ok == 0:
+                command='scp 172.17.250.21:/home/users/efit/EFIT_RUN/EFITDATA_2015/EFIT04/3rd/EXP%s/%s .'%(str(shot).zfill(6),gname)
+                os.system(command)
+                command='scp 172.17.250.21:/home/users/efit/EFIT_RUN/EFITDATA_2015/EFIT04/3rd/EXP%s/%s .'%(str(shot).zfill(6),kname)
+                os.system(command)
+                if os.path.isfile('./'+gname) and os.path.isfile('./'+gname):
+            # copy successful
+                    ok=1
+
+            if ok == 0:
+                command='scp 172.17.250.21:/home/users/efit/EFIT_RUN/EFITDATA_2015/EFIT04/FIN-check/EXP%s/%s .'%(str(shot).zfill(6),gname)
+                os.system(command)
+                command='scp 172.17.250.21:/home/users/efit/EFIT_RUN/EFITDATA_2015/EFIT04/FIN-check/EXP%s/%s .'%(str(shot).zfill(6),kname)
+                os.system(command)
+                if os.path.isfile('./'+gname) and os.path.isfile('./'+kname):
+            # copy successful
+                    ok=1
+
+            if ok == 0:
+                command='scp 172.17.250.21:/home/users/efit/EFIT_RUN/EFITDATA_2017/EFIT07/2nd_2015/EXP%s/%s .'%(str(shot).zfill(6),gname)
+                os.system(command)
+                command='scp 172.17.250.21:/home/users/efit/EFIT_RUN/EFITDATA_2017/EFIT07/2nd_2015/EXP%s/%s .'%(str(shot).zfill(6),kname)
+                os.system(command)
+                if os.path.isfile('./'+gname) and os.path.isfile('./'+kname) :
+            # copy successful
+                    ok=1
+
+        elif 14954 <= shot and shot <= 17362: # 2016
+            year=2016
+            command='scp 172.17.250.21:/home/users/efit/EFIT_RUN/EFITDATA_2016/EFIT01/EXP%s/%s .'%(str(shot).zfill(6),gname)
+            os.system(command)
+            command='scp 172.17.250.21:/home/users/efit/EFIT_RUN/EFITDATA_2016/EFIT02/EXP%s/%s .'%(str(shot).zfill(6),kname)
+            os.system(command)
+            if os.path.isfile('./'+gname) and os.path.isfile('./'+kname):
+            # copy successful
+                ok=1
+
+            if ok ==0:
+                command='scp 172.17.250.21:/home/users/efit/EFIT_RUN/EFITDATA_2016/EFIT01/EXP%s/%s .'%(str(shot).zfill(6),gname)
+                os.system(command)
+                command='scp 172.17.250.21:/home/users/efit/EFIT_RUN/EFITDATA_2016/EFIT01/EXP%s/%s .'%(str(shot).zfill(6),kname)
+                os.system(command)
+                if os.path.isfile('./'+gname) and os.path.isfile('./'+kname):
+            # copy successful
+                    ok=1
+
+            if ok ==0:
+                command='scp 172.17.250.21:/home/users/efit/EFIT_RUN/EFITDATA_2017/EFIT07/1st/EXP%s/%s .'%(str(shot).zfill(6),gname)
+                os.system(command)
+                command='scp 172.17.250.21:/home/users/efit/EFIT_RUN/EFITDATA_2017/EFIT07/1st/EXP%s/%s .'%(str(shot).zfill(6),kname)
+                os.system(command)
+                if os.path.isfile('./'+gname) and os.path.isfile('./'+kname):
+            # copy successful
+                    ok=1
+
+            if ok ==0:
+                command='scp 172.17.250.21:/home/users/efit/EFIT_RUN/EFITDATA_2017/EFIT07/2nd_2016/EXP%s/%s .'%(str(shot).zfill(6),gname)
+                os.system(command)
+                command='scp 172.17.250.21:/home/users/efit/EFIT_RUN/EFITDATA_2017/EFIT07/2nd_2016/EXP%s/%s .'%(str(shot).zfill(6),kname)
+                os.system(command)
+                if os.path.isfile('./'+gname) and os.path.isfile('./'+kname):
+            # copy successful
+                    ok=1
+
+        elif 17857 <= shot and shot <= 19391: # 2017
+            year=2017
+
+            command='scp 172.17.250.21:/home/users/efit/EFIT_RUN/EFITDATA_2017/EFIT01/EXP%s/%s .'%(str(shot).zfill(6),gname)
+            os.system(command)
+            command='scp 172.17.250.21:/home/users/efit/EFIT_RUN/EFITDATA_2017/EFIT02/EXP%s/%s .'%(str(shot).zfill(6),kname)
+            os.system(command)
+            if os.path.isfile('./'+gname) and os.path.isfile('./'+kname):
+            # copy successful
+                ok=1
+
+            if ok ==0:
+                command='scp 172.17.250.21:/home/users/efit/EFIT_RUN/EFITDATA_2017/EFIT01/EXP%s/%s .'%(str(shot).zfill(6),gname)
+                os.system(command)
+                command='scp 172.17.250.21:/home/users/efit/EFIT_RUN/EFITDATA_2017/EFIT01/EXP%s/%s .'%(str(shot).zfill(6),kname)
+                os.system(command)
+                if os.path.isfile('./'+gname) and os.path.isfile('./'+kname):
+            # copy successful
+                    ok=1
+
+            if ok ==0:
+                command='scp 172.17.250.21:/home/users/efit/EFIT_RUN/EFITDATA_2017/EFIT07/2nd_2017/EXP%s/%s .'%(str(shot).zfill(6),gname)
+                os.system(command)
+                command='scp 172.17.250.21:/home/users/efit/EFIT_RUN/EFITDATA_2017/EFIT07/2nd_2017/EXP%s/%s .'%(str(shot).zfill(6),kname)
+                os.system(command)
+                if os.path.isfile('./'+gname) and os.path.isfile('./'+kname):
+            # copy successful
+                    ok=1
+
+        elif 19815 <= shot and shot <= 21758: # 2018
+            year=2018
+            command='scp 172.17.250.21:/home/users/efit/EFIT_RUN/EFITDATA_2018/EFIT01/EXP%s/%s .'%(str(shot).zfill(6),gname)
+            os.system(command)
+            command='scp 172.17.250.21:/home/users/efit/EFIT_RUN/EFITDATA_2018/EFIT02/EXP%s/%s .'%(str(shot).zfill(6),kname)
+            os.system(command)
+            if os.path.isfile('./'+gname) and os.path.isfile('./'+kname):
+            # copy successful
+                ok=1
+
+            if ok==0:
+                command='scp 172.17.250.21:/home/users/efit/EFIT_RUN/EFITDATA_2018/EFIT01_org/EXP%s/%s .'%(str(shot).zfill(6),gname)
+                os.system(command)
+                command='scp 172.17.250.21:/home/users/efit/EFIT_RUN/EFITDATA_2018/EFIT02/EXP%s/%s .'%(str(shot).zfill(6),kname)
+                os.system(command)
+                if os.path.isfile('./'+gname) and os.path.isfile('./'+kname):
+                    # copy successful
+                    ok=1
+
+            if ok==0:
+                command='scp 172.17.250.21:/home/users/efit/EFIT_RUN/EFITDATA_2018/EFIT01/EXP%s/%s .'%(str(shot).zfill(6),gname)
+                os.system(command)
+                command='scp 172.17.250.21:/home/users/efit/EFIT_RUN/EFITDATA_2018/EFIT02_org/EXP%s/%s .'%(str(shot).zfill(6),kname)
+                os.system(command)
+                if os.path.isfile('./'+gname) and os.path.isfile('./'+kname):
+                    # copy successful
+                    ok=1
+
+            if ok==0:
+                command='scp 172.17.250.21:/home/users/efit/EFIT_RUN/EFITDATA_2018/EFIT01_org/EXP%s/%s .'%(str(shot).zfill(6),gname)
+                os.system(command)
+                command='scp 172.17.250.21:/home/users/efit/EFIT_RUN/EFITDATA_2018/EFIT02_org/EXP%s/%s .'%(str(shot).zfill(6),kname)
+                os.system(command)
+                if os.path.isfile('./'+gname) and os.path.isfile('./'+kname):
+                    # copy successful
+                    ok=1
+            if ok==0:
+                command='scp 172.17.250.21:/home/users/efit/EFIT_RUN/EFITDATA_2018/EFIT01/EXP%s/%s .'%(str(shot).zfill(6),gname)
+                os.system(command)
+                command='scp 172.17.250.21:/home/users/efit/EFIT_RUN/EFITDATA_2018/EFIT01/EXP%s/%s .'%(str(shot).zfill(6),kname)
+                os.system(command)
+                if os.path.isfile('./'+gname) and os.path.isfile('./'+kname):
+                    # copy successful
+                    ok=1
+            if ok==0:
+                command='scp 172.17.250.21:/home/users/efit/EFIT_RUN/EFITDATA_2018/EFIT01_org/EXP%s/%s .'%(str(shot).zfill(6),gname)
+                os.system(command)
+                command='scp 172.17.250.21:/home/users/efit/EFIT_RUN/EFITDATA_2018/EFIT01_org/EXP%s/%s .'%(str(shot).zfill(6),kname)
+                os.system(command)
+                if os.path.isfile('./'+gname) and os.path.isfile('./'+kname):
+                    # copy successful
+                    ok=1
+
+            if ok==0:
+                command='scp 172.17.250.21:/home/users/efit/EFIT_RUN/EFITDATA_2018/EFIT02/EXP%s/%s .'%(str(shot).zfill(6),gname)
+                os.system(command)
+                command='scp 172.17.250.21:/home/users/efit/EFIT_RUN/EFITDATA_2018/EFIT02/EXP%s/%s .'%(str(shot).zfill(6),kname)
+                os.system(command)
+                if os.path.isfile('./'+gname) and os.path.isfile('./'+kname):
+                    # copy successful
+                    ok=1
+
+            if ok==0:
+                command='scp 172.17.250.21:/home/users/efit/EFIT_RUN/EFITDATA_2018/EFIT02_org/EXP%s/%s .'%(str(shot).zfill(6),gname)
+                os.system(command)
+                command='scp 172.17.250.21:/home/users/efit/EFIT_RUN/EFITDATA_2018/EFIT02_org/EXP%s/%s .'%(str(shot).zfill(6),kname)
+                os.system(command)
+                if os.path.isfile('./'+gname) and os.path.isfile('./'+kname):
+                    # copy successful
+                    ok=1
+                    
+        if ok ==0:
+            print 'The file '+gname+ ' and/or '+kname +' do not exist on ikstar'
+            print 'Shot year=',year
+            gname = ''; kname = ''
+
+    if not os.path.isfile('./'+fname1):
+        #ok=0
+        fname1 = ''
+        print 'Need to select TI data'
+
+    if not os.path.isfile('./'+fname2):
+#        ok=0
+        fname2 = ''
+        print 'Need to select VT data'
+
+    if not os.path.isfile('./'+fname3):
+#        ok=0
+        fname3 = ''
+        print 'Need to select NE data'
+
+    if not os.path.isfile('./'+fname4):
+#       ok=0
+        fname4 = ''
+        print 'Need to select TE data'
+
+    ok = 1
+    if ok==1:
+        if not os.path.isfile(wdiafile+'.gz'):
+            mywdia=0.
+        else:
+            comm='gzip -d '+wdiafile+'.gz'
+            os.system(comm)
+
+            npzfile  = np.load(wdiafile, mmap_mode='r')
+            wtime  = npzfile['arr_0']
+            wdia     = npzfile['arr_1']   
+
+            comm='gzip -f '+wdiafile
+            os.system(comm)
+            myt=-1
+
+            siz=len(wtime)
+            for i in range(siz-1):
+                if wtime[i] <= mtime and mtime < wtime[i+1]:
+                    myt=i
+            if myt == -1:
+                mywdia=0.
+            else:
+                alf=(wtime[myt+1]-mtime)/(wtime[myt+1]-wtime[myt])
+                mywdia=alf*wdia[myt]+(1.-alf)*wdia[myt+1]
+
+         
+        if not os.path.isfile(echfile+'.gz'):
+            myech=0.
+        else:
+            comm='gzip -d '+echfile+'.gz'
+            os.system(comm)
+
+            npzfile  = np.load(echfile, mmap_mode='r')
+            wtime  = npzfile['arr_0']
+            wech     = npzfile['arr_1']            
+            comm='gzip -f '+echfile
+            os.system(comm)
+            myt=-1
+            siz=len(wtime)
+
+            for i in range(siz-1):
+                if wtime[i] <= mtime and mtime < wtime[i+1]:
+                    myt=i
+            if myt == -1:
+                myech=0.
+            else:
+                alf=(wtime[myt+1]-mtime)/(wtime[myt+1]-wtime[myt])
+                myech=alf*wech[myt]+(1.-alf)*wech[myt+1]
+
+         
+        Pnbi=[-1.,-1.,-1.,-1.,-1.,-1.]
+        Enbi=[-1.,-1.,-1.,-1.,-1.,-1.]
+        if not os.path.isfile(nbifile):
+            mynbi=0.
+        else:
+            f=open(nbifile,'r')
+            stmp=f.readline()
+            NBIPAR=['NB11_PNB','NB12_PNB','NB13_PNB','NB2A_PNB','NB2B_PNB','NB2C_PNB']
+            for k in range(len(NBIPAR)):
+                if NBIPAR[k] in stmp:
+                    nfile='./DATASAVE/'+str(shot)+'/'+NBIPAR[k]+'.npz'
+                    comm='gzip -d '+nfile+'.gz'
+                    os.system(comm)
+
+                    npzfile  = np.load(nfile, mmap_mode='r')
+                    wtime    = npzfile['arr_0']
+                    wnbi     = npzfile['arr_1']
+                    wenbi    = npzfile['arr_2']
+                    comm='gzip -f '+nfile
+                    os.system(comm)
+                    siz=len(wtime)
+
+                    myt=-1
+
+                    for i in range(siz-1):
+                        if wtime[i] <= mtime and mtime < wtime[i+1]:
+                            myt=i
+                    if myt == -1:
+                        mynbi=0.
+                    else:
+                        alf=(wtime[myt+1]-mtime)/(wtime[myt+1]-wtime[myt])
+                        Pnbi[k]=alf*wnbi[myt]+(1.-alf)*wnbi[myt+1]
+                        Enbi[k]=alf*wenbi[myt]+(1.-alf)*wenbi[myt+1]
+
+
+# create result.dat file
+        f=open('result.dat','w')
+# directory for NE, TE, TI, VT
+        mycwd=os.getcwd()
+
+        if not gname == '': f.write('g_file  %s\n'%(mycwd+'/'+gname))
+        else: f.write('g_file \n')
+        if not kname == '': f.write('k_file  %s\n'%(mycwd+'/'+kname))
+        else: f.write('k_file \n')
+        if not fname6 == '': f.write('te_edge_file %s\n'%(mycwd+'/'+fname6))
+        else: f.write('te_edge_file \n')
+        if not fname5 == '': f.write('ne_edge_file %s\n'%(mycwd+'/'+fname5))
+        else: f.write('ne_edge_file \n')
+        if not fname4 == '': f.write('te_file %s\n'%(mycwd+'/'+fname4))
+        else: f.write('te_file \n')
+        if not fname3 == '': f.write('ne_file %s\n'%(mycwd+'/'+fname3))
+        else: f.write('ne_file \n')
+        if not fname1 == '': f.write('ti_file %s\n'%(mycwd+'/'+fname1))
+        else: f.write('ti_file \n')
+        if not fname2 == '': f.write('vt_file %s\n'%(mycwd+'/'+fname2))
+        else: f.write('vt_file \n')
+
+        if mywdia > 0.:
+            f.write('wdia    %f \n'%mywdia)
+        else:
+            f.write('wdia       \n')
+
+        if Pnbi[0] > 0.:
+            f.write('NBI1AP  %s\n'%str(float(Pnbi[0])*1000000.))
+            f.write('NBI1AE  %s\n'%Enbi[0])
+        else:
+            f.write('NBI1AP  \n')
+            f.write('NBI1AE  \n')
+        if Pnbi[1] > 0.:
+            f.write('NBI1BP  %s\n'%str(float(Pnbi[1])*1000000.))
+            f.write('NBI1BE  %s\n'%Enbi[1])
+        else:
+            f.write('NBI1BP  \n')
+            f.write('NBI1bE  \n')
+        if Pnbi[2] > 0.:
+            f.write('NBI1CP  %s\n'%str(float(Pnbi[2])*1000000.))
+            f.write('NBI1CE  %s\n'%Enbi[2])
+        else:
+            f.write('NBI1CP  \n')
+            f.write('NBI1cE  \n')
+        if Pnbi[3] > 0.:
+            f.write('NBI2AP  %s\n'%str(float(Pnbi[3])*1000000.))
+            f.write('NBI2AE  %s\n'%Enbi[3])
+        else:
+            f.write('NBI2AP  \n')
+            f.write('NBI2AE  \n')
+        if Pnbi[4] > 0.:
+            f.write('NBI2BP  %s\n'%str(float(Pnbi[4])*1000000.))
+            f.write('NBI2BE  %s\n'%Enbi[4])
+        else:
+            f.write('NBI2BP  \n')
+            f.write('NBI2BE  \n')
+        if Pnbi[5] > 0.:
+            f.write('NBI2CP  %s\n'%str(float(Pnbi[5])*1000000.))
+            f.write('NBI2CE  %s\n'%Enbi[5])
+        else:
+            f.write('NBI2CP  \n')
+            f.write('NBI2CE  \n')
+        if myech > 0.:
+            f.write('ECHPW   %f \n'%(myech*1000.))
+        else:
+            f.write('ECHPW      \n')
+
+        f.close()
+
+# create fit_opt file
+ 
+#        print command
+        root.quit()
+
+
+# python little_gui5.py [shot] [time] [dt]
+if __name__=='__main__':
+   """ """
+   import os, sys
+   exename=os.path.basename(__file__);
+   nargs=len(sys.argv);
+
+   dshot=-1
+   dtime=-1.
+   ddt=-1.
+
+   if len(sys.argv) >= 4:
+       dshot=int(sys.argv[1])
+       dtime=float(sys.argv[2])
+       ddt=float(sys.argv[3])
+
+   try: noefit = sys.argv[4]
+   except:noefit = 'n' 
+
+   root=Tk()
+   root.title("Profile selector")
+
+   root.geometry("440x150") 
+
+   lshot=Label(root, text="Shot:")
+   lshot.place(y=20,x=10)
+
+   eshott=StringVar()
+   eshot = Entry(root,width=5,textvariable=eshott)
+   eshot.place(y=20,x=50)
+   if dshot > 0:
+       eshott.set(dshot)
+
+   ltime=Label(root, text="Time [s]:")
+   ltime.place(y=20,x=100)
+
+   etimet=StringVar()
+   etime = Entry(root,width=5,textvariable=etimet)
+   etime.place(y=20,x=150)
+   if dtime > 0.:
+       etimet.set(dtime)
+
+   ldt=Label(root, text="dt [s]:")
+   ldt.place(y=20,x=210)
+
+   edtt=StringVar()
+   edt = Entry(root,width=5,textvariable=edtt)
+   edt.place(y=20,x=240)
+   if ddt > 0.:
+       edtt.set(ddt)
+   
+   lprest=StringVar()
+   lpres=Checkbutton(root, text="DA Preselect",onvalue="1",offvalue="0",variable=lprest)
+   lprest.set("1")
+   lpres.place(y=40,x=10)
+
+
+   lpour=Label(root, text="Percent:")
+   lpour.place(y=60,x=10)
+   epourt=StringVar()
+   epour = Entry(root,width=5,textvariable=epourt)
+   epour.place(y=60,x=70)
+   epourt.set("30.")
+   
+   lmult=Label(root, text="Multiplier:")
+   lmult.place(y=60,x=120)
+   emultt=StringVar()
+   emult = Entry(root,width=5,textvariable=emultt)
+   emult.place(y=60,x=180)
+   emultt.set("2.")
+
+#####
+# create  ./DATASAVE directory i needed
+   if os.path.isdir('./DATASAVE'):
+       print 'DATASAVE already created'
+   else:
+       comm='mkdir DATASAVE'
+       os.system(comm)
+       print 'DATASAVE created'
+
+#####
+
+   bti= Button(root,text="  TI  ",command=lambda:_run(0))
+   bti.place(y=100,x=10)
+
+   bvt= Button(root,text="  VT  ",command=lambda:_run(1))
+   bvt.place(y=100,x=75)
+
+   bte= Button(root,text="  TE  ",command=lambda:_run(2))
+   bte.place(y=100,x=140)
+
+   bne= Button(root,text="  NE  ",command=lambda:_run(3))
+   bne.place(y=100,x=205)
+
+   brun= Button(root,text="Finish",command=lambda:_rungfit(root,noefit))
+   brun.place(y=100,x=320)
+
+
+   root.mainloop()

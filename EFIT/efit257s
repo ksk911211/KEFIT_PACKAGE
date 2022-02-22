@@ -1,0 +1,20 @@
+#!/usr/bin/expect
+## CONECTION to sophie SERVER for JOREK calculation
+spawn efitd257d #d257d
+#expect -re "type mode"
+sleep 2
+send "2\r"
+#expect -re "number"
+sleep 2
+send "1\r"
+#expect -re "#"
+sleep 2
+send "kfile_run\r"
+
+interact
+#echo $PINWORD
+#echo -e "\n" | program
+#send --  "[Jorek123!@#]"
+#send --  "\r"
+
+#interact

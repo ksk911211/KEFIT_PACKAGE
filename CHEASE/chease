@@ -1,0 +1,267 @@
+#!/usr/local/anaconda3/bin/python3
+import os,sys
+from scipy.interpolate import interp1d
+from ch_tool import *
+from shutil import copyfile, move, rmtree
+from exec_dirs import version,author
+
+chease_opt = 'chease_opt'
+
+print(' ---------------------------------------------------------------')
+print('||              Python based CHEASE tool Ver %s               ||'%version['chease'])
+print('||                  Plasma current generator                   ||')
+print('%s'%author['chease'])
+print(' ---------------------------------------------------------------\n')
+
+try:
+	chease_opt = sys.argv[1]
+except:
+	print('>>> No input file > read chease opt \n')
+sim = chease(chease_opt)
+
+try:
+	if (sys.argv[2].lower() == 'nomap'):
+		sim.nomap = True
+		sim.epslon = 5
+	print('>>> Ignore mapping process...')
+except:
+	pass
+
+#Input check
+print('>>> Start input check...')
+print('---------------------------------------------------------------!')
+if (sim.kinprof_type == 1):
+	print('>>> Use PROFTYPE=1')
+	if not(os.path.isfile(sim.chkin_file)):
+		print('!PROFTYPE=1, No kinetic file')
+		exit()
+
+elif (sim.kinprof_type == 2):
+	print('>>> Use PROFTYPE=2')
+	iste = os.path.isfile(sim.te_file)
+	isne = os.path.isfile(sim.ne_file)
+	isti = os.path.isfile(sim.ti_file)
+	isni = True
+	if not (sim.ni_file == None):
+		isni = os.path.isfile(sim.ni_file)
+
+	if not (iste and isne and isti and isni):
+		print('!PROFTYPE=2, No kinetic file')
+		exit()
+
+elif(sim.kinprof_type == 3):
+	print('>>> Use PROFTYPE=3')
+	iseped = os.path.isfile(sim.eped_file)
+	isti = True
+	if (sim.pedscan_ti):
+		isti = os.path.isfile(sim.ti_file)
+	if not (iseped and isti):
+		print('!PROFTYPE=3, No kinetic file')
+		exit()
+
+elif(sim.simple_run and not (sim.eqdsk_name.lower() == 'none')):
+	print('>>> Simple Run without kinetic file')
+
+else:
+	print('!No kinetic file and eqdsk file')
+	exit()
+print('>>> Kinetic profile is found!')
+
+if not (sim.eqdsk_name.lower() == 'none'):
+	if not(os.path.isfile(sim.eqdsk_name)):
+		print('!No eqdsk file')
+		exit()
+	print('>>> EQDSK file is found!')
+
+if (sim.eqdsk_name.lower() == 'none'):
+	print('>>> Run without EQDSK file')
+	if not (sim.use_param_shape):
+		if not(os.path.isfile(sim.bnd_file)):
+			print('!No boundary file')
+			exit()
+		print('>>> Use prescribed boundary shape')
+	else:
+		if (np.isnan(sim.elong*sim.triang*sim.square*sim.amin*sim.rcent)):
+			print(sim.elong,sim.triang,sim.square,sim.amin,sim.rcent)
+			print('!No boundary params')
+			exit()
+		print('>>> Use parametric boundary shape')
+
+#	print('>>> Boundary value is found!')
+
+	if (np.isnan(sim.ip*sim.bcent)):
+		print('!No Ip and Bt input')
+		exit()
+	print('>>> Ip and Bt value is found!')
+
+if (sim.use_eped):
+	print('>>> EPED run is selected')
+	if not (sim.kinprof_type == 3):
+		print('!EPED type kinetic file is required for EPED like iteration')
+		exit()
+
+if (sim.simple_run):
+	#sim.astra_const = False
+	sim.adjust_prof = False
+	sim.remove_temp = False
+
+if (sim.simple_run and (sim.eqdsk_name.lower() == 'none')):
+	print('!Simple run mode needs EQDSK file')
+	exit()
+if (sim.nubeam_run):
+	if not (os.path.isfile(sim.vt_file)):
+		print('!VT prof is needed for NUBEAM run')
+		exit()
+	if not (os.path.isfile('nubeam_opt')):
+		print('!NUBEAM opt is needed for NUBEAM run')
+		exit()
+
+if (sim.astra_const):
+	sim.apf = 0.0
+	sim.ajf = 0.0
+	sim.beta_criterion = 0
+print()
+
+#Run
+print('>>> Start CHEASE run...')
+print('---------------------------------------------------------------!')
+if (sim.simple_run):
+	print('>>> SIMPLE run is selected')
+	sim.load_eqdsk()
+
+elif not (sim.use_eped or sim.use_eped2 or sim.use_eped3 or sim.nubeam_run):
+	print('>>> NORMAL run is selected')
+	if (np.isnan(sim.beta_critval)):
+		print('>>> Beta criterion type = %i '%sim.beta_criterion)
+	else:
+		print('>>> Beta criterion type = %i, value = %f'%(sim.beta_criterion,sim.beta_critval))
+	sim.beta_iteration()
+elif (sim.use_eped2):
+	print('>>> EPED2 run is selected')
+	print('>>> Beta criterion type = %i, beta value = %f, li value = %f '%(sim.beta_criterion,sim.beta_critval,sim.li_target))
+	sim.beta_iteration_eped2()
+
+elif (sim.use_eped3):
+	print('>>> EPED3 run is selected')
+	print('>>> Beta criterion type = %i, beta value = %f, li value = %f '%(sim.beta_criterion,sim.beta_critval,sim.li_target))
+	sim.beta_iteration_eped3()
+
+elif (sim.nubeam_run):
+	print('>>> NUBEAM run is selected')
+	sim.beta_iteration_nubeam()
+
+else:
+	print('>>> EPED run is selected')
+	print('>>> Beta criterion type = %i, value = %f'%(sim.beta_criterion,sim.beta_critval))
+	sim.beta_iteration_eped()
+
+#Mapping
+if not (sim.map_mode.lower() == 'none'):
+	print('\n>>> Start mapping...')
+	print('---------------------------------------------------------------!')
+	currdir = os.getcwd()
+	if (sim.map_mode.lower() == 'elite' or sim.map_mode.lower() == 'mishka'):
+		nideal = 8
+	elif (sim.map_mode.lower() == 'gkw'):
+		nideal = 10
+
+	if (sim.kinprof_type == 0):
+		sim.eq.nideal = nideal
+		sim.eq.ncscal = 1
+		currdir = os.getcwd()
+		os.chdir(sim.chease_rundir)
+		sim.eq.make_chease_input(sim.chease_rundir+'/EXPEQ',sim.chease_rundir+'/chease_namelist')
+		chease_run = chease_exec + ' > log.chease'
+		stat, out = subprocess.getstatusoutput(chease_run)
+		os.chdir(currdir)
+	else:
+		sim.run_chease(nideal)
+
+#Write files
+try: os.mkdir('OUTPUT')
+except: pass
+try: os.mkdir('PROFILES')
+except: pass
+if (sim.remove_temp):
+	os.system('rm -r ' + sim.chease_rundir)
+
+if (sim.efit_const):
+	print('\n>>> Writing EFIT constraint...')
+	print('---------------------------------------------------------------!')
+	sim.make_efit_constraint()
+	if (sim.vloop_ext == 0.0):
+		print('>>> Expected loop voltage --> %f [V]'%sim.VLOOP)
+	print('>>> Bootstrap profile --> BS_Profile')
+	print('>>> Efit constraint --> EFIT_JCONST')
+
+if (sim.efit_const2):
+	sim.make_efit_constraint2()
+
+try: copyfile('chease_kinprof_new','PROFILES/chease_kinprof_new')
+except: pass
+if (sim.adjust_prof):
+	print('\n>>> Writing adjusted kin profile...')
+	print('---------------------------------------------------------------!')
+	sim.write_kinprof()
+	if (sim.kinprof_type == 1):
+		move('chease_kinprof_new','PROFILES/chease_kinprof_new')		
+		print('>>> Adjusted kinetic profile --> chease_kinprof_new')
+
+	elif (sim.kinprof_type == 2):
+		move('NE.dat_new','PROFILES/NE.dat_new')
+		move('TE.dat_new','PROFILES/TE.dat_new')
+		move('TI.dat_new','PROFILES/TI.dat_new')
+		move('VT.dat_new','PROFILES/VT.dat_new')
+		print('>>> Adjusted kinetic profile --> *.dat_new')
+	
+if (sim.astra_const):
+	print('\n>>> Writing ASTRA constraint...')
+	print('---------------------------------------------------------------!')
+	f = open('OUTPUT/ASTRA_CONST','w')
+	f.write('RHO[#] CU[MA/m^2]\n')
+
+	rhof = interp1d(sim.psi_map,sim.rho_map,'cubic')
+	rhot = rhof(sim.psin)
+	try:
+		sim.load_kin_profile()
+		sim.make_init_current(sim.hager_mapf)
+	except:
+		pass
+	sim.read_hagermap(sim.hager_mapf)
+	sim.interpol()
+
+	if not (sim.simple_run):
+		sim.bs_tor_calc()
+		zjzpar = sim.zjz_parf(sim.psin)
+	else:
+		f4 = open('CHEASE/JPAR')
+		f4.readline()
+		num = int(float(f4.readline()))
+
+		dat = np.zeros(shape=(num,2))
+
+		for i in range(num):
+			line = f4.readline().split()
+
+			dat[i,0] = float(line[0])
+			dat[i,1] = float(line[1])
+
+		f4.close()
+
+		zjzparf = interp1d(dat[:,0],dat[:,1],'cubic')
+		zjzpar = zjzparf(sim.psin)
+
+	
+	for i in range(sim.num):
+		f.write('%9.6e\t%9.6e \n'%(rhot[i],abs(zjzpar[i]/(sim.eq.bcentr * 1.e6 / sim.rc[-1] / sim.f[i] / (sim.gm1[i])))))
+
+	f.close()
+	print('>>> ASTRA J constraint --> ASTRA_CONST')
+
+if sim.nubeam_run:	rmtree('NUBEAM')
+
+copyfile(sim.chease_rundir+'/EQDSK_COCOS_02.OUT','OUTPUT/EQDSK_OUT')
+print('>>> EQDSK file --> EQDSK_OUT')
+if not (sim.map_mode.lower() == 'none'):
+	print('>>> Mapping file --> %s'%sim.chease_rundir)
+print('\n>>> Run finished!')	

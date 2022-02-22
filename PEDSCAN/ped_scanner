@@ -1,0 +1,149 @@
+#!/usr/local/anaconda3/bin/python3
+import os, sys
+import pedscan
+import fittool
+import matplotlib.pyplot as plt
+import subprocess
+from exec_dirs import python3_exec,pedscane_dir2
+
+scan_opt = 'scan_opt'
+run_opt = None
+
+try:
+	scan_opt = sys.argv[2]
+except:
+	pass
+try:
+	run_opt = sys.argv[1]
+except:
+	pass
+try:
+	nh_target = float(sys.argv[3])
+	nw_target = float(sys.argv[4])
+except:
+	pass
+
+if (run_opt == None):
+	print('Command should include [run_option] [option_file]')
+	print('Available run_option: run, plot, collect, make, clear, fitting')
+
+if (run_opt == None):
+	print('No run option is selected')
+	exit()
+
+if (run_opt.lower() == 'run'):
+	os.system(python3_exec + ' ' + pedscane_dir2 + ' ' + scan_opt)
+
+elif (run_opt.lower() == 'plot'):
+
+#	ped.collect_data()
+	ped = pedscan.pedscan()	
+	ped.analyse_data('result.dat')
+	ped.draw_plot(True)
+
+elif (run_opt.lower() == 'collect'):
+
+	ped = pedscan.pedscan()
+	ped.collect_data()
+	exit()
+
+elif (run_opt.lower() == 'make'):
+
+	ped = pedscan.pedscan()
+	ped.make_target_prof(nh_target,nw_target)
+	print('Profile is generated')
+
+elif (run_opt.lower() == 'clear'):
+	ped = pedscan.pedscan(scan_opt,True)
+	ped.clear_data()
+	
+isfile = os.path.isfile('chease_opt')	
+	
+if (run_opt.lower() == 'fitting'):
+
+	if not (isfile):
+		print('No chease_opt file')
+		exit()
+	fit = fittool.fit_tool('chease_opt')
+	re_run = True
+
+	while re_run:
+		fit.read_namelist()
+		fit.main_run()
+		fit.draw_plot()
+		redoask = True	
+	
+		while redoask:
+			redo = input('Re do fitting? (y/n) ')
+			if (redo.lower() == 'y' or redo.lower() == 'yes'):
+				re_run = True
+				redoask = False
+				edit_run = True
+				a = subprocess.Popen(['emacs','fit_opt'])
+				print('Edit finished (y/n) ?')
+				while edit_run:
+					edit = input()
+					if (edit.lower() == 'y' or edit.lower() == 'yes'):
+						edit_run = False
+			
+			elif (redo.lower() == 'n' or redo.lower() == 'no'):
+				re_run = False
+				redoask = False
+	
+if (run_opt.lower() == 'make'):
+	if isfile:
+		fit = fittool.fit_tool('chease_opt')
+	else:
+		fit = fittool.fit_tool('none')
+	fit.den_scale()
+	fig, (ax1,ax2,ax3) = plt.subplots(1,3,figsize=(16,4))
+	fig.subplots_adjust(left=0.07, right=0.985, top=0.9, bottom=0.06)
+	fig.canvas.set_window_title('Fitting result')
+	
+	try:
+		f = open('PROFILES/scaled_factor','r')
+		line = float(f.readline())
+		f.close()
+		dscale = line
+	except:
+		scale = 1.0
+
+	ax1.set_title('TE [keV]')
+	ax1.set_xlabel('psin [a.u]')
+	ax1.set_ylabel('TE [keV]')
+	ax1.plot(fit.psink,fit.tek,'orange')
+	ax1.plot(ped.psin2,ped.te2,'r')
+	if not (fit.te_dat_file == None):
+		ax1.scatter(fit.te_datx,fit.te_daty,c='g',marker='+')
+		ax1.legend(('fitted','adjusted','raw data'))
+	else:
+		ax1.legend(('fitted','adjusted'))
+
+	ax3.set_title('TI [keV]')
+	ax3.set_xlabel('psin [a.u]')
+	ax3.set_ylabel('TI [keV]')
+	ax3.plot(fit.psink,fit.tik,'orange')
+	ax3.plot(ped.psin,ped.ti,'r')
+
+	if not (fit.ti_dat_file == None):
+		ax3.scatter(fit.ti_datx,fit.ti_daty,c='g',marker='+')
+		ax3.legend(('fitted','adjusted','raw data'))
+	else:
+		ax3.legend(('fitted','adjusted'))
+
+	ax2.set_title('NE [10(19)/m3]')
+	ax2.set_xlabel('psin [a.u]')
+	ax2.set_ylabel('NE [10(19)/m3]')
+	ax2.plot(fit.psink,fit.nek,'orange')
+	ax2.plot(ped.psin2,ped.ne2,'r')
+	if not (fit.ne_dat_file == None):
+		ax2.scatter(fit.ne_datx,fit.ne_daty*dscale,c='g',marker='+')
+		ax2.legend(('fitted','adjusted','raw data'))
+	else:
+		ax2.legend(('fitted','adjusted'))
+	
+	plt.show(block=False)
+	input()
+		
+print('Run finished')
+

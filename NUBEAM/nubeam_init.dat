@@ -1,0 +1,17 @@
+  !! This file contains non-default values of initialization inputs
+  !! to NUBEAM, in namelist format.
+  !!      LOGICAL variables mapped to INTEGER: 1=TRUE; 0=FALSE
+  
+ &NBI_INIT
+  
+  ! NOTE: driver may want option to automatically reset RNG seed on each run **
+
+  nseed = 1094088621
+  nptcls = 10000
+  nptclf = 10000
+  wghta = 20.0
+  nltest_output = 1
+  lev_nbidep = 1
+  nsigexc = 1
+  nmcurb = 3
+ /

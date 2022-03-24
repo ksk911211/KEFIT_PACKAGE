@@ -44,8 +44,7 @@ class kstar_density_tool:
 			tnow += self.note_in['DTIME']		
 
 		self.profiles['gtime'] = np.copy(self.profiles['times'])
-		if self.note_in['GFLAG'] == 1: elist = self.out_mag;
-		elif self.note_in['GFLAG'] == 2: elist = self.out_mse;
+		if self.note_in['GFLAG']>= 1: elist = self.efit_list['times'][self.note_in['GFLAG']];
 		else: elist = self.out_rt1;
 		for i in range(len(self.profiles['times'])):
 			tt = self.profiles['times'][i]
@@ -183,16 +182,13 @@ class kstar_density_tool:
 		self.tmin = tmin*1000.; self.tmax = tmax*1000.;
 		print('>>> Load EFIT...')
 
-		efitok = False; self.out_mag=None; self.out_mse=None; self.out_rt1=None
+		efitok = False; self.out_rt1=None
 		if self.note_in['GFLAG'] > 0:
-			ok,year = get_year(self.note_in['SHOTN'])
 			self.out_rt1 = None
-			if ok==1: self.out_mag,self.out_mse = get_efit_list(year,self.note_in['SHOTN'])
-			else: return
-			if (not self.out_mag == None and self.note_in['GFLAG'] == 1): print('>>> EFIT01 avail.'); efitok=True
-			else: print('>>> No EFITs, exit!');
-			if (not self.out_mse == None and self.note_in['GFLAG'] == 2): print('>>> EFIT02 avail.'); efitok=True
-			else: print('>>> EFIT02 unavail.');
+			self.efit_list = get_efit_list2(self.note_in['SHOTN'])
+			for i in range(1,5): 
+				if (self.efit_list['isefit'][i] and not efitok): efitok = True
+
 		else:
 			currdir = os.getcwd()
 			if not os.path.isdir('GFILES/RT1'): os.mkdir('GFILES/RT1')
@@ -325,7 +321,7 @@ class kstar_density_tool:
 	def _get_gfiles(self):
 
 		print('>>> Download GFILES')
-		GFLAG = ['RT1','EFIT01','EFIT02']
+		GFLAG = ['RT1','EFIT01','EFIT02','EFIT03','EFIT04','EFIT05']
 		tlen = len(self.profiles['times'])
 		for flag in GFLAG:
 			if not os.path.isdir('GFILES/%s'%flag): os.mkdir('GFILES/%s'%flag);
@@ -333,15 +329,14 @@ class kstar_density_tool:
 		efit_dir = 'GFILES/%s'%GFLAG[self.note_in['GFLAG']]
 		shot = self.note_in['SHOTN']
 
-		if self.note_in['GFLAG'] == 1: flag = 'mag'; self.profiles['GFLAG'] = 'EFIT01'
-		elif self.note_in['GFLAG'] == 2: flag = 'mse'; self.profiles['GFLAG'] = 'EFIT02'
+		if self.note_in['GFLAG'] >= 1: self.profiles['GFLAG'] = 'EFIT%02i'%self.note_in['GFLAG']
 		else: self.profiles['GFLAG'] = 'EFITRT1'
 
 		if self.note_in['GFLAG'] > 0:	
 			for years in shotk.keys():
 				if ((shot-shotk[years]['shot'][0])*(shot-shotk[years]['shot'][-1])) < 0:
 					tyear = years; break;
-			efitdir = efit_source_dir + shotk[tyear][flag] + 'EXP%06i/'%shot
+			efitdir = self.efit_list['dirs'][self.note_in['GFLAG']]
 			fileline = ''; prevt = -1;
 			for i in range(tlen):
 				ttime = self.profiles['times'][i]

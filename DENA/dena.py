@@ -1754,16 +1754,16 @@ class kstar_density_tool:
 #			self.fit.param['ne']['val'][0] = max(min_ped * 0.4,0.4)
 #			self.fit.param['ne']['max'][0] = 1.2
 			self.fit.fit_opt['sep_val']['ne'] = max(min_ped * 0.3,0.1)
-			self.fit.fit_opt['width_fix']['ne'] = False
+			self.fit.fit_opt['width_fix']['ne'] = True #False
 			self.fit.fit_opt['width_val']['ne'] = wid_ped
 			self.fit.param['ne']['min'][2] = wid_ped*0.5
 			self.fit.param['ne']['val'][2] = wid_ped
 			self.fit.param['ne']['max'][2] = wid_ped*1.5
-			self.fit.param['ne']['vary'][2] = True
+			self.fit.param['ne']['vary'][2] = False #True
 			self.fit.param['ne']['min'][4] = 1.1
-			self.fit.param['ne']['max'][4] = 2.7 #2.2
+			self.fit.param['ne']['max'][4] = 2.2 #2.7 #2.2
 			self.fit.param['ne']['min'][5] = 1.1
-			self.fit.param['ne']['max'][5] = 2.7 #2.2
+			self.fit.param['ne']['max'][5] = 2.2 #2.7 #2.2
 			self.fit.param['ne']['min'][1] = max((min_ped- self.fit.fit_opt['sep_val']['ne']) / 2. / np.tanh(1),0.1)
 		else:
 #			self.fit.fit_opt['sep_fix']['ne'] = True

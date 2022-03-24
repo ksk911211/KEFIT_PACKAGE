@@ -24,7 +24,7 @@ shotk['2018']['shot'] = range(19815,21760)
 shotk['2019']['shot'] = range(21761,24080)
 shotk['2020']['shot'] = range(24180,27400)
 shotk['2021']['shot'] = range(27401,31000)
-shotk['2022']['shot'] = range(31001,36000)
+shotk['2022']['shot'] = range(31001,35000)
 for year in years:
       for efit_no in range(1,6):
               shotk[year][efit_no] = '/EFIT_RUN/EFITDATA_%s/EFIT%02i'%(year,efit_no)

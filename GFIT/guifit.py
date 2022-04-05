@@ -749,10 +749,14 @@ class guifittool:
 			line = line + '$y = y + a_4(1 - (\\frac{x}{a7-a_3/2})^{a_5})^{a_6}$'
 			line = line + '\n'
 		elif self.note_fn['func_type']['etc'].get().lower() == 'spline':
-			line = 'Smoothed Cubic SPLINE\n\n\n'
+			line = 'Smoothed Cubic SPLINE\n'
+			line = line + 'S-Factor = VALUE\n\n'
+		elif self.note_fn['func_type']['etc'].get().lower() == 'spline2':
+			line = 'Smoothed Cubic SPLINE approximation\n'
+			line = line + 'S-Factor = 1.-10**(-VALUE)\n\n'
 		else:   
 			line = 'Cubic SPLINE with \n'
-			line = line + 'Optimized knots \n\n'
+			line = line + 'Optimized #(VALUE) knots \n\n'
 
 		ax.text(-0.12,0.,line,color='b')
 
@@ -2383,7 +2387,7 @@ class guifittool:
 		self.post_opt   = dict()
 
 		self.fit.prof_list = ['te','ne','ti','vt']
-		self.func_list = ['CORE','MTANH','PTANH','EPED','SPLINE','EPED2','NSPLINE']
+		self.func_list = ['CORE','MTANH','PTANH','EPED','SPLINE','EPED2','NSPLINE','SPLINE2']
 		self.initialise_opt = True
 		self.didfit = False
 		self.plot_type = 0
@@ -2584,8 +2588,12 @@ class guifittool:
 		return var2
 
 	def transfer_float(self,var1,g2f):
-		if g2f: var2 = float(var1.get())
-		else: var2 = '%5.2f'%var1
+		if g2f: 
+			var2 = float(var1.get())
+		else: 
+			if (np.isinf(var1) or np.isnan(var1)): var2 = '%s'%var1
+			elif int(var1) == var1: var2 = '%i'%var1	
+			else: var2 = '%5.2f'%var1
 		return var2		
 
 	def transfer_name(self,var1,g2f):
@@ -2648,7 +2656,7 @@ class guifittool:
 			self.fit.fit_opt['width_fix'][i]     = self.transfer_logic(self.note_fn['width_fix'][i],True)
 			self.fit.fit_opt['width_val'][i]     = self.transfer_float(self.note_fn['width_val'][i],True)
 			self.fit.fit_opt['raw_fit'][i]       = self.transfer_logic(self.note_fn['raw_fit'][i],True)
-			self.fit.fit_opt['sspline_order'][i] = self.transfer_int(self.note_fn['smooth'][i],True)
+			self.fit.fit_opt['sspline_order'][i] = self.transfer_float(self.note_fn['smooth'][i],True)
 
 			self.fit.fit_opt['file'][i]['kfile'] = self.transfer_name(self.note_in['file']['kfile'][i],True)
 			count = 0;
@@ -2764,7 +2772,7 @@ class guifittool:
 
 			self.note_in['file']['kfile'][flag].set(self.transfer_name(self.fit.fit_opt['file'][flag]['kfile'],False))
 			self.note_fn['use_rho'][flag].set(self.transfer_logic(self.fit.fit_opt['use_rho'][flag],False))
-			self.note_fn['smooth'][flag].set(self.transfer_int(self.fit.fit_opt['sspline_order'][flag],False))			
+			self.note_fn['smooth'][flag].set(self.transfer_float(self.fit.fit_opt['sspline_order'][flag],False))			
 
 			for k in self.fit.__dict__['%s_list'%flag]:
 				self.note_in['file'][flag][k].set(self.transfer_name(self.fit.fit_opt['file'][flag][k],False))
@@ -3063,14 +3071,14 @@ class guifittool:
 			for i in range(4):
 				flag = self.fit.prof_list[i]
 				func_type = self.note_fn['func_type'][flag].get().lower()
-				if not (func_type == 'core' or func_type == 'spline' or func_type == 'nspline'):
+				if not (func_type == 'core' or func_type == 'spline' or func_type == 'nspline' or func_type == 'spline2'):
 					if ped_fix[flag]['fixe']: 
 						self.note_fn['width_fix'][flag].set(1)
 						self.note_fn['e%i'%(i+5)].delete(0,'end')
 						self.note_fn['e%i'%(i+5)].insert(10,self.__dict__['note_%s'%flag]['e%i'%(3*ped_fix[flag]['ind']-2)].get())
 					else: self.note_fn['width_fix'][flag].set(0)
 
-				if not (func_type == 'spline' or func_type == 'nspline'):
+				if not (func_type == 'spline' or func_type == 'nspline' or func_type == 'spline2'):
 					if self.__dict__['note_%s'%flag]['param']['a1']['fix'].get() == 1:
 						self.note_fn['sep_fix'][flag].set(1)
 						self.note_fn['e%i'%(i+1)].delete(0,'end')
@@ -3087,7 +3095,7 @@ class guifittool:
 			
 			for flag in tlist:
 				func_type = self.note_fn['func_type'][flag].get().lower()		
-				if not (func_type == 'core' or func_type == 'spline' or func_type == 'nspline'):
+				if not (func_type == 'core' or func_type == 'spline' or func_type == 'nspline' or func_type == 'spline2'):
 					self.__dict__['note_%s'%flag]['c%i'%(ped_fix[flag]['ind'])].configure(state='normal')
 					self.__dict__['note_%s'%flag]['e%i'%(3*ped_fix[flag]['ind']-2)].configure(state='normal')
 					self.__dict__['note_%s'%flag]['e%i'%(3*ped_fix[flag]['ind']-1)].configure(state='normal')
@@ -3105,7 +3113,7 @@ class guifittool:
 					elif (ped_fix[flag]['fix'] == 1): self.__dict__['note_%s'%flag]['param']['a%i'%(ped_fix[flag]['ind'])]['fix'].set(1)
 					else: self.__dict__['note_%s'%flag]['param']['a%i'%(ped_fix[flag]['ind'])]['fix'].set(0)
 
-				if not (func_type == 'spline' or func_type == 'nspline'):
+				if not (func_type == 'spline' or func_type == 'nspline' or func_type == 'spline2'):
 					self.__dict__['note_%s'%flag]['c1'].configure(state='normal')
 					self.__dict__['note_%s'%flag]['e1'].configure(state='normal')
 					self.__dict__['note_%s'%flag]['e2'].configure(state='normal')

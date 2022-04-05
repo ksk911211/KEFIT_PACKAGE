@@ -24,7 +24,7 @@ shotk['2018']['shot'] = range(19815,21760)
 shotk['2019']['shot'] = range(21761,24080)
 shotk['2020']['shot'] = range(24180,27400)
 shotk['2021']['shot'] = range(27401,31000)
-shotk['2022']['shot'] = range(31001,35000)
+shotk['2022']['shot'] = range(31001,36000)
 for year in years:
       for efit_no in range(1,6):
               shotk[year][efit_no] = '/EFIT_RUN/EFITDATA_%s/EFIT%02i'%(year,efit_no)
@@ -58,8 +58,8 @@ python3_exec = '/usr/local/anaconda3/bin/python3'
 pythonc_exec = python3_exec
 
 ##---python scripts
-python_home  = '/home/ksk911211/PYTHON/KEFIT_py/'
-#python_home  = '/usr/local/analysis/KEFIT/'
+#python_home  = '/home/ksk911211/PYTHON/KEFIT_py/'
+python_home  = '/usr/local/analysis/KEFIT/'
 #chease
 chease_dir    = python_home+'/CHEASE/chease'
 #nubeam

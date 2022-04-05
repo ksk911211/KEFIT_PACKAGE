@@ -1,0 +1,11 @@
+#!/usr/local/anaconda3/bin/python3
+import os, sys
+
+try: flag = int(sys.argv[1])
+except: flag = 3
+
+if flag==2: comm ='/usr/local/analysis/KEFIT/OLD_VERSION/GEFIT/gefit.py'
+elif flag==3: comm ='/usr/local/analysis/KEFIT/GEFIT/gefit.py'
+else: exit()
+print('>>> Run gefit%s'%flag)
+os.system(comm)

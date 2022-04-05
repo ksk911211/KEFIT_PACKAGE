@@ -1,0 +1,11 @@
+#!/usr/local/anaconda3/bin/python3
+import os, sys
+
+try: flag = int(sys.argv[1])
+except: flag = 3
+
+if flag==2: comm ='/usr/local/analysis/KEFIT/OLD_VERSION/GFIT/guifit.py'
+elif flag==3: comm ='/usr/local/analysis/KEFIT/GFIT/guifit.py'
+else: exit()
+print('>>> Run gfit%s'%flag)
+os.system(comm)

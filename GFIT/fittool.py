@@ -11,6 +11,7 @@ from progress import *
 from exec_dirs import dummy_dir
 import matplotlib.pyplot as plt
 import fit_checkfile
+from csaps import csaps
 import pickle
 import lmfit
 import eqdsk
@@ -804,7 +805,7 @@ class fit_tool:
 			else: self.lmfit_set_param(self.param[flag],6,0.05,0.03,0.1,True)	
 			self.lmfit_set_param(self.param[flag],7,0.98,0.88,1.04,True)
 
-		if (fit_type == 4 or fit_type == 8):
+		if (fit_type == 4 or fit_type == 9):
 			if (flag == 'te' or flag == 'ti'):
 				self.lmfit_set_param(self.param[flag],1,0.15,0.05,0.3,True)
 				self.lmfit_set_param(self.param[flag],2,0.5,0.15,5.0,True)
@@ -898,7 +899,7 @@ class fit_tool:
 #			else:
 #				self.lmfit_set_param(self.param[flag],6,None, None,None,True)
 
-		elif (fit_type == 4 or fit_type == 8):
+		elif (fit_type == 4 or fit_type == 9):
 			if (fixed_sep):
 				self.lmfit_set_param(self.param[flag],1,sep, None,None,False)
 			else:
@@ -998,7 +999,7 @@ class fit_tool:
 		elif (fit_type==3):func = self.tanh_prof
 		elif (fit_type==4):func = self.eped_prof
 		elif (fit_type==6):func = self.eped_prof2
-		elif (fit_type==8):func = self.eped_prof3
+		elif (fit_type==9):func = self.eped_prof3
 
 		if not use_raw:
 			if not self.post['iskfile']: use_raw = True
@@ -1080,7 +1081,7 @@ class fit_tool:
 
 		nch = nch + 1
 
-		if (fit_type == 5 or fit_type == 7):
+		if (fit_type == 5 or fit_type == 7 or fit_type == 8):
 			if (sspline == -1): 
 				if fit_type==5: sspline = len2
 				else: sspline = 5
@@ -1110,10 +1111,11 @@ class fit_tool:
 			xx = xx[ind]
 			yy = yy[ind]
 			ss = ss[ind]
-			if fit_type == 7: sspline = min(5,sspline)
+			if fit_type == 7: sspline = min(5,int(sspline))
 			kth=3
 			if fit_type == 5: sfit = smoothspline(xx,yy,w=ss,s=sspline)		# Do spline
 			if fit_type == 7: sfit = self.spline_fit(xx,yy,ss,max(sspline,1),k=kth)
+			if fit_type == 8: sfit = self.csaps_fit(xx,yy,ss,max(sspline,1))			
 
 			self.post['popt'][flag] = np.ones(6)
 			self.__dict__['%s_prof'%flag]['fit1'] = sfit(self.fit_eq['psin1'])
@@ -1138,7 +1140,8 @@ class fit_tool:
 						self.__dict__['%s_prof'%flag]['fit2'][i] = 0.e0
 				except: pass
 
-			self.post['chi'][flag] = sfit.get_residual()/len2
+			if fit_type < 8: self.post['chi'][flag] = sfit.get_residual()/len2
+			else: self.post['chi'][flag] = 1.
 			self.post['popte'][flag] = np.zeros(10)
 			if fit_type == 7:
 				line = '%7.3f'%0.
@@ -1163,7 +1166,7 @@ class fit_tool:
 		elif fit_type==3: FIT_FUNC = 'PTANH'
 		elif fit_type==4: FIT_FUNC = 'EPED'
 		elif fit_type==6: FIT_FUNC = 'EPED2'
-		elif fit_type==8: FIT_FUNC = 'EPED3'
+		elif fit_type==9: FIT_FUNC = 'EPED3'
 
 		self.post['popte'][flag] = np.zeros(10)
 
@@ -1327,6 +1330,24 @@ class fit_tool:
 		yff = lspline(datx[ind],daty[ind],self.spline_knots,w=datw[ind],bbox=[0.,1.05],ext=3,k=k)
 
 		return yff
+
+	def csaps_fit(self,datx,daty,datw,sfactor=5):
+		smooth = 1. - 10**(-sfactor)
+
+		xx2 = np.linspace(0.,1.4,1401)
+		yy2 = np.copy(xx2)
+		xx  = np.linspace(min(datx),max(datx),401)
+		yy  = csaps(datx,daty,xx,weights=datw, smooth=smooth)
+		yyf = interp1d(xx,yy,'cubic')
+		d1  = (yy[1]-yy[0])/(xx[1]-xx[0])
+		d2  = (yy[-1]-yy[-2])/(xx[-1]-xx[-2])
+		for i in range(1401):
+			if xx2[i] <= xx[0]:  yy2[i] = d1*(xx2[i]-xx[0])+yy[0]
+			elif xx2[i]>=xx[-1]: yy2[i] = d2*(xx2[i]-xx[-1])+yy[-1]
+			else: yy2[i] = yyf(xx2[i])
+			if yy2[i] <0.01: yy2[i] = 0.01
+		yyf2 = interp1d(xx2,yy2,'cubic')
+		return yyf2
 		
 	def write_chease_rot(self):
 		
@@ -2409,8 +2430,8 @@ class fit_tool:
 		# -- variable list
 		self.prof_list  = ['te','ne','ti','vt']
 		self.inter_list = ['int01','int02','tci01','tci02','tci03','tci04','tci05']
-		self.func_list  = ['core','mtanh','ptanh','eped','spline','eped2','nspline','eped3']
-		self.func_varn  = [4, 8, 7, 6, 0, 7,0,6]
+		self.func_list  = ['core','mtanh','ptanh','eped','spline','eped2','nspline','spline2','eped3']
+		self.func_varn  = [     4,      8,      7,     6,       0,      7,        0,        0,      6]
 		self.func       = dict()
 		self.ne_list    = ['ts','tse','refl']
 		self.te_list    = ['ts','tse','ece']

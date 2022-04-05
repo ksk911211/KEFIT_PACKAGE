@@ -1,14 +1,1 @@
-#!/usr/local/anaconda3/bin/python3
-import os,sys
-from exec_dirs import chease_dir, author, version
-
-try:	filename=sys.argv[1]
-except:	
-	print('No input!')
-	exit()
-
-
-print('>>> %s <<<'%author['bs2kstar'])
-print('>>> Version %s '%version['bs2kstar'])
-
-os.system(chease_dir+' '+filename)
+../BS2K/bs2kstar

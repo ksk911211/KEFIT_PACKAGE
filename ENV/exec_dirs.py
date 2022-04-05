@@ -138,11 +138,11 @@ comment['eped']       = 'Bug report: sk42@princeton.edu'
 comment['fgefit']     = '||                Bug report: sk42@princeton.edu               ||'
 
 version = dict()
-version['eped']       = '1.1'
+version['eped']       = '1.0'
 version['gfit']       = '3.2' #3.2 new sspline #3.1 dena is merged
-version['chease']     = '2.3' #2.3 neo-file
-version['jatool']     = '1.6' #1.5 jedge included
-version['pedscanner'] = '1.2'
+version['chease']     = '2.1' #2.1 neo-file
+version['jatool']     = '1.1' #1.1 jedge included
+version['pedscanner'] = '1.0'
 version['gfitp']      = '2.0' #2.0 updated for gefit 3.0
 version['gefit']      = '3.1' #3.0->3.1 pfile convertor
 version['bs2kstar']   = '1.0'

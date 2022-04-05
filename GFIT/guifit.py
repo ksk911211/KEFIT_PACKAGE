@@ -751,7 +751,7 @@ class guifittool:
 		elif self.note_fn['func_type']['etc'].get().lower() == 'spline':
 			line = 'Smoothed Cubic SPLINE\n'
 			line = line + 'S-Factor = VALUE\n\n'
-		elif self.note_fn['func_type']['etc'].get().lower() == 'spline2':
+		elif self.note_fn['func_type']['etc'].get().lower() == 'spline2': #New sspline from v3.2
 			line = 'Smoothed Cubic SPLINE approximation\n'
 			line = line + 'S-Factor = 1.-10**(-VALUE)\n\n'
 		else:   

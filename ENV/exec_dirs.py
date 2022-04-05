@@ -139,7 +139,7 @@ comment['fgefit']     = '||                Bug report: sk42@princeton.edu       
 
 version = dict()
 version['eped']       = '1.1'
-version['gfit']       = '3.1' #3.1 dena is merged
+version['gfit']       = '3.2' #3.2 new sspline #3.1 dena is merged
 version['chease']     = '2.3' #2.3 neo-file
 version['jatool']     = '1.6' #1.5 jedge included
 version['pedscanner'] = '1.2'

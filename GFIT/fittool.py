@@ -1331,7 +1331,7 @@ class fit_tool:
 
 		return yff
 
-	def csaps_fit(self,datx,daty,datw,sfactor=5):
+	def csaps_fit(self,datx,daty,datw,sfactor=5): #new smooth spline
 		smooth = 1. - 10**(-sfactor)
 
 		xx2 = np.linspace(0.,1.4,1401)

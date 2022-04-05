@@ -2,29 +2,75 @@
 Official Version 3.1
 
 ## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+This python package requires following libraries.
+Find in github
+-lmfit
+-csaps
+
+It also requires source codes.
+-MISHKA/ELITE[official ver]
+-CHEASE/HELENA[customized ver]
+-NUBEAM[official ver]
+
+All enviromental variables are stored in
+-ENV/exec_dirs.py
+
+Execute install.sh to produce links for all executables.
 
 ## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+For KSTAR plasma, dedicated to reproducing Kinetic-profile/EFIT and ideal pedestal stability analysis.
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+## Authors and Support
+SangKyeun Kim: sk42@princeton.edu
+HyunSeok Kim: hskim0618@kfe.re.kr
+BoSeong Kim: bobokim@snu.ac.kr
+Changyoung Lee: leecyid@snu.ac.kr
+SeongMoo Yang: syang@pppl.gov
 
 ## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
+Extending/optimizing the capabilities for KSTAR diagnostics and stability runs.
 
 ## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+Updated from KSTAR 2022 campaign
+
+#BS2K
+-Ver 1.0: BS current generator
+
+#CEHASE
+-Ver 1.0: Initial python chease wrapper with current models.
+-Ver 2.0: NUBEAM routine is added.
+-Ver 2.1: Reproduce/output neoclassical variables
+
+#DENA
+-Ver 1.0: Density fit using interferometers 
+-Ver 1.1: General EFIT schemes are launched 
+-Ver 1.2: Improved scaler/ and pre-run reading subroutines
+
+#EPED
+-Ver 1.0: Gui-based EPED
+
+#ERGEN
+-Ver 1.0: Er generator
+
+#FGEFIT
+-Ver 1.0: Forced brutal kEFIT tool
+
+#GEFIT
+-Ver 1.0: Gui-based EFIT tool
+-Ver 2.0: Synthetic MSE + RMP compensation added.
+-Ver 3.0: Improved MDS loader + general EFIT schemes
+-Ver 3.1: Pfile generator
+
+#GFIT
+-Ver 1.0: Single channel based fitting tool
+-Ver 2.0: Extended fitting functions
+-Ver 3.0: Multi channel based fitting
+-Ver 3.1: DENA merged
+-Ver 3.2: New smooth spline scheme using CSPAS
+
+#JASTAB
+-Ver 1.0: Gui-based ideal pedestal stability tool
+-Ver 1.1: Jedge is added.
+
+#PEDSCAN
+-Ver 1.0: Gui-based pedestal modifier

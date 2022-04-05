@@ -18,7 +18,7 @@ GECE=../GFIT/gfit_ece_multi.py
 KNOT=../ENV/knots_tool3.py
 MMDS=../MDS/multi_mds.py
 AEFIT=../EFIT/aeqdsk.py
-CSAPS=../csaps-master/csaps/
+CSAPS=../CSAPS/csaps/
 
 cd bin
 chmod 777 gefit gfit
@@ -54,6 +54,7 @@ cd ../
 cd DENA
 chmod 777 denaf.py dena.py rdenaf.py rdena.py
 rm -f eqdsk.py exec_dirs.py fit_checkfile.py fittool.py get_efit.py MDS.py progress.py rtefit.py
+rm -rf csaps
 ln -s $EFIT 
 ln -s $EXEC 
 ln -s $FCHK 
@@ -62,6 +63,7 @@ ln -s $GEFIT
 ln -s $MDS 
 ln -s $PROG 
 ln -s $REFIT
+ln -s $CSAPS
 cd ../
 
 cd EFIT
@@ -126,6 +128,7 @@ cd GFIT
 chmod 777 gfitp.py guifit.py read_pfile.py TS_NE_dummy.dat
 rm -f batch_run.py ch_tool.py csaps eqdsk.py exec_dirs.py gefit_mse.py gefit_tool.py get_efit.py 
 rm -f knots_tool3.py MDS.py multi_mds.py progress.py
+rm -rf csaps
 ln -s $BATCH
 ln -s $CHTOO
 ln -s $CSAPS
@@ -174,6 +177,7 @@ cd ../
 cd PEDSCAN
 chmod 777 gui_pedscan.py ped_scanner
 rm -f batch_run.py ch_tool.py eqdsk.py exec_dirs.py fit_checkfile.py fittool.py nodelist.py progress.py read_namelist.py
+rm -rf csaps
 ln -s $BATCH
 ln -s $CHTOO
 ln -s $EFIT
@@ -183,4 +187,5 @@ ln -s $FIT
 ln -s $NODE
 ln -s $PROG
 ln -s $NAME
+ln -s $CSAPS
 cd ../

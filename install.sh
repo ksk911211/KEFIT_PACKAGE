@@ -22,7 +22,7 @@ CSAPS=../CSAPS/csaps/
 
 cd bin
 chmod 777 gefit gfit
-rm -f aeqdsk bs2k dena denaf rdena rdenaf reqdsk fgefit gped pchease ercal gjastab readp
+rm -f aeqdsk bs2k dena denaf rdena rdenaf reqdsk fgefit gped pchease ercal gjastab readp gfitp
 ln -s ../GEFIT/aeqdsk.py aeqdsk
 ln -s ../BS2K/bs2kstar bs2k
 ln -s ../DENA/dena.py dena
@@ -36,6 +36,7 @@ ln -s ../CHEASE/chease pchease
 ln -s ../ERGEN/ercal.py ercal
 ln -s ../JASTAB/gui_jastab.py gjastab
 ln -s ../GFIT/read_pfile.py readp
+ln -s ../GFIT/gfitp.py gfitp
 cd ../
 
 cd BS2K

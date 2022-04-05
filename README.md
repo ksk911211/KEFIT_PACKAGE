@@ -6,6 +6,7 @@ This python package requires following libraries.
 Find in github
 -lmfit
 -csaps
+[MIT License Copyright (c) 2017 Eugene Prilepin]
 
 It also requires source codes.
 -MISHKA/ELITE[official ver]

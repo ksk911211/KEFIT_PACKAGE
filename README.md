@@ -4,9 +4,8 @@ Official Version 3.1
 ## Installation
 This python package requires following libraries.<br />
 Find in github<br />
--lmfit<br />
--csaps<br />
-[MIT License Copyright (c) 2017 Eugene Prilepin]<br />
+-lmfit [Copyright 2021, Matthew Newville, Till Stensitzki, Renee Otten, and others.]<br />
+-csaps [MIT License Copyright (c) 2017 Eugene Prilepin]<br />
 <br />
 It also requires source codes.<br />
 -MISHKA/ELITE[official ver]<br />

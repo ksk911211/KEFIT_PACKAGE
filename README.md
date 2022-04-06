@@ -1,5 +1,6 @@
 ## KEFIT_PACK
-Official Version 3.1
+Python package for KSTAR profile and equilibrium recontruction.<br />
+Official Version 3.
 
 ## Installation
 This python package requires following libraries.<br />
@@ -31,7 +32,9 @@ SeongMoo Yang: syang@pppl.gov<br />
 Extending/optimizing the capabilities for KSTAR diagnostics and stability runs.
 
 ## Project status
-Updated from KSTAR 2022 campaign<br />
+Before KSTAR 2020 campaign (V.2)<br />
+Updated for KSTAR 2021 campaign (V.3)<br />
+Updated for KSTAR 2022 campaign (V.3.1)<br />
 <br />
 @BS2K<br />
 -Ver 1.0: BS current generator<br />

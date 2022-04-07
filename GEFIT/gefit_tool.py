@@ -270,8 +270,11 @@ def read_comment(sim,filename):
 def save_comment(sim,filename):
 
 	textfile = open(filename,'w')
-	contents = sim.textpad.get('1.0',sim.END)
-	textfile.write(contents)
+	contents = sim.textpad.get('1.0',sim.END).split('\n')
+	nline = len(contents)
+	for i in range(nline-2): textfile.write(contents[i]+'\n')
+	for i in range(2):
+		if not len(contents[nline-2+i])==0: textfile.write(contents[i]+'\n')
 	textfile.close()
 	
 	return

@@ -43,6 +43,7 @@ Updated for KSTAR 2022 campaign (V.3.1)<br />
 -Ver 1.0: Initial python chease wrapper with current models.<br />
 -Ver 2.0: NUBEAM routine is added.<br />
 -Ver 2.1: Reproduce/output neoclassical variables<br />
+-Ver 2.2: 1D zeff and carbon density profiles<br />
 <br />
 @DENA<br />
 -Ver 1.0: Density fit using interferometers <br />

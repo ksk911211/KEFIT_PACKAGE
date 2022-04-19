@@ -98,19 +98,19 @@ class chease:
 		self.tik = np.zeros(self.dat_numk)
 		self.nik = np.zeros(self.dat_numk)
 		self.vtk = np.zeros(self.dat_numk)
-		self.isvt = True	
+		self.nI1k= np.zeros(self.dat_numk)
+		self.isvt = False
+
 		for i in range(self.dat_numk):
 		
 			line = f4.readline().split()
-				
 			self.psink[i] = float(line[0])	
 			self.tek[i] = float(line[1])
 			self.nek[i] = float(line[2])
 			self.tik[i] = float(line[3])
 			self.nik[i] = float(line[4])
-			try: self.vtk[i] = float(line[5])
-			except: self.isvt = False
-
+			if len(line)>5: self.vtk[i] = float(line[5]); self.isvt = True
+			if len(line)>6: self.nI1k[i]= float(line[6]);
 		f4.close()
 		
 		return
@@ -164,7 +164,7 @@ class chease:
 		self.tek = self.read_kinprof_kprofile_fun(self.te_file)/1.e3
 		self.nek = self.read_kinprof_kprofile_fun(self.ne_file)/1.e1
 		self.tik = self.read_kinprof_kprofile_fun(self.ti_file)/1.e3
-
+	
 		if (self.ni_file == None):
 			self.nik = np.copy(self.nek * (1.0 - (self.zeff - 1.0)/self.zimp))
 		else:
@@ -174,6 +174,7 @@ class chease:
 		if not (self.vt_file == None):
 			self.vtk = self.read_kinprof_kprofile_fun(self.vt_file)
 			self.isvt = True
+		self.nI1k= np.zeros(self.dat_numk)
 		return
 
 	def write_kinprof_kprofile(self,prof,name,filename):
@@ -220,6 +221,8 @@ class chease:
 		self.nek = np.zeros(self.dat_numk)
 		self.tik = np.zeros(self.dat_numk)
 		self.nik = np.zeros(self.dat_numk)
+		self.vtk = np.zeros(self.dat_numk)
+		self.nI1k= np.zeros(self.dat_numk)
 		
 		if(self.load_eped_file):
 			self.read_kinprof_eped_fun(self.eped_file)
@@ -245,8 +248,17 @@ class chease:
 			self.nik[i] = self.nek[i] * (1. - (self.zeff-1.0)/self.zimp)
 				
 		self.ped_width = epedf[1,4]
-	
-				
+		return
+
+	def construct_zeff(self):
+
+		self.zeffk = np.zeros(self.dat_numk)
+		if self.nI1k[0] == 0: self.zeffk = np.ones(self.dat_numk) * self.zeff;
+		else:
+			self.zeffk = 1. + (self.zimp-1.)*(self.zimp)*self.nI1k/self.nek
+
+		#reconstruct nik (main+imp)
+		self.nik = (1.-(self.zeffk-1.)/self.zimp) * self.nek;
 		return
 
 	def scale_density(self,not_only_print=True,print_density=True):
@@ -291,16 +303,24 @@ class chease:
 			f.write('%i \n'%self.dat_numk)
 			f.write('%9.6f\t%9.6f\t%9.6f\t%9.6f\n'%(self.zeff,self.zimp,self.amain,self.aimp))
 			for i in range(self.dat_numk):
-				if not self.isvt: f.write('%9.6f\t%9.6f\t%9.6f\t%9.6f\t%9.6f\n'%(self.psink[i],self.tek[i],self.nek[i]*self.scaled_density,self.tik[i],self.nik[i]*self.scaled_density))
-				else: f.write('%9.6f\t%9.6f\t%9.6f\t%9.6f\t%9.6f\t%9.6f\n'%(self.psink[i],self.tek[i],self.nek[i]*self.scaled_density,self.tik[i],self.nik[i]*self.scaled_density,self.vtk[i]))
+				line = '%9.6f\t'%(self.psink[i]);
+				line+= '%9.6f\t'%(self.tek[i]);
+				line+= '%9.6f\t'%(self.nek[i]*self.scaled_density);
+				line+= '%9.6f\t'%(self.tik[i]);
+				line+= '%9.6f\t'%(self.nik[i]*self.scaled_density);
+				line+= '%9.6f\t'%(self.vtk[i]);
+				line+= '%9.6f\n'%(self.nI1k[i]);
+				f.write(line)
 
 			f.close()
 
 		elif (self.kinprof_type == 2):
 			self.write_kinprof_kprofile(self.ne * 1.e1,'Ne [10(18)/m3]','NE.dat_new')
-			self.write_kinprof_kprofile(self.te * 1.e3,'Te [eV]','TE.dat_new')
-			self.write_kinprof_kprofile(self.ti * 1.e3,'ne [eV]','TI.dat_new')
-			if self.isvt: self.write_kinprof_kprofile(self.vt * 1.e0,'VT [km/s]','VT.dat_new')
+			self.write_kinprof_kprofile(self.te * 1.e3,'Te [eV]',       'TE.dat_new')
+			self.write_kinprof_kprofile(self.ti * 1.e3,'Ti [eV]',       'TI.dat_new')
+			self.write_kinprof_kprofile(self.vt * 1.e0,'VT [km/s]',     'VT.dat_new')
+			self.write_kinprof_kprofile(self.nI1* 1.e1,'NI1[10(18)/m3]','NI1.dat_new')
+				
 
 		return
 		
@@ -391,20 +411,20 @@ class chease:
 		
 	def interpol(self,print_density=True):
 
-		nef = interp1d(self.psink,self.nek,'cubic')
-		tef = interp1d(self.psink,self.tek,'cubic')
-		nif = interp1d(self.psink,self.nik,'cubic')
-		tif = interp1d(self.psink,self.tik,'cubic')
+		nef = interp1d(self.psink,self.nek,  'cubic')
+		tef = interp1d(self.psink,self.tek,  'cubic')
+		nif = interp1d(self.psink,self.nik,  'cubic')
+		tif = interp1d(self.psink,self.tik,  'cubic')
+		vtf = interp1d(self.psink,self.vtk,  'cubic')
+		nI1f= interp1d(self.psink,self.nI1k, 'cubic')
+		zef = interp1d(self.psink,self.zeffk,'cubic')
 
-		nef2 = interp1d(self.psink[0:3],self.nek[0:3],'quadratic')
-		tef2 = interp1d(self.psink[0:3],self.tek[0:3],'quadratic')
-		nif2 = interp1d(self.psink[0:3],self.nik[0:3],'quadratic')
-		tif2 = interp1d(self.psink[0:3],self.tik[0:3],'quadratic')
-
-		if self.isvt:
-			vtf = interp1d(self.psink,self.vtk,'cubic')
-		else:
-			vtf = interp1d(self.psink,self.psink)
+		nef2 = interp1d(self.psink[0:3],self.nek[0:3], 'quadratic')
+		tef2 = interp1d(self.psink[0:3],self.tek[0:3], 'quadratic')
+		nif2 = interp1d(self.psink[0:3],self.nik[0:3], 'quadratic')
+		tif2 = interp1d(self.psink[0:3],self.tik[0:3], 'quadratic')
+		vtf2 = interp1d(self.psink[0:3],self.vtk[0:3], 'quadratic')
+		nI12 = interp1d(self.psink[0:3],self.nI1k[0:3],'quadratic')
 		
 		if (self.use_ext_pressure):
 			pres_exf = interp1d(self.psi_ex1,self.pres_ext,'cubic')
@@ -455,6 +475,10 @@ class chease:
 		self.ni = np.zeros(self.num)
 		self.ti = np.zeros(self.num)
 		self.vt = np.zeros(self.num)
+		self.nI1= np.zeros(self.num)
+
+		self.zeffs = np.zeros(self.num)
+
 		self.rav = np.zeros(self.num)
 		self.b02av = np.zeros(self.num)
 		self.bgpb = np.zeros(self.num)
@@ -491,6 +515,8 @@ class chease:
 				self.ti[i] = tif2(psinn)
 
 			self.vt[i] = vtf(psinn)
+			self.nI1[i]= nI1f(psinn)
+			self.zeffs[i]= zef(psinn)
 			self.rav[i] = ravf(psinn)
 			self.b02av[i] = b02avf(psinn)
 			self.bgpb[i] = bgpbf(psinn)
@@ -633,7 +659,7 @@ class chease:
 			vtk = self.read_kinprof_kprofile_fun(self.vt_file)
 			vtkf = interp1d(psink,vtk,'cubic')
 			self.vtk = vtkf(self.psink)
-			self.isvt = True
+		else: self.vtk = np.zeros(self.dat_numk)
 
 		if (self.use_rho and not self.eped_first_run):
 			rhok = np.copy(self.psink)
@@ -647,21 +673,22 @@ class chease:
 			self.tek = self.adjust_kinprof(self.R_mapi,self.psi_mapi,self.R_map,self.psi_map,self.psink,self.tek)
 			self.nik = self.adjust_kinprof(self.R_mapi,self.psi_mapi,self.R_map,self.psi_map,self.psink,self.nik)
 			self.tik = self.adjust_kinprof(self.R_mapi,self.psi_mapi,self.R_map,self.psi_map,self.psink,self.tik)
-			
-			if self.isvt:
-				self.vtk = self.adjust_kinprof(self.R_mapi,self.psi_mapi,self.R_map,self.psi_map,self.psink,self.vtk)
+			self.vtk = self.adjust_kinprof(self.R_mapi,self.psi_mapi,self.R_map,self.psi_map,self.psink,self.vtk)
+			self.nI1k= self.adjust_kinprof(self.R_mapi,self.psi_mapi,self.R_map,self.psi_map,self.psink,self.nI1k)
 				
-		if not(self.eped_first_run):		
-			self.read_hagermap(self.hager_mapf)	
+		if not(self.eped_first_run): self.read_hagermap(self.hager_mapf)	
 			
 		if (self.use_ext_pressure):
 			self.psi_ex1, self.pres_extl, self.pres_extp = self.read_ext_prof(self.pres_file,True)
-			
 			self.pres_ext = np.copy(2.0 / 3.0 * (self.pres_extp + self.pres_extl*0.5))
 			
 		if (self.use_ext_current):
 			self.psi_ex2, self.curr_ext = self.read_ext_prof(self.curr_file)
+
+		if not self.vtk[0]==0: self.isvt = True
+		else: self.isvt = False
 	
+		self.construct_zeff()
 		self.interpol(print_density)
 		
 		return
@@ -703,7 +730,7 @@ class chease:
 				eps_hag = 1.e-8
 			
 			Z1_hag = self.ne[i]/self.ni[i]
-			Z2_hag = self.zeff
+			Z2_hag = self.zeffs[i]
 			Z_hag = np.power((self.zmain**2.0)*Z1_hag*Z2_hag,0.25)
 			self.Z = Z2_hag
 			
@@ -964,8 +991,8 @@ class chease:
 		
 		for i in range(self.num):
 
-			ni = self.ne[i] * (self.zimp - self.zeff) / (self.zimp - 1.0)
-			nI = self.ne[i] * (self.zeff - 1.0) / (self.zimp - 1.0) / self.zimp
+			ni = self.ne[i] * (self.zimp - self.zeffs[i]) / (self.zimp - 1.0)
+			nI = self.ne[i] * (self.zeffs[i] - 1.0) / (self.zimp - 1.0) / self.zimp
 
 			vti = np.sqrt(2.0 * self.ti[i] * 1.e3 * e0 / mi)
 			vtI = np.sqrt(2.0 * self.ti[i] * 1.e3 * e0 / mI)
@@ -1013,8 +1040,8 @@ class chease:
 
 			ne = self.ne[i] * 1.e19
 			te = self.te[i] * 1.e3
-			ni = ne * (self.zimp - self.zeff) / (self.zimp - 1.0)
-			nI = ne * (self.zeff - 1.0) / (self.zimp - 1.0) / self.zimp
+			ni = ne * (self.zimp - self.zeffs[i]) / (self.zimp - 1.0)
+			nI = ne * (self.zeffs[i] - 1.0) / (self.zimp - 1.0) / self.zimp
 			ti = self.ti[i] * 1.e3
 
 			LneeNRL = 24.-0.5*np.log(ne*1.e-6) + np.log(te)
@@ -1039,7 +1066,7 @@ class chease:
 		self.sig = np.zeros(self.num)
 		for i in range(self.num):
 
-			zeff = self.zeff
+			zeff = self.zeffs[i]
 	
 			F33TEF = self.ft[i] / (1. + (0.55-0.1*self.ft[i])*np.sqrt(self.nues[i]) + 0.45*(1.-self.ft[i])*self.nues[i]/self.Z**1.5)
 			if self.use_neo:

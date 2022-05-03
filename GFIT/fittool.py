@@ -1829,7 +1829,8 @@ class fit_tool:
 						datR = np.hstack([datR,self.__dict__['%s_prof'%i][j]['datR']])
 					except: pass
 					f = open('PROFILES/%s_raw_%s.dat'%(i.upper(),j.upper()),'w')			
-					lend = len(self.__dict__['%s_prof'%i][j]['xxr'])
+					try: lend = len(self.__dict__['%s_prof'%i][j]['xxr'])
+					except: f.close(); continue;
 					f.write('%i\n'%lend)
 					datx2 = self.__dict__['%s_prof'%i][j]['xxr']
 					daty2 = self.__dict__['%s_prof'%i][j]['raw']

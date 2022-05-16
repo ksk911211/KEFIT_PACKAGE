@@ -347,7 +347,7 @@ class gjastab:
 		else:
 			f.write('use_rotation = False\n')
 		if not len(self.e55.get().split()) == 0:
-			f.write('rot_prof_name = %s\n'%self.e55.get())
+			f.write('rot_prof_name = %s\n'%self.e55.get().split('/')[-1])
 		else:
 			f.write('rot_prof_name = chease_rot\n')
 		f.write('\n')

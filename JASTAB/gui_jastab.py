@@ -1370,7 +1370,7 @@ class gjastab:
 				self.rinput = False
 
 		if (self.CheckVar8.get() == 1):
-			if self.e12.get().lower() == 'mishka':
+			if self.StrVar12.get().lower() == 'mishka':
 				print('>>> MISHKA do not support rotation effect')
 				self.rinput = False
 			if not self.isrot:

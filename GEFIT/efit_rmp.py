@@ -154,7 +154,7 @@ shotn = int(sys.argv[1]); itime = int(sys.argv[2]); idel = int(sys.argv[3]);
 iscoil = False
 for yy in years:
 	if shotn in shotk[yy]['shot']: break
-dirs = efit_source_dir+shotk[yy]['mag']+'EXP%06i/'%shotn
+dirs = efit_source_dir+shotk[yy][1]+'/EXP%06i/'%shotn
 print(dirs)
 if os.path.isdir('EXP%06i'%shotn): exit();
 os.mkdir('EXP%06i'%shotn);

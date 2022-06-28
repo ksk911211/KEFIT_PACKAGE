@@ -1704,13 +1704,16 @@ class fit_tool:
 		self.write_raw_kinprof()
 		self.write_avg_dat()
 
+		#write psi-rho mapping
 		f = open('PROFILES/psi_rho.dat','w')
 		f.write('%i\n'%len(ppp3))
 		f.write('psin[a.u]\trho[a.u]\n')
 		for i in range(len(ppp3)):
 			f.write('%9.6f\t%9.6f\n'%(ppp3[i],self.fit_eq['psi_to_rho'](ppp3[i])))
 		f.close()
-
+		
+		#write fit_coefs
+		self.write_fit_coefs()
 		return
 
 	def write_kprofile(self,ppp):
@@ -1907,6 +1910,17 @@ class fit_tool:
 					f.write('%9.6f\t%9.6f\t%9.6f\t%9.6f\n'%(datx[i],datx2[i],daty[i],dats[i]))
 				f.close()
 
+		return
+
+	def write_fit_coefs(self):
+
+		with open('PROFILES/fit_coefs.dat','w') as f:
+			for flag in self.prof_list:
+				fflag = self.func_list[self.fit_opt['func_type'][flag]-1];
+				f.write('%s FUNC_TYPE: %s\n'%(flag.upper(),fflag.upper()))
+				f.write('COEFS[VAL,ERR]\n');
+				for i in range(len(self.post['popt'][flag])):
+					f.write('a%02i: %13.7e %13.7e\n'%(i+1,self.post['popt'][flag][i],self.post['popte'][flag][i]))
 		return
 
 	def make_psiRZ_extended(self,psi,Z,islfs=True):

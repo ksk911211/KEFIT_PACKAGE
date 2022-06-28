@@ -829,17 +829,18 @@ class kstar_diagnostic_tool:
 
 		tmin = tmin*1.e-3; tmax = tmax*1.e-3
 
-		if not (self.opt['cpage']=='' or self.opt['cpage']=='tci'):
+		if not (self.opt['cpage']=='' or self.opt['cpage']=='tci' or self.opt['cpage']=='efit'):
 			self.figure['name']['home'].canvas.draw_idle()
 			self.figure['axes']['home'][0].set_xlim([tmin,tmax])
 
 		diag = self.opt['cpage']
+		if not (diag == 'ces' or diag == 'ts'): return
 		self._get_list(diag)
-
 		self._get_elm_peak()
 		return
 
 	def _get_list(self,diag):
+
 		tmin = self.opt['T%s'%self.opt['cpage'].upper()] - self.opt['A%s'%self.opt['cpage'].upper()]*0.5
 		tmax = self.opt['T%s'%self.opt['cpage'].upper()] + self.opt['A%s'%self.opt['cpage'].upper()]*0.5	
 		self.note_in['l1'].delete(0,'end')

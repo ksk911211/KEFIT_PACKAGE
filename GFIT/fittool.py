@@ -162,7 +162,7 @@ class fit_tool:
 
 		return (datP, datX, datS, datR, datZ)
 
-	def make_avg_val(self,datx,daty,dats,flag):
+	def get_ch_number(self,datx):
 
 		len1 = len(datx)
 		i=0
@@ -170,8 +170,14 @@ class fit_tool:
 			if (datx[0] == datx[i+1]):
 				break
 		len2 = i+1
+
 		if (len2 == (len1-1)): len2 = len1
 
+		return len1,len2
+
+	def make_avg_val(self,datx,daty,dats,flag):
+
+		len1, len2 = self.get_ch_number(datx)
 		len3 = int(len1/len2)
 
 		datyt = np.reshape(daty,(len3,len2))
@@ -247,43 +253,70 @@ class fit_tool:
 					self.__dict__['%s_prof'%i][j]['datR']  = datR
 					self.__dict__['%s_prof'%i][j]['datZ']  = datZ
 
-					datx,daty,dats,dats1,dats2,len2,len3 = self.make_avg_val(datx,daty * self.factor[i],dats * self.factor[i],i)
+		self.te_ts_raw_ori = np.copy(self.te_prof['ts']['raw'])
+		self.te_tse_raw_ori = np.copy(self.te_prof['tse']['raw'])
+		self.ne_ts_raw_ori = np.copy(self.ne_prof['ts']['raw'])
+		self.ne_tse_raw_ori = np.copy(self.ne_prof['tse']['raw'])
+
+		if self.fit_opt['file']['te']['tse'] == None: self.fit_opt['scale']['te']['ts']['ch_cal'] = False
+		if self.fit_opt['file']['ne']['tse'] == None: self.fit_opt['scale']['ne']['ts']['ch_cal'] = False
+
+		for i in self.prof_list:
+			use_rho  = self.fit_opt['use_rho'][i]
+			
+			for j in self.__dict__['%s_list'%i]:
+				filename = self.fit_opt['file'][i][j]
+				shift    = self.fit_opt['shift'][i][j]
+				if j=='tse': shift = self.fit_opt['shift'][i]['ts'];
+
+				if not filename == None:
+					datx,daty,dats,dats1,dats2,len2,len3 = self.make_avg_val(self.__dict__['%s_prof'%i][j]['xxr'],self.__dict__['%s_prof'%i][j]['raw'],self.__dict__['%s_prof'%i][j]['raws'],i)
+					lenx = len(datx);
+					lent = int(len(self.__dict__['%s_prof'%i][j]['xxr'])/lenx)
+					for k in range(lenx):
+						for m in range(lent):
+							factor = self.make_scale_factor(i,j,m)
+							for n in ['raw','raws']:
+								self.__dict__['%s_prof'%i][j][n][lenx*m+k] =  self.__dict__['%s_prof'%i][j][n][lenx*m+k] * factor
+
+					datx,daty,dats,dats1,dats2,len2,len3   = self.make_avg_val(self.__dict__['%s_prof'%i][j]['xxr'],self.__dict__['%s_prof'%i][j]['raw'],self.__dict__['%s_prof'%i][j]['raws'],i)
 					self.__dict__['%s_prof'%i][j]['xxa']   = np.copy(datx)
 					self.__dict__['%s_prof'%i][j]['avg']   = np.copy(daty)
 					self.__dict__['%s_prof'%i][j]['avgs']  = np.copy(dats)
-					self.__dict__['%s_prof'%i][j]['avgs2']  = np.copy(dats1)
-					self.__dict__['%s_prof'%i][j]['raws2']  = np.copy(dats2)					
+					self.__dict__['%s_prof'%i][j]['avgs2'] = np.copy(dats1)
+					self.__dict__['%s_prof'%i][j]['raws2'] = np.copy(dats2)
 					self.post['prof_dim'][i][j] = [len2,len3]
-					if (j=='ts' or j=='tse'): 
-						len2 = int(len(self.__dict__['%s_prof'%i][j]['xxr'])/len(datx))
-						for k in range(len(datx)):
-							if (j == 'ts'): factor = self.fit_opt['scale'][i]['ts']['core']
-							else: factor = self.fit_opt['scale'][i]['ts']['edge']
-							for m in ['avg','avgs','avgs2']:
-								self.__dict__['%s_prof'%i][j][m][k] =  self.__dict__['%s_prof'%i][j][m][k] * factor
-							for m in range(len2):
-								for n in ['raw','raws']:
-									self.__dict__['%s_prof'%i][j][n][len(datx)*m+k] =  self.__dict__['%s_prof'%i][j][n][len(datx)*m+k] * factor
-					if (j=='ces'):
-						len2 = int(len(self.__dict__['%s_prof'%i][j]['xxr'])/len(datx))
-						for k in range(len(datx)):
-							factor = self.fit_opt['scale'][i][j]['core']
-							for m in ['avg','avgs','avgs2']:
-								self.__dict__['%s_prof'%i][j][m][k] =  self.__dict__['%s_prof'%i][j][m][k] * factor
-							for m in range(len2):
-								for n in ['raw','raws']:
-									self.__dict__['%s_prof'%i][j][n][len(datx)*m+k] =  self.__dict__['%s_prof'%i][j][n][len(datx)*m+k] * factor
-
-					if (j=='refl' or j=='ece'):
-						len2 = int(len(self.__dict__['%s_prof'%i][j]['xxr'])/len(datx))
-						for k in range(len(datx)):
-							factor = self.fit_opt['scale'][i][j]['core']
-							for m in ['avg','avgs','avgs2']:
-								self.__dict__['%s_prof'%i][j][m][k] =  self.__dict__['%s_prof'%i][j][m][k] * factor
-							for m in range(len2):
-								for n in ['raw','raws']:
-									self.__dict__['%s_prof'%i][j][n][len(datx)*m+k] =  self.__dict__['%s_prof'%i][j][n][len(datx)*m+k] * factor
+					
 		return
+
+	def make_scale_factor(self,prof,flag,m):
+
+		if flag in ['ces','refl','ece']: return self.fit_opt['scale'][prof][flag]['core']
+		if not prof in ['te','ne']: return 1.
+
+		if self.fit_opt['scale'][prof]['ts']['ch_cal']:
+
+			lents1, lents2 = self.get_ch_number(self.__dict__['%s_prof'%prof]['ts']['xxr'])
+			lentse1,lentse2= self.get_ch_number(self.__dict__['%s_prof'%prof]['tse']['xxr'])			
+			cind = lents2*m  + min(lents2,int(self.fit_opt['scale'][prof]['ts']['core_ch']))-1
+			eind = lentse2*m + min(lentse2,int(self.fit_opt['scale'][prof]['ts']['edge_ch']))-1	
+			vratio = self.__dict__['%s_tse_raw_ori'%prof][eind]/self.__dict__['%s_ts_raw_ori'%prof][cind]
+			if flag == 'ts':
+				if self.fit_opt['scale'][prof]['ts']['fix_core']: factor = self.fit_opt['scale'][prof]['ts']['core']
+				else:
+					factor = vratio * self.fit_opt['scale'][prof]['ts']['edge'] / self.fit_opt['scale'][prof]['ts']['ratio']
+			else:
+				if self.fit_opt['scale'][prof]['ts']['fix_core']: 
+					factor =  self.fit_opt['scale'][prof]['ts']['ratio'] / vratio * self.fit_opt['scale'][prof]['ts']['core']
+				else: factor = self.fit_opt['scale'][prof]['ts']['edge']
+			#if prof in ['te','ne']: print(prof,flag,m,factor)
+
+		else:
+			if flag == 'ts': factor = self.fit_opt['scale'][prof]['ts']['core'];
+			else: factor = self.fit_opt['scale'][prof]['ts']['edge'];
+
+
+		return factor
 
 	def eped_fun(self,x,a1,a2,a3,a4,a5,a6):
 
@@ -1999,7 +2032,6 @@ class fit_tool:
 		minc = self.fit_opt['scale']['ne']['ts']['minc']
 		maxe = self.fit_opt['scale']['ne']['ts']['maxe']
 		mine = self.fit_opt['scale']['ne']['ts']['mine']
-		ratio = self.fit_opt['scale']['ne']['ts']['core'] / self.fit_opt['scale']['ne']['ts']['edge']
 		if self.fit_opt['ascale1d']: en = 1;
 
 		if not self.fit_opt['ascale1d']: self.print('>>> #CN %i [%4.2f-%4.2f] #EN %i [%4.2f-%4.2f]'%(cn,minc,maxc,en,mine,maxe))
@@ -2754,6 +2786,12 @@ class fit_tool:
 				self.fit_opt['scale'][flag][kk]['maxc'] = 2.
 				self.fit_opt['scale'][flag][kk]['cn'] = 7
 				self.fit_opt['scale'][flag][kk]['en'] = 7
+				
+				self.fit_opt['scale'][flag][kk]['ch_cal']  = False
+				self.fit_opt['scale'][flag][kk]['core_ch'] = 14
+				self.fit_opt['scale'][flag][kk]['edge_ch'] = 1
+				self.fit_opt['scale'][flag][kk]['fix_core']= True
+				self.fit_opt['scale'][flag][kk]['ratio']= 1.
 		return
 
 	def wash_exclude(self):
@@ -2964,7 +3002,7 @@ class fit_tool:
 				if not self.fit_opt['weight'][i][j] == self.post['fit_opt']['weight'][i][j]: self.post['opt_change'][i] = True
 				if not self.fit_opt['psi_end'][i][j] == self.post['fit_opt']['psi_end'][i][j]: self.post['opt_change'][i] = True
 
-				for k in ['core','edge']:
+				for k in ['core','edge','ch_cal','core_ch','edge_ch','ratio','fix_core']:
 					if not self.fit_opt['scale'][i][j][k] == self.post['fit_opt']['scale'][i][j][k]:
 						self.post['opt_change'][i] = True
 

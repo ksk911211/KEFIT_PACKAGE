@@ -2211,8 +2211,54 @@ class guifittool:
 				self.note_ec['e%i'%count].insert(10,self.note_ec[flag]['scale']['ts'][k].get())
 				count = count + 1			
 				i = i + 1
+		
+		count1 += 3
+		titles = ["TCORE","TEDGE","NCORE","NEDGE"]
+		for i in range(4):
+			self.l2 = tk.Label(self.home['page9'],text=titles[i].upper())
+			self.l2.grid(row=count1+1,column=2*i+1,columnspan=2,pady=5)
 
-		count1 = 2
+		self.l2 = tk.Label(self.home['page9'], text='TS-CHCAL')
+		self.l2.grid(row=count1+2,column=0)
+
+		countm = 1; i=0;
+		for flag in ['te','ne']:
+			self.note_ec['m%i'%countm] = tk.OptionMenu(self.home['page9'],self.note_ec[flag]['scale']['ts']['core_ch'],'14','13','12','11')
+			self.note_ec['m%i'%countm].grid(row=count1+2,column=2*i+1,columnspan=2)
+			countm += 1; i += 1;
+			self.note_ec['m%i'%countm] = tk.OptionMenu(self.home['page9'],self.note_ec[flag]['scale']['ts']['edge_ch'],'1','2','3','4')
+			self.note_ec['m%i'%countm].grid(row=count1+2,column=2*i+1,columnspan=2)
+			countm += 1; i += 1;
+
+		count1 += 2
+		titles = ["TRATIO","FIX_C","NRATIO","FIX_C"]
+		for i in range(4):
+			self.l2 = tk.Label(self.home['page9'],text=titles[i].upper())
+			self.l2.grid(row=count1+1,column=2*i+1,columnspan=2,pady=5)
+
+		count = 23; countc = 4; i = 0;
+		for flag in ['te','ne']:
+			self.note_ec['e%i'%count] = tk.Entry(self.home['page9'],width=7,justify='center')
+			self.note_ec['e%i'%count].grid(row=count1+2,column=2*i+1,columnspan=2)
+			self.note_ec['e%i'%count].insert(10,self.note_ec[flag]['scale']['ts']['ratio'].get())
+			i += 1;
+			self.note_ec['c%i'%countc] = tk.Checkbutton(self.home['page9'],variable=self.note_ec[flag]['scale']['ts']['fix_core']) 
+			self.note_ec['c%i'%countc].grid(row=count1+2,column=2*i+1,columnspan=2)			
+			count += 1; countc += 1; i += 1;	
+
+		count1 += 2;
+		titles = ["USE_T","USE_N"]
+		for i in range(2):
+			self.l2 = tk.Label(self.home['page9'],text=titles[i].upper())
+			self.l2.grid(row=count1+1,column=2*i+1,columnspan=2,pady=5)
+	
+		countc = 6; i= 0;
+		for flag in ['te','ne']:
+			self.note_ec['c%i'%countc] = tk.Checkbutton(self.home['page9'],variable=self.note_ec[flag]['scale']['ts']['ch_cal'])
+			self.note_ec['c%i'%countc].grid(row=count1+2,column=2*i+1,columnspan=2)
+			countc += 1; i += 1;
+
+		count1 += 2
 		titles = ["TCORE","TEDGE","VCORE","VEDGE"]
 		for i in range(4):
 			self.l2 = tk.Label(self.home['page9'],text=titles[i].upper())
@@ -2220,7 +2266,7 @@ class guifittool:
 		self.l2 = tk.Label(self.home['page9'], text='CES')
 		self.l2.grid(row=count1+2,column=0)
 
-		i = 0;
+		count = 5; i = 0
 		for flag in ['ti','vt']:
 			for k in ['core','edge']:
 				self.note_ec['e%i'%count] = tk.Entry(self.home['page9'],width=7,justify='center')
@@ -2229,7 +2275,7 @@ class guifittool:
 				count = count + 1			
 				i = i + 1
 
-		count1 = 4
+		count1 += 2
 		titles = ["ECE","REFL"]
 		for i in range(2):
 			self.l2 = tk.Label(self.home['page9'],text=titles[i].upper())
@@ -2237,6 +2283,7 @@ class guifittool:
 		self.l2 = tk.Label(self.home['page9'], text='ETC')
 		self.l2.grid(row=count1+2,column=0)
 
+		count = 9;
 		for i in range(2):
 				self.note_ec['e%i'%count] = tk.Entry(self.home['page9'],width=7,justify='center')
 				self.note_ec['e%i'%count].grid(row=count1+2,column=2*i+1,columnspan=2)
@@ -2245,7 +2292,7 @@ class guifittool:
 				count = count + 1			
 
 
-		count1 = 7;
+		count1 += 3;
 		self.l2 = tk.Label(self.home['page9'], text='AUTO-S')
 		self.l2.grid(row=count1+2,column=0)		
 		titles = ["MINC","MAXC","MINE","MAXE"]
@@ -2253,6 +2300,7 @@ class guifittool:
 			self.l2 = tk.Label(self.home['page9'],text=titles[i].upper())
 			self.l2.grid(row=count1+1,column=2*i+1,columnspan=2,pady=5)
 
+		count = 11;
 		self.note_ec['e%i'%count] = tk.Entry(self.home['page9'],width=7,justify='center')
 		self.note_ec['e%i'%count].grid(row=count1+2,column=2*0+1,columnspan=2)
 		self.note_ec['e%i'%count].insert(10,self.note_ec['tscale']['minc'].get())
@@ -2270,12 +2318,13 @@ class guifittool:
 		self.note_ec['e%i'%count].insert(10,self.note_ec['tscale']['maxe'].get())		
 		count = count + 1
 
-		count1 = 9;
+		count1 += 2;
 		titles = ["CN#","EN#","USE","1D"]
 		for i in range(4):
 			self.l2 = tk.Label(self.home['page9'],text=titles[i].upper())
 			self.l2.grid(row=count1+1,column=2*i+1,columnspan=2,pady=5)
 
+		count = 15;
 		self.note_ec['e%i'%count] = tk.Entry(self.home['page9'],width=7,justify='center')
 		self.note_ec['e%i'%count].grid(row=count1+2,column=2*0+1,columnspan=2)
 		self.note_ec['e%i'%count].insert(10,self.note_ec['tscale']['cn'].get())
@@ -2285,12 +2334,14 @@ class guifittool:
 		self.note_ec['e%i'%count].insert(10,self.note_ec['tscale']['en'].get())
 		count = count + 1
 
-		self.note_ec['c1'] = tk.Checkbutton(self.home['page9'],variable=self.note_ec['tscale']['is'])
-		self.note_ec['c1'].grid(row=count1+2,column=2*2+1,columnspan=2)
-		self.note_ec['c3'] = tk.Checkbutton(self.home['page9'],variable=self.note_ec['tscale']['1d'])
-		self.note_ec['c3'].grid(row=count1+2,column=2*3+1,columnspan=2)		
+		countc = 1;
+		self.note_ec['c%i'%countc] = tk.Checkbutton(self.home['page9'],variable=self.note_ec['tscale']['is'])
+		self.note_ec['c%i'%countc].grid(row=count1+2,column=2*2+1,columnspan=2)
+		countc = 3;
+		self.note_ec['c%i'%countc] = tk.Checkbutton(self.home['page9'],variable=self.note_ec['tscale']['1d'])
+		self.note_ec['c%i'%countc].grid(row=count1+2,column=2*3+1,columnspan=2)		
 
-		count1 = 12; 
+		count1 += 3; 
 		self.l1 = tk.Label(self.home['page9'], text="==================== Radial Shift Opt. ====================",justify='center')
 		self.l1.grid(row=count1, column=0,columnspan=9,pady=5)
 		self.l2 = tk.Label(self.home['page9'], text='SHIFT[m] →')
@@ -2300,6 +2351,7 @@ class guifittool:
 			self.l2 = tk.Label(self.home['page9'],text=titles[i].upper())
 			self.l2.grid(row=count1+1,column=2*i+1,columnspan=2,pady=5)
 
+		count = 17;
 		self.note_ec['e%i'%count] = tk.Entry(self.home['page9'],width=7,justify='center')
 		self.note_ec['e%i'%count].grid(row=count1+2,column=2*0+1,columnspan=2)
 		self.note_ec['e%i'%count].insert(10,self.note_ec['shift']['ts'].get())
@@ -2318,7 +2370,7 @@ class guifittool:
 		count = count + 1				
 
 
-		count1 = 14;
+		count1 += 2;
 		self.l2 = tk.Label(self.home['page9'], text='AUTO-S')
 		self.l2.grid(row=count1+2,column=0)		
 		titles = ["MINP","MAXP","USE"]
@@ -2326,6 +2378,7 @@ class guifittool:
 			self.l2 = tk.Label(self.home['page9'],text=titles[i].upper())
 			self.l2.grid(row=count1+1,column=2*i+1,columnspan=2,pady=5)
 
+		count = 21;
 		self.note_ec['e%i'%count] = tk.Entry(self.home['page9'],width=7,justify='center')
 		self.note_ec['e%i'%count].grid(row=count1+2,column=2*0+1,columnspan=2)
 		self.note_ec['e%i'%count].insert(10,self.note_ec['ashift']['min'].get())
@@ -2334,8 +2387,10 @@ class guifittool:
 		self.note_ec['e%i'%count].grid(row=count1+2,column=2*1+1,columnspan=2)
 		self.note_ec['e%i'%count].insert(10,self.note_ec['ashift']['max'].get())
 		count = count + 1
-		self.note_ec['c2'] = tk.Checkbutton(self.home['page9'],variable=self.note_ec['ashift']['is'])
-		self.note_ec['c2'].grid(row=count1+2,column=2*2+1,columnspan=2)
+
+		countc = 2;
+		self.note_ec['c%i'%countc] = tk.Checkbutton(self.home['page9'],variable=self.note_ec['ashift']['is'])
+		self.note_ec['c%i'%countc].grid(row=count1+2,column=2*2+1,columnspan=2)
 
 		return
 
@@ -2522,8 +2577,13 @@ class guifittool:
 			self.note_ec[flag]['scale'] = dict()
 			for kk in self.fit.__dict__['%s_list'%flag]:
 				self.note_ec[flag]['scale'][kk] = dict()
-				self.note_ec[flag]['scale'][kk]['core'] = tk.StringVar()
-				self.note_ec[flag]['scale'][kk]['edge'] = tk.StringVar()
+				self.note_ec[flag]['scale'][kk]['core']    = tk.StringVar()
+				self.note_ec[flag]['scale'][kk]['edge']    = tk.StringVar()
+				self.note_ec[flag]['scale'][kk]['core_ch'] = tk.StringVar()
+				self.note_ec[flag]['scale'][kk]['edge_ch'] = tk.StringVar()
+				self.note_ec[flag]['scale'][kk]['fix_core']= tk.IntVar()
+				self.note_ec[flag]['scale'][kk]['ch_cal']  = tk.IntVar()
+				self.note_ec[flag]['scale'][kk]['ratio']   = tk.StringVar()
 		
 		self.note_ec['tscale'] = dict()
 		self.note_ec['tscale']['minc'] = tk.StringVar()
@@ -2697,8 +2757,12 @@ class guifittool:
 				self.fit.fit_opt['plot'][flag][k] = self.transfer_float(self.__dict__['note_pl'][flag][k],True)
 
 			for kk in self.fit.__dict__['%s_list'%flag]:
-				self.fit.fit_opt['scale'][flag][kk]['core'] = self.transfer_float(self.note_ec[flag]['scale'][kk]['core'],True)
-				self.fit.fit_opt['scale'][flag][kk]['edge'] = self.transfer_float(self.note_ec[flag]['scale'][kk]['edge'],True)
+				for kkk in ['core','edge','ratio']:
+					self.fit.fit_opt['scale'][flag][kk][kkk] = self.transfer_float(self.note_ec[flag]['scale'][kk][kkk],True)
+				for kkk in ['core_ch','edge_ch']:
+					self.fit.fit_opt['scale'][flag][kk][kkk] = self.transfer_int(self.note_ec[flag]['scale'][kk][kkk],True)
+				for kkk in ['ch_cal','fix_core']:
+					self.fit.fit_opt['scale'][flag][kk][kkk] = self.transfer_logic(self.note_ec[flag]['scale'][kk][kkk],True)
 
 		self.fit.fit_opt['scale']['ne']['ts']['minc'] = self.transfer_float(self.note_ec['tscale']['minc'],True)
 		self.fit.fit_opt['scale']['ne']['ts']['maxc'] = self.transfer_float(self.note_ec['tscale']['maxc'],True)
@@ -2800,9 +2864,12 @@ class guifittool:
 				self.note_pl[flag][k].set(self.transfer_float(self.fit.fit_opt['plot'][flag][k],False))
 
 			for kk in self.fit.__dict__['%s_list'%flag]:
-				for k in ['core','edge']:
-					self.note_ec[flag]['scale'][kk][k].set(self.transfer_float(self.fit.fit_opt['scale'][flag][kk][k],False))
-				
+				for kkk in ['core','edge','ratio']:
+					self.note_ec[flag]['scale'][kk][kkk].set(self.transfer_float(self.fit.fit_opt['scale'][flag][kk][kkk],False))
+				for kkk in ['core_ch','edge_ch']:
+					self.note_ec[flag]['scale'][kk][kkk].set(self.transfer_int(self.fit.fit_opt['scale'][flag][kk][kkk],False))
+				for kkk in ['ch_cal','fix_core']:
+					self.note_ec[flag]['scale'][kk][kkk].set(self.transfer_logic(self.fit.fit_opt['scale'][flag][kk][kkk],False))
 
 		self.note_md['shot'].set(self.transfer_int(self.fit.fit_opt['mds']['shot'],False))
 		self.note_md['time'].set(self.transfer_int(self.fit.fit_opt['mds']['time'],False))
@@ -2970,7 +3037,11 @@ class guifittool:
 			self.note_ec['ashift']['min'].set(self.note_ec['e%i'%count1].get())
 			count1 = count1+1
 			self.note_ec['ashift']['max'].set(self.note_ec['e%i'%count1].get())
-			count1 = count1+1											
+			count1 = count1+1
+			self.note_ec['te']['scale']['ts']['ratio'].set(self.note_ec['e%i'%count1].get())
+			count1 = count1+1		
+			self.note_ec['ne']['scale']['ts']['ratio'].set(self.note_ec['e%i'%count1].get())
+			count1 = count1+1	
 		else:
 			self.put_vars_to_gui(['note_ec','e%i'%count1],self.note_ec['te']['scale']['ece']['core'].get())
 			count1 = count1+1
@@ -3000,7 +3071,11 @@ class guifittool:
 			count1 = count1+1
 			self.put_vars_to_gui(['note_ec','e%i'%count1],self.note_ec['ashift']['max'].get())
 			count1 = count1+1		
-	
+			self.put_vars_to_gui(['note_ec','e%i'%count1],self.note_ec['te']['scale']['ts']['ratio'].get())
+			count1 = count1+1
+			self.put_vars_to_gui(['note_ec','e%i'%count1],self.note_ec['ne']['scale']['ts']['ratio'].get())
+			count1 = count1+1		
+
 		if skip_mds: return
 
 		if g2v:
@@ -3494,12 +3569,12 @@ class guifittool:
 				self.fit.fit_opt['plot'][flag]['ymax'] = fit_opt['plot'][flag]['ymax']
 		except: pass
 
-		try:
-			for flag in self.fit.prof_list:
-				for kk in self.fit.__dict__['%s_list'%flag]:
-					self.fit.fit_opt['scale'][flag][kk]['core'] = fit_opt['scale'][flag][kk]['core']
-					self.fit.fit_opt['scale'][flag][kk]['edge'] = fit_opt['scale'][flag][kk]['edge']
-		except: pass
+		#try:
+		#	for flag in self.fit.prof_list:
+		#		for kk in self.fit.__dict__['%s_list'%flag]:
+		#			self.fit.fit_opt['scale'][flag][kk]['core'] = fit_opt['scale'][flag][kk]['core']
+		#			self.fit.fit_opt['scale'][flag][kk]['edge'] = fit_opt['scale'][flag][kk]['edge']
+		#except: pass
 
 		try:
 			self.fit.fit_opt['ashift']['is']  = fit_opt['ashift']['is']
@@ -3523,17 +3598,23 @@ class guifittool:
 		except: pass
 
 		try:
-			self.fit.fit_opt['scale']['ne']['ts']['minc']  = fit_opt['scale']['ne']['ts']['minc']
-			self.fit.fit_opt['scale']['ne']['ts']['maxc']  = fit_opt['scale']['ne']['ts']['maxc']
-			self.fit.fit_opt['scale']['ne']['ts']['mine']  = fit_opt['scale']['ne']['ts']['mine']
-			self.fit.fit_opt['scale']['ne']['ts']['maxe']  = fit_opt['scale']['ne']['ts']['maxe']
-			self.fit.fit_opt['scale']['ne']['ts']['cn']    = fit_opt['scale']['ne']['ts']['cn']
-			self.fit.fit_opt['scale']['ne']['ts']['en']    = fit_opt['scale']['ne']['ts']['en']
+		#	self.fit.fit_opt['scale']['ne']['ts']['minc']  = fit_opt['scale']['ne']['ts']['minc']
+		#	self.fit.fit_opt['scale']['ne']['ts']['maxc']  = fit_opt['scale']['ne']['ts']['maxc']
+		#	self.fit.fit_opt['scale']['ne']['ts']['mine']  = fit_opt['scale']['ne']['ts']['mine']
+		#	self.fit.fit_opt['scale']['ne']['ts']['maxe']  = fit_opt['scale']['ne']['ts']['maxe']
+		#	self.fit.fit_opt['scale']['ne']['ts']['cn']    = fit_opt['scale']['ne']['ts']['cn']
+		#	self.fit.fit_opt['scale']['ne']['ts']['en']    = fit_opt['scale']['ne']['ts']['en']
 			self.fit.fit_opt['ascale']                     = fit_opt['ascale']
 		except: pass		
 		try: self.fit.fit_opt['ascale1d'] = fit_opt['ascale1d']	
 		except: pass
 
+		for flag in self.fit.prof_list:
+			for kk in self.fit.__dict__['%s_list'%flag]:
+				if not kk in fit_opt['scale'][flag].keys(): continue
+				for key in fit_opt['scale'][flag][kk].keys():
+					try: self.fit.fit_opt['scale'][flag][kk][key] = fit_opt['scale'][flag][kk][key]
+					except: pass
 		return
 
 	def load_fitopt_param(self):

@@ -79,3 +79,9 @@ Updated for KSTAR 2022 campaign (V.3.1)<br />
 <br />
 @PEDSCAN<br />
 -Ver 1.0: Gui-based pedestal modifier<br />
+<br />
+@GMDS<br />
+-Ver 1.0: Gui-based MDS loader (beta, GEFIT2.0 compatible)<br />
+-Ver 2.0: Gui-based MDS loader (GEFIT 3.0 compatiable), supporting EFIT01-05/CES/TS/TCI/MSE/RMP compensation
+<br />
+

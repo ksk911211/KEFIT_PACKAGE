@@ -21,7 +21,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.backends.backend_tkagg import NavigationToolbar2Tk
 
 from get_efit import *
-from exec_dirs import gzip_dir, efit_rmp, efit_dir
+from exec_dirs import gzip_dir, efit_rmp, efit_dir, version
 
 from aeqdsk import _read_afile
 
@@ -1662,7 +1662,7 @@ if __name__ == "__main__":
 	except: nogui = 0
 
 	print(' -------------------------------------------------------------')
-	print('||            KSTAR MDS load/processing tool Ver 1.0         ||')
+	print('||            KSTAR MDS post-processing tool Ver %s         ||'%version['mds'])
 	print('||                 Profile & Channel comparison              ||')
 	print('||            Developed by S.K.Kim (PU) & PLARE (SNU)        ||')
 	print('--------------------------------------------------------------')

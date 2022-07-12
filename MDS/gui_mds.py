@@ -1661,11 +1661,11 @@ if __name__ == "__main__":
 	try:    nogui = int(sys.argv[5])
 	except: nogui = 0
 
-	print(' ----------------------------------------------------------------')
-	print('||            KSTAR Density diagnostics tool Ver 1.0            ||')
-	print('||                 Profile & Channel comparison                 ||')
-	print('||            Developed by S.K.Kim (PU) & PLARE (SNU)           ||')
-	print('-----------------------------------------------------------------')
+	print(' -------------------------------------------------------------')
+	print('||            KSTAR MDS load/processing tool Ver 1.0         ||')
+	print('||                 Profile & Channel comparison              ||')
+	print('||            Developed by S.K.Kim (PU) & PLARE (SNU)        ||')
+	print('--------------------------------------------------------------')
 
 
 	gmds = gmds.kstar_diagnostic_tool(shotn,time,aces,ats,nogui)

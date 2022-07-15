@@ -2,6 +2,7 @@ import numpy as np
 from scipy.interpolate import interp1d
 import os,sys
 import eqdsk
+## - https://omfit.io/_modules/omfit_classes/omfit_osborne.html#OMFITpFile
 class GENpFile:
     """
     OMFIT class used to interface with Osborne pfiles

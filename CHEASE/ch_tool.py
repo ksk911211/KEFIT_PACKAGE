@@ -1559,7 +1559,7 @@ class chease:
 
 		try:	f = open(self.chease_rundir+'/pres_prof','w')
 		except:	f = open(os.getcwd()+'/pres_prof','w')
-		f.write('%9s\t%9s\t%9s\t%9s\t%9s\t%9s\t%9s\t%9s\t%9s\n'%('PSIN','PREST','PRESF','PTOT','PRESEX','DPREST','DPRESF','DPRESEX','DPTOT'))
+		f.write('%9s\t%9s\t%9s\t%9s\t%9s\t%9s\t%9s\t%9s\t%9s\n'%('PSIN','PREST','PRESF','PRESEX','PTOT','DPREST','DPRESF','DPRESEX','DPTOT'))
 		for i in range(len(self.psin)):
 			f.write('%9.6f\t%9.6f\t%9.6f\t%9.6f\t%9.6f\t%9.6f\t%9.6f\t%9.6f\t%9.6f\n'%(self.psin[i],self.pt[i],self.fpt[i],self.pres_ex[i],self.dpres[i],self.dpt[i],
 				self.fptp[i],self.dp_ex[i],self.dpp[i]))
@@ -2312,7 +2312,12 @@ class chease:
 		self.eq.psin = np.copy(self.psin)
 		self.eq.pp = np.copy(self.dpp)
 		self.eq.pres = np.copy(self.dpres)
-
+	
+		kinprof_type_old  = self.kinprof_type
+		self.kinprof_type = 1
+		self.write_kinprof()
+		self.kinprof_type = kinprof_type_old
+		copyfile('chease_kinprof_new','CHEASE/chease_kinprof')
 		self.run_chease(self.nideal,self.nomap)
 		
 		if not (self.nomap):

@@ -377,7 +377,10 @@ class gefitk:
 
 		for i in range(9,21):
 			if np.mod(i,2) == 1:	
-				val = float(dat[i])/1.e6
+				val = float(dat[i])
+				if val>5.e5: val = val/1.e6
+				elif val>5.3:val = val/1.e4
+				else:        val = 0.
 				if val < 0.1:	val = '0'
 				else:	val = str(round(val,1))
 				self.__dict__['StrVar%i'%(i+142)].set(val)

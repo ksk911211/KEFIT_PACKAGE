@@ -58,7 +58,7 @@ python3_exec = '/usr/local/anaconda3/bin/python3'
 pythonc_exec = python3_exec
 
 ##---python scripts
-#python_home  = '/home/ksk911211/PYTHON/KEFIT_py/'
+#python_home  = '/home/ksk911211/PYTHON/KEFIT_PACKAGE/'
 python_home  = '/usr/local/analysis/KEFIT/'
 #chease
 chease_dir    = python_home+'/CHEASE/chease'
@@ -74,6 +74,9 @@ nubeam_comp_exec      ='/usr/local/analysis/KEFIT/NTCC/LINUX/test/mpi_nubeam_com
 adasdir               ='/usr/local/analysis/KEFIT/NTCC/adas310_fortran_driver'
 preactdir             ='/usr/local/analysis/KEFIT/NTCC/preact'
 mpirun                ='/usr/local/mpich/bin/mpirun'
+#infos
+popup_dir     = python_home+'/ENV/popup.py'
+gefit_info    = python_home+'/INFO/gefit.txt'
 #eped
 stab_dir      = python_home+'/EPED/eped_stab.py'
 gped_dir      = python_home+'/EPED/gui_eped.py'
@@ -144,7 +147,7 @@ version['chease']     = '2.2'
 version['jatool']     = '1.1' 
 version['pedscanner'] = '1.0'
 version['gfitp']      = '2.0' 
-version['gefit']      = '3.1' 
+version['gefit']      = '3.2' 
 version['bs2kstar']   = '1.0'
 version['fgefit']     = '1.0'
 version['dena']       = '1.2' 

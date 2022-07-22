@@ -13,7 +13,7 @@ import eqdsk
 import subprocess
 from gefit_tool import *
 from exec_dirs import gfitp_dir,chease_dir,nubeam_dir2,python2_exec,python3_exec,efit_dir,version,author,comment,efit_rmp
-from exec_dirs import mse_good_ch, years, shotk
+from exec_dirs import mse_good_ch, years, shotk, popup_dir, gefit_info
 from gefit_mse import *
 from get_mse_data import _get_mse, _make_mse
 import pfile_convert
@@ -191,8 +191,6 @@ class gefitk:
 		update_psirz(self.iseqdsk,self.fig,self.eq,self.rzbdy,self)
 
 		ind = np.argmax(self.rzbdy[:,0])
-#		self.StrVar51.set(round(float(self.rzbdy[ind,0]),3))
-#		self.StrVar52.set(round(float(self.rzbdy[ind,1]),3))
 		temp = get_midRZ(self.eq.rzbdy,1.9)
 		self.StrVar51.set('%6.4f'%temp)
 		self.StrVar52.set('0.000')
@@ -699,7 +697,6 @@ class gefitk:
 		self.CheckVar23.set(1)
 		self.update_status()
 		return
-
 
 	def button_func5a(self):
 
@@ -1432,9 +1429,6 @@ class gefitk:
 
 		self.l1 = tk.Label(self.t6, text="MSE",justify='center')
 		self.l1.grid(row=3, column=0,columnspan=2)
-#		self.e16 = tk.Entry(self.t6,width=7,justify='center')
-#		self.e16.insert(10,self.StrVar16.get())
-#		self.e16.grid(row=3, column=4,columnspan=2,sticky='w')	
 
 		b1 = tk.Button(self.t6, text="SGAM", bg = "lightgray",command=lambda: self.button_func11(1),height = 1,width = 5)
 		b1.grid(row=3,column=2,columnspan=2)
@@ -1951,13 +1945,6 @@ class gefitk:
 
 		b1 = tk.Button(self.t8, text="SGAM",  bg = "lightgray",command=lambda: self.button_func11(),height = 1,width = 5)
 		b1.grid(row=3,column=2,columnspan=2)
-
-#		b1 = tk.Button(self.t8, text="DTGAM", bg = "lightgray",command=lambda: self.button_func12(),height = 1,width = 5)
-#		b1.grid(row=3,column=4,columnspan=2)
-
-#		self.e16 = tk.Entry(self.t8,width=7,justify='center')
-#		self.e16.insert(10,self.StrVar16.get())
-#		self.e16.grid(row=3, column=4,columnspan=2,sticky='w')	
 		
 		self.l1 = tk.Label(self.t8, text="sMSE",justify='center')
 		self.l1.grid(row=3, column=6,columnspan=2,sticky='e')
@@ -2665,7 +2652,6 @@ class gefitk:
 					self.StrVar39.set(a2)
 					self.StrVar40.set(a3)
 
-#				run_efit(self)
 				make_kfile(self,True)
 				write_efit_input(self,kfile_dir)
 				os.chdir(efitdir)
@@ -2687,7 +2673,7 @@ class gefitk:
 					else: mseb = 'NB1B'; ind = 154
 				print('>>> Beam used in MSE', mseb)
 				self.ts_run = False
-#				run_efit(self)
+
 				make_kfile(self,True)
 				write_efit_input(self,kfile_dir)
 				os.chdir(efitdir)
@@ -2805,7 +2791,6 @@ class gefitk:
 		menu.delete(0, "end")
 
 		copyfile(w_dirt,w_dir2); copyfile(mse_dirt,mse_dir2); copyfile(pres_dirt,pres_dir2); copyfile(j_dirt,j_dir2); copyfile(map_dirt,map_dir2)
-#		efit_post_process(self,index,gfile_dir2,w_dir2,mse_dir2,pres_dir2,j_dir2,map_dir2)
 
 		for string in self.efit_index:
 			menu.add_command(label=string, command=lambda value=string: option_menu_update(self.MenuVar10,value,self.button_func9b,True))
@@ -2910,7 +2895,6 @@ class gefitk:
 		self.t12_close = False		
 		self.t12.protocol('WM_DELETE_WINDOW', lambda: self.detect_close(12))		
 
-#		self.t12.resizable(0,0)
 		self.fig12, self.eax14 = plt.subplots(1,1,figsize=(5,5))		
 
 		self.canvas12 = FigureCanvasTkAgg(self.fig12,master=self.t12)
@@ -3044,7 +3028,6 @@ class gefitk:
 		self.t13_close = False		
 		self.t13.protocol('WM_DELETE_WINDOW', lambda: self.detect_close(13))		
 
-#		self.t13.resizable(0,0)
 		self.fig13, self.eax15 = plt.subplots(1,1,figsize=(5.,5.))		
 
 		self.canvas13 = FigureCanvasTkAgg(self.fig13,master=self.t13)
@@ -3258,7 +3241,6 @@ class gefitk:
 		self.t19.destroy()
 		return
 
-		
 	def gui_efit(self):
 
 		self.fig, ax1 = plt.subplots(1,1,figsize=(5,9))
@@ -3529,9 +3511,6 @@ class gefitk:
 	
 		self.l106 = tk.Label(self.root, text="-%s"%(author['gefit']),anchor='w',width=56,justify='left',fg='dodgerblue',font=font)
 		self.l106.grid(row=47, column=0,columnspan=12,sticky='sw')
-
-#		self.l107 = tk.Label(self.root, text="-%s"%(author['gefit']),anchor='w',width=56,justify='left',fg='dodgerblue',font=font)
-#		self.l107.grid(row=48, column=0,columnspan=12,sticky='sw')
 		
 		self.l108 = tk.Label(self.root, text="-%s"%(comment['gefit']),anchor='w',width=50,justify='left',fg='magenta',font=font)
 		self.l108.grid(row=49, column=0,columnspan=12,sticky='sw')
@@ -3909,11 +3888,7 @@ if __name__ == "__main__":
 	gefitk.root.title('G-EFITK')
 	gefitk.ts = True
 	gefitk.ts_run = False
-#	try:
-#		if (sys.argv[1].lower() == '-plare' or sys.argv[1].lower() == '-test') : 
-#			gefitk.ts = True
-#			gefitk.ts_run = False
-#			print('>>> START TEST MODE')
-#	except: pass
+
+	os.system(python3_exec + ' ' + popup_dir + ' ' + gefit_info)
 	gefitk.declare_vars()
 	gefitk.gui_efit()

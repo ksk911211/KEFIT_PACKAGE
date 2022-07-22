@@ -1,0 +1,4 @@
+*Gui-based EFIT tool
+*2022/07/21
+-PopUp is added (v3.2)
+-Problems in reading NB2 powers are resolved.

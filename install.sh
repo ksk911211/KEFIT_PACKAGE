@@ -19,6 +19,7 @@ KNOT=../ENV/knots_tool3.py
 MMDS=../MDS/multi_mds.py
 AEFIT=../EFIT/aeqdsk.py
 CSAPS=../CSAPS/csaps/
+POPUP=../ENV/popup/py
 
 cd bin
 chmod 777 gefit gfit
@@ -113,7 +114,7 @@ cd ../
 
 cd GEFIT
 chmod 777 efit_rmp.py gefit.py
-rm -f aeqdsk.py batch_run.py ch_tool.py eqdsk.py exec_dirs.py get_efit.py knots_tool3.py MDS.py multi_mds.py
+rm -f aeqdsk.py batch_run.py ch_tool.py eqdsk.py exec_dirs.py get_efit.py knots_tool3.py MDS.py multi_mds.py popup.py
 ln -s $AEFIT
 ln -s $BATCH
 ln -s $CHTOO

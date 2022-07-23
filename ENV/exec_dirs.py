@@ -77,6 +77,7 @@ mpirun                ='/usr/local/mpich/bin/mpirun'
 #infos
 popup_dir     = python_home+'/ENV/popup.py'
 gefit_info    = python_home+'/INFO/gefit.txt'
+gfit_info     = python_home+'/INFO/gfit.txt'
 #eped
 stab_dir      = python_home+'/EPED/eped_stab.py'
 gped_dir      = python_home+'/EPED/gui_eped.py'

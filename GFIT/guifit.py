@@ -16,6 +16,7 @@ from gfit_ece_multi import *
 from progress import *
 from exec_dirs import version,author,comment,mds_dir,mds_tci,pythonc_exec,mds_over,mds_ref,mds_ts
 from exec_dirs import mds_ces,mds_lit,mse_corr,mse_dir,python2_exec,gzip_dir,mds_da,dena_dir
+from exec_dirs import popup_dir, gfit_info
 import pickle
 
 currdir = os.getcwd()
@@ -3929,7 +3930,8 @@ if __name__ == "__main__":
 		if forcefit: exit()
 		guifit.fit.forcefit2 = True
 		guifit.fit.hmodefit = guifit.ishmode
-		
+
+	os.system(python3_exec + ' ' + popup_dir + ' ' + gfit_info)	
 	guifit.root = tk.Tk()
 	guifit.root.title('KFIT')
 	guifit.gfit()

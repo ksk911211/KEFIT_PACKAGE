@@ -6,6 +6,7 @@ import eqdsk
 class GENpFile:
     """
     OMFIT class used to interface with Osborne pfiles
+    cocosio = 1  # pFile's have CCW phi and CW theta
 
     :param filename: filename passed to OMFITobject class
 
@@ -17,7 +18,6 @@ class GENpFile:
         import pfile_convert
         pfile = pfile_convert.GENpFile()
         pfile._make_pfile()
-
 
     def __init__(self):
 
@@ -104,6 +104,8 @@ class GENpFile:
         self.gfile['fpol']     = eq.fpol
 
         self.gfile['psi_v']    = eq.psirz
+        self.gfile['ip']       = eq.ip
+        self.gfile['bcentr']   = eq.bcentr
         self.gfile['psi_r']    = eq.R
         self.gfile['psi_z']    = eq.Z
         self.gfile['prhoR']    = eq.prhoR
@@ -163,7 +165,7 @@ class GENpFile:
 
         # 1st impurity: Carbon 
         self.pfile['nz1']  = self.pfile['nimp']
-        self.pfile['vtor1']= self.pfile['vtor']
+        self.pfile['vtor1']= self.pfile['vtor'] * -1. #(CCW is +, KSTAR CW)
 
         # neglecting 2nd impurity
         self.pfile['nz2']  = np.zeros(ngrid)

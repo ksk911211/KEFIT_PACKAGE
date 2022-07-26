@@ -1,5 +1,6 @@
 *Gui-based EFIT tool
+#2022/07/26
+-Vtor_12C6 sign in p-file is corrected.
 *2022/07/21
 -PopUp is added (v3.2)
 -Problems in reading NB2 powers are resolved.
--Problems in vtor_12C6 sign conventions in p-file is resolved.

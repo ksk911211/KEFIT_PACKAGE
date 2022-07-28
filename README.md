@@ -64,7 +64,7 @@ Updated for KSTAR 2022 campaign (V.3.1)<br />
 -Ver 2.0: Synthetic MSE + RMP compensation added.<br />
 -Ver 3.0: Improved MDS loader + general EFIT schemes<br />
 -Ver 3.1: Pfile generator<br />
--Ver 3.2: Add POPUP function <br />
+-Ver 3.2: Add Update popup <br />
 <br />
 @GFIT<br />
 -Ver 1.0: Single channel based fitting tool<br />

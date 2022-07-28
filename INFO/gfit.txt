@@ -1,0 +1,22 @@
+GFIT
+-------------------------------------------------*
+#2022/07/21
+ Version is updated to v3.3
+ TS CORE/EDGE CH. channel calibration is added.
+ (in ETC section)
+ Update popup is added.
+
+#2022/04/02
+ Version is updated to v3.2
+ New smooth spline (function,CSPAS) is added.
+ Optimized to FY22 campaign.
+
+#2022/03/21
+ Version is updated to v3.1
+ DENA routine is included in MDS section
+
+#2021/03/01
+ Version is updated to v3.0
+ Optimized to FY21 campaign.
+
+-------------------------------------------------*

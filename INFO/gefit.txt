@@ -1,6 +1,19 @@
-*Gui-based EFIT tool
+GEFIT
+-------------------------------------------------*
 #2022/07/26
--Vtor_12C6 sign in p-file is corrected.
-*2022/07/21
--PopUp is added (v3.2)
--Problems in reading NB2 powers are resolved.
+ Vtor_12C6 sign in p-file is corrected.
+
+#2022/07/21
+ Version is updated to v3.2
+ Problems in reading NB2 are resolved.
+ Update popup is added.
+
+#2022/05/02
+ Version is updated to v3.1
+ P-file generator is included (automatic)
+
+#2022/04/01
+ Version is updated to v3.0
+ Optimized for FY 23 campaign.
+
+-------------------------------------------------*

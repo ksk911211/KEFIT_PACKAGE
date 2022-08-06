@@ -38,6 +38,7 @@ ln -s ../ERGEN/ercal.py ercal
 ln -s ../JASTAB/gui_jastab.py gjastab
 ln -s ../GFIT/read_pfile.py readp
 ln -s ../GFIT/gfitp.py gfitp
+ln -s ../GFIT/gfit_plot.py gfitpt
 cd ../
 
 cd BS2K
@@ -127,7 +128,7 @@ ln -s $MMDS
 cd ../
 
 cd GFIT
-chmod 777 gfitp.py guifit.py read_pfile.py TS_NE_dummy.dat
+chmod 777 gfitp.py guifit.py read_pfile.py TS_NE_dummy.dat gfit_plot.py
 rm -f batch_run.py ch_tool.py csaps eqdsk.py exec_dirs.py gefit_mse.py gefit_tool.py get_efit.py 
 rm -f knots_tool3.py MDS.py multi_mds.py progress.py
 rm -rf csaps

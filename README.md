@@ -73,6 +73,7 @@ Updated for KSTAR 2022 campaign (V.3.1)<br />
 -Ver 3.1: DENA merged<br />
 -Ver 3.2: New smooth spline scheme using CSPAS<br />
 -Ver 3.3: TS CORE/EDGE calibration factor<br />
+-Ver 3.3: GFIT plot tool is added (gfitpt)<br />
 <br />
 @JASTAB<br />
 -Ver 1.0: Gui-based ideal pedestal stability tool<br />

@@ -1,5 +1,8 @@
 GFIT
 -------------------------------------------------*
+#2022/08/06
+ GFITPT (gfit_plotting tool is added)
+
 #2022/07/21
  Version is updated to v3.3
  TS CORE/EDGE CH. channel calibration is added.

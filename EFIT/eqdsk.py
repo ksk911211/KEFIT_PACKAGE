@@ -1,4 +1,5 @@
-#!/usr/local/anaconda3/bin/python3
+#!python3
+##!/usr/local/anaconda3/bin/python3
 import os,stat
 import sys
 import scipy.fftpack
@@ -1512,6 +1513,9 @@ class eqdsk:
 		# prhoR
 		self.write_file('Eqdsk_dat/prhoR.dat',self.prhoR,'psin[a.u]\trho[a.u]\tR+[m]\tR-[m]')
 
+		# zjz
+		dat = np.zeros((len(self.psinh),2)); dat[:,0] = self.psinh; dat[:,1] = self.zjzh/1.e6
+		self.write_file('Eqdsk_dat/zjz.dat',dat,'psin[a.u.]\tzj[MA/m2]')
 		return
 			
 	def __init__(self,filename='geqdsk',flag=True):
@@ -1599,6 +1603,7 @@ class eqdsk:
 		elif (run_mode == 'rplot'):
 			eq.draw_plot(False,True)
 		elif (run_mode == 'extract'):
+			eq.surface_zjz()
 			eq.write_files()
 		elif (run_mode == 'plotp'):
 			eq.epslon = 8

@@ -68,10 +68,10 @@ class GENpFile:
         self.units['omgvb'] = 'kRad/s'
         self.units['omgpp'] = 'kRad/s'
         self.units['omgeb'] = 'kRad/s'
-        self.units['ommvb'] = ''
-        self.units['ommpp'] = ''
-        self.units['omevb'] = ''
-        self.units['omepp'] = ''
+        self.units['ommvb'] = 'kRad/s'
+        self.units['ommpp'] = 'kRad/s'
+        self.units['omevb'] = 'kRad/s'
+        self.units['omepp'] = 'kRad/s'
         self.units['er']    = 'kV/m'
         self.units['kpol']  = 'km/s/T'
         self.units['N Z A'] = ''
@@ -336,20 +336,21 @@ class GENpFile:
         for i in range(ngrid):
             btheta  = self.pfile['Btheta'][i] + 1.e-4
             self.pfile['omeg'][i] = +self.pfile['vtor'][i]   /self.pfile['Rlow'][i]
-            self.pfile['ommgp'][i]= +self.pfile['vpol'][i]   *self.pfile['fpol'][i]/(self.pfile['Rlow'][i]**2)/btheta
+            self.pfile['ommgp'][i]= -self.pfile['vpol'][i]   *self.pfile['fpol'][i]/(self.pfile['Rlow'][i]**2)/btheta
             self.pfile['ommvb'][i]= +self.pfile['omeg'][i]   +self.pfile['ommgp'][i]
-            self.pfile['ommpp'][i]= +self.pfile['vpoli'][i]  *self.pfile['fpol'][i]/(self.pfile['Rlow'][i]**2)/btheta
-            self.pfile['omgeb'][i]= +self.pfile['ommpp'][i]  +self.pfile['ommvb'][i]
-
+            self.pfile['ommpp'][i]= -self.pfile['vpoli'][i]  *self.pfile['fpol'][i]/(self.pfile['Rlow'][i]**2)/btheta
+            self.pfile['omgeb'][i]= +self.pfile['ommpp'][i]  -self.pfile['ommvb'][i]
             self.pfile['er'][i]   = +self.pfile['omgeb'][i]  *self.pfile['Rlow'][i]* btheta
 
-            self.pfile['omegp'][i]= +self.pfile['vpol'][i]   *self.pfile['fpol'][i]/(self.pfile['Rlow'][i]**2)/btheta
+        #No carbon separation yet, vtorD=vtorC
+            self.pfile['omegp'][i]= -self.pfile['vpol'][i]   *self.pfile['fpol'][i]/(self.pfile['Rlow'][i]**2)/btheta
             self.pfile['omgvb'][i]= +self.pfile['omeg'][i]   +self.pfile['omegp'][i]
-            self.pfile['omgpp'][i]= +self.pfile['vpolimp'][i]*self.pfile['fpol'][i]/(self.pfile['Rlow'][i]**2)/btheta
-            self.pfile['omgvb'][i]= +self.pfile['omgeb'][i]  -self.pfile['omgpp'][i]
+#            self.pfile['omgpp'][i]= -self.pfile['vpolimp'][i]*self.pfile['fpol'][i]/(self.pfile['Rlow'][i]**2)/btheta
+#            self.pfile['omgvb'][i]= -self.pfile['omgeb'][i]  +self.pfile['omgpp'][i]
+            self.pfile['omgpp'][i]= +self.pfile['ommpp'][i] #Remain as term, so no (-)
 
-            self.pfile['omepp'][i]= +self.pfile['vpole'][i]  *self.pfile['fpol'][i]/(self.pfile['Rlow'][i]**2)/btheta
-            self.pfile['omevb'][i]= +self.pfile['omgeb'][i]  -self.pfile['omepp'][i]
+            self.pfile['omepp'][i]= -self.pfile['vpole'][i]  *self.pfile['fpol'][i]/(self.pfile['Rlow'][i]**2)/btheta #Remain as term, so no (-)
+            self.pfile['omevb'][i]= -self.pfile['omgeb'][i]  +self.pfile['omepp'][i] #Remain as term, so no (-)
             
             self.pfile['kpol'][i] = +self.pfile['vpol'][i]   /btheta
 
@@ -387,7 +388,7 @@ class GENpFile:
 
         thermal_list = ['ne','te','ni','ti']
         fast_list    = ['nb','pb','ptot',]
-        flow_list    = ['omeg','omegp','omgvb','omgpp','er','ommvb','ommpp','omevb','omepp','kpol','omghb']
+        flow_list    = ['omeg','omegp','omgvb','omgpp','omgeb','er','ommvb','ommpp','omevb','omepp','kpol','omghb']
         imp_list     = ['nz1','vtor1','vpol1','nz2','vtor2','vpol2']
         for key in thermal_list:
             self.V[key]['psinorm']    = self.pfile['psi_norm']

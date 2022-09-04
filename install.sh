@@ -37,8 +37,10 @@ ln -s ../CHEASE/chease pchease
 ln -s ../ERGEN/ercal.py ercal
 ln -s ../JASTAB/gui_jastab.py gjastab
 ln -s ../GFIT/read_pfile.py readp
+#ln -s ../GEFIT/read_pfile.py readp2
 ln -s ../GFIT/gfitp.py gfitp
 ln -s ../GFIT/gfit_plot.py gfitpt
+
 cd ../
 
 cd BS2K

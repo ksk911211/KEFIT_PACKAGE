@@ -332,6 +332,10 @@ class GENpFile:
         self.pfile['omghb'] = np.zeros(ngrid) 
 
 
+        #Smoothing core regime
+        self._core_smooth(self.pfile['vpol'])
+        self._core_smooth(self.pfile['vpoli'])
+
         #Less accurate in that it relies on main-ion force balance.
         for i in range(ngrid):
             btheta  = self.pfile['Btheta'][i] + 1.e-4
@@ -343,11 +347,11 @@ class GENpFile:
             self.pfile['er'][i]   = +self.pfile['omgeb'][i]  *self.pfile['Rlow'][i]* btheta
 
         #No carbon separation yet, vtorD=vtorC
-            self.pfile['omegp'][i]= -self.pfile['vpol'][i]   *self.pfile['fpol'][i]/(self.pfile['Rlow'][i]**2)/btheta
-            self.pfile['omgvb'][i]= +self.pfile['omeg'][i]   +self.pfile['omegp'][i]
-#            self.pfile['omgpp'][i]= -self.pfile['vpolimp'][i]*self.pfile['fpol'][i]/(self.pfile['Rlow'][i]**2)/btheta
-#            self.pfile['omgvb'][i]= -self.pfile['omgeb'][i]  +self.pfile['omgpp'][i]
+            self.pfile['omegp'][i]= -self.pfile['vpol'][i]   *self.pfile['fpol'][i]/(self.pfile['Rlow'][i]**2)/btheta           
+            #self.pfile['omgpp'][i]= -self.pfile['vpolimp'][i]*self.pfile['fpol'][i]/(self.pfile['Rlow'][i]**2)/btheta
+            #self.pfile['omgvb'][i]= -self.pfile['omgeb'][i]  +self.pfile['omgpp'][i]
             self.pfile['omgpp'][i]= +self.pfile['ommpp'][i] #Remain as term, so no (-)
+            self.pfile['omgvb'][i]= +self.pfile['omeg'][i]   +self.pfile['omegp'][i]           
 
             self.pfile['omepp'][i]= -self.pfile['vpole'][i]  *self.pfile['fpol'][i]/(self.pfile['Rlow'][i]**2)/btheta #Remain as term, so no (-)
             self.pfile['omevb'][i]= -self.pfile['omgeb'][i]  +self.pfile['omepp'][i] #Remain as term, so no (-)
@@ -360,6 +364,13 @@ class GENpFile:
             self.pfile['omghb'][i]= +(self.pfile['Rlow'][i]*self.pfile['Btheta'][i])**2 / btor * dw_dpsi[i]
 
         self.pfile['vpol1'] = self.pfile['vpol']
+
+    def _core_smooth(self,y):
+
+        lens = 4
+        for i in range(lens-2):
+            y[lens-i-2] = 2.*y[lens-i] - y[lens-i-1]
+        return y
 
     def _derivative(self,x,y):
 

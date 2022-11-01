@@ -1,4 +1,3 @@
-#!python3
 ##!/usr/local/anaconda3/bin/python3
 import os,stat
 import sys
@@ -553,6 +552,14 @@ class eqdsk:
 		elif (self.jconst ==3):
 			jparf = interp1d(self.psin,self.jpar,'cubic')
 			jpart = jparf(psint)
+
+		lenp = len(ppt)-1
+		for i in range(lenp):
+			ii = lenp-i-1
+			if ppt[ii] > 0:
+				if (self.psin[ii]> self.qloc and self.psin[ii]<0.3): self.qloc = self.psin[ii]+0.1; print('>>> Qconstraint adjusted')
+				ppt[ii] = 0.
+				if (self.jconst == 1): ffpt[ii] = ffpt[ii+1]
 		
 		for i in range(nchease):
 			f4.write('%f \n'%np.sqrt(psint[i]))
@@ -678,7 +685,7 @@ class eqdsk:
 		chease_namelist1.append('\n');
 		chease_namelist1.append('\n');
 		chease_namelist1.append('NCSCAL=%i,\n'%self.ncscal);
-		chease_namelist1.append('CSSPEC=%f,\n'%self.qloc);
+		chease_namelist1.append('CSSPEC=%f,\n'%np.sqrt(self.qloc));
 		chease_namelist1.append('! --- CHEASE plasma opt \n');
 		chease_namelist1.append('NEGP=%i, NER=%i, \n'%(self.negp,self.ner));
 		chease_namelist1.append('NIDEAL=%i, \n'%(self.nideal));
@@ -756,8 +763,8 @@ class eqdsk:
 		else:
 			self.get_target_bnd()
 			
-		self.chease_params()
 		self.make_chease_expeq(filename1)
+		self.chease_params()
 		self.write_chease_namelist(filename2,nw)
 		
 		return

@@ -246,8 +246,14 @@ class chease:
 				self.tik[i] = self.tik[i] + epedf[2,2] * ((1.0 - (psin/epedf[2,5]) ** epedf[2,6]) ** epedf[2,7])
 			
 			self.nik[i] = self.nek[i] * (1. - (self.zeff-1.0)/self.zimp)
-				
-		self.ped_width = epedf[1,4]
+		
+		##Regrid with updated pedestal width	
+		if not (self.ped_width == epedf[1,4]):
+			print('>>> Re-grid for new pedestal width, %3.2f'%epedf[1,4])
+			self.ped_width = epedf[1,4]
+			self.grid_xr2 = 1.0 - 0.5*self.ped_width
+			self.grid_sig2 = self.ped_width
+			self.psin_grid(self.grid_xr1,self.grid_sig1,self.grid_xr2,self.grid_sig2,self.grid_n)
 		return
 
 	def construct_zeff(self):
@@ -1557,6 +1563,12 @@ class chease:
 		else:
 			self.p_fast = np.trapz(self.fpt+self.pres_ex,x=self.area)
 
+		pedloc = 1-self.ped_width
+		for i in range(len(self.psin)-1):
+			if (self.psin[i]-pedloc)*(self.psin[i+1]-pedloc)<=0: break
+		w = (pedloc-self.psin[i])/(self.psin[i+1]-self.psin[i]);
+		self.pped = w*self.pt[i+1]+(1.-w)*self.pt[i];
+
 		try:	f = open(self.chease_rundir+'/pres_prof','w')
 		except:	f = open(os.getcwd()+'/pres_prof','w')
 		f.write('%9s\t%9s\t%9s\t%9s\t%9s\t%9s\t%9s\t%9s\t%9s\n'%('PSIN','PREST','PRESF','PRESEX','PTOT','DPREST','DPRESF','DPRESEX','DPTOT'))
@@ -2607,6 +2619,7 @@ class chease:
 		self.target_psin = 0.995
 		self.bsmulti = 1.0
 		self.ped_width = 0.05
+		self.pped    = 0.
 			
 		self.eped_first_run = False
 		self.use_param_shape = False

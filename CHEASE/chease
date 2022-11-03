@@ -260,6 +260,12 @@ if (sim.astra_const):
 
 if sim.nubeam_run:	rmtree('NUBEAM')
 
+if sim.kinprof_type == 3:
+	with open('0d_params','w') as f:
+		f.write('%10s\t%13.7e\n'%('BETAN',sim.betan))
+		f.write('%10s\t%13.7e\n'%('BETAP',sim.bp))
+		f.write('%10s\t%13.7e\n'%('PPED[kpa]',sim.pped/1.e3))
+
 copyfile(sim.chease_rundir+'/EQDSK_COCOS_02.OUT','OUTPUT/EQDSK_OUT')
 print('>>> EQDSK file --> EQDSK_OUT')
 if not (sim.map_mode.lower() == 'none'):

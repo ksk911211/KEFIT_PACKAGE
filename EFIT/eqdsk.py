@@ -1,4 +1,4 @@
-##!/usr/local/anaconda3/bin/python3
+#!/usr/local/anaconda3/bin/python3
 import os,stat
 import sys
 import scipy.fftpack

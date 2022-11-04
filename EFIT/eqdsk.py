@@ -557,7 +557,7 @@ class eqdsk:
 		for i in range(lenp):
 			ii = lenp-i-1
 			if ppt[ii] > 0:
-				if (self.psin[ii]> self.qloc and self.psin[ii]<0.3): self.qloc = self.psin[ii]+0.1; print('>>> Qconstraint adjusted')
+				if (psint[ii]> self.qloc and psint[ii]<0.3): self.qloc = psint[ii]+0.1; print('>>> Qconstraint adjusted')
 				ppt[ii] = 0.
 				if (self.jconst == 1): ffpt[ii] = ffpt[ii+1]
 		

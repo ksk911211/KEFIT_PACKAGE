@@ -1718,15 +1718,11 @@ class chease:
 		return		
 		
 	def beta_iteration(self,criterion=None,map=True):
-
-		try:
-			os.mkdir('OUTPUT')
-		except:
-			pass
-	
+		# Beta iteration by adjusting non-thermal component
+		try: os.mkdir('OUTPUT')
+		except: pass	
 		
 		start_time = time.time()	
-
 		if (self.apf == 0. and self.beta_criterion > 0.):
 			self.apf = 0.3
 	
@@ -1775,8 +1771,6 @@ class chease:
 		
 		if (self.beta_criterion == 1 or self.beta_criterion == 3):
 			ap1 = ap0 + ap0 * (criterion - cval0)/criterion * (self.p_fast + self.p_thermal) / self.p_fast
-#			if cval0>=criterion: ap1 = ap0 * 1.2
-#			else: ap1 = ap0 * 0.8
 		elif(self.beta_criterion == 2):
 			ap1 = ap0 + ap0 * (criterion - cval0)/criterion * (self.p_fast + self.p_thermal) / self.p_fast		
 		if (self.beta_criterion > 0):	
@@ -1865,11 +1859,10 @@ class chease:
 		return
 
 	def beta_iteration_eped(self,criterion=None):
-
+		# beta iteration by adjusting thermal pressure
 		start_time = time.time()
 		if not (self.eqdsk_name.lower() == 'none'):
 			self.load_eqdsk()
-#		else:
 		self.init_current_iteration_eped()
 
 		if (criterion == None):
@@ -1983,27 +1976,21 @@ class chease:
 		return	
 
 	def beta_iteration_eped2(self):
-
+		#beta iteration by adjusting non-thermal + ext current amp iteration for matching li 
 		start_time = time.time()
 
 		niter = 0
-
-#		self.read_kinprof_eped()	
 		self.ajf = 0.	
 		self.bjf = 0.9
-#		self.cjf = self.eped_prof[1,6]
-#		self.djf = self.eped_prof[1,7] * 1.5
 
 		self.beta_iteration(None,False)
 		li0 = self.li
 		ierr = (li0 - self.li_target) / self.li_target		
 
 		print('Li iteration #-1 crit = %f, val = %f, err = %f'%(self.li_target,li0,ierr))
-	
 		self.absolute_ajf = True
 
-		if (self.cjf == 2.0 and self.djf == 2.0):
-
+		if (self.cjf == 1.0 and self.djf == 1.0): #if cjf/djf preset
 			if (ierr > 0.):
 				self.cjf = 4.
 				self.djf = 2.5
@@ -2042,9 +2029,6 @@ class chease:
 			
 			li0 = li1
 			at0 = at1
-			
-			#self.eped_prof[1,2] = at2
-			#self.eped_prof[2,2] = at2
 			self.ajf = at2
 		
 			self.beta_iteration(None,False)
@@ -2063,19 +2047,22 @@ class chease:
 		return
 
 	def beta_iteration_eped3(self):
-
+		#beta iteration by adjusting non-thermal + ext current shape iteration for matching li
 		start_time = time.time()
 
 		niter = 0
 		if(self.kinprof_type == 3):
 			self.read_kinprof_eped()	
 			self.bjf = 1.0
-			self.cjf = self.eped_prof[1,6]
-			self.djf = self.eped_prof[1,7] * 1.5
+			if (self.cjf == 1.0 and self.djf == 1.0): 
+				self.cjf = self.eped_prof[1,6]
+				self.djf = self.eped_prof[1,7] * 1.5
+				print('CJF, DJF changed to %f, %f'%(self.cjf,self.djf))
 		else:
 			self.bjf = 1.0
 			self.cjf = 1.2
 			self.djf = 3.5
+			print('CJF, DJF changed to %f, %f'%(self.cjf,self.djf))
 
 		self.beta_iteration(None,False)
 		li0 = self.li
@@ -2083,10 +2070,10 @@ class chease:
 
 		if ierr > 0.:
 				at0 = self.cjf
-				print('Li iteration #0 crit = %f, val = %f, cjf = %f, err = %f'%(self.li_target,li0,self.cjf,ierr))
+				print('Li iteration #0 crit = %f, val = %f, cjf = %f, djf = %f, err = %f'%(self.li_target,li0,self.cjf,self.djf,ierr))
 		else:
 				at0 = self.djf
-				print('Li iteration #0 crit = %f, val = %f, djf = %f, err = %f'%(self.li_target,li0,self.djf,ierr))
+				print('Li iteration #0 crit = %f, val = %f, cjf = %f, djf = %f, err = %f'%(self.li_target,li0,self.cjf,self.djf,ierr))
 	
 		if (ierr > 0.):
 			at1 = self.cjf * 1.1
@@ -2101,9 +2088,9 @@ class chease:
 		err = (li1 - self.li_target) / self.li_target
 
 		if ierr > 0.:
-			print('Li iteration #1 crit = %f, val = %f, cjf = %f, err = %f'%(self.li_target,li1,at1,err))
+			print('Li iteration #1 crit = %f, val = %f, cjf = %f, djf = %f, err = %f'%(self.li_target,li1,at1,self.djf,err))
 		else:
-			print('Li iteration #1 crit = %f, val = %f, djf = %f, err = %f'%(self.li_target,li1,at1,err))
+			print('Li iteration #1 crit = %f, val = %f, cjf = %f, djf = %f, err = %f'%(self.li_target,li1,self.cjf,at1,err))
 
 		niter = niter + 1
 
@@ -2129,9 +2116,9 @@ class chease:
 			at1 = at2
 			niter = niter + 1
 			if ierr > 0.:
-				print('Li iteration #%2i crit = %f, val = %f, cjf = %f, err = %f'%(niter,self.li_target,li1,at1,err))
+				print('Li iteration #%2i crit = %f, val = %f, cjf = %f, djf = %f, err = %f'%(niter,self.li_target,li1,at1,self.djf,err))
 			else:
-				print('Li iteration #%2i crit = %f, val = %f, djf = %f, err = %f'%(niter,self.li_target,li1,at1,err))
+				print('Li iteration #%2i crit = %f, val = %f, cjf = %f, djf = %f, err = %f'%(niter,self.li_target,li1,self.cjf,at1,err))
 		
 		if not (self.nideal == 0):
 			self.mapping_run()
@@ -2653,8 +2640,8 @@ class chease:
 		self.use_ext_current = False
 		self.ajf = 0.0
 		self.bjf = 0.7
-		self.cjf = 2.0
-		self.djf = 1.5
+		self.cjf = 1.0
+		self.djf = 1.0
 		
 		self.zmain = 1.0
 		self.zeff = 2.0

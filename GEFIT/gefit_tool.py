@@ -985,7 +985,7 @@ def read_kfile(sim,filename,extlib=False):
 		sim.endline = ''
 		if not (line.find('/') > -1):
 
-			if (line.find('MAG') == -1 and line.find('MSE') == -1):
+			if (line.find('MAG') == -1 and line.find('MSE') == -1 and line.find('KIN') == -1):
 				if (count == 1):
 					sim.kfile_in1.append(line)
 				elif (count == 2 and line.find('&INWANT') == -1):

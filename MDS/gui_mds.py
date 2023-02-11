@@ -177,6 +177,10 @@ class kstar_diagnostic_tool:
 		self.opt['ready']['ts']['te'] = False
 		self.opt['ready']['ts']['ne'] = False
 
+		self.opt['isdata']= dict()
+		self.opt['isdata']['ces'] = False
+		self.opt['isdata']['ts']  = False
+
 		self.figure['size']['home'] = (11,7.4)
 		self.figure['size']['plot'] = (3.8,0.9)
 
@@ -851,6 +855,7 @@ class kstar_diagnostic_tool:
 			ind1 = np.where(self.ts['te']['core'][1][0]>=tmin/1.e3); ind2 = np.where(self.ts['te']['core'][1][0][ind1]<=tmax/1.e3)
 			tt   = self.ts['te']['core'][1][0][ind1][ind2]
 		for time in tt: self.note_in['l1'].insert('end','%i'%(time*1.e3))
+		self.opt['isdata'][diag] = len(tt)>0
 		return
 
 	def _sync_list(self,save=True):
@@ -1484,14 +1489,14 @@ class kstar_diagnostic_tool:
 		else: return ''
 
 	def _done(self):
-
-		if (not self.opt['ready']['ces']['ti'] and self.ces['nch']>3): return
-		if (not self.opt['ready']['ces']['vt'] and self.ces['nch']>3): return
-		if (not self.opt['ready']['ts']['te']  and self.ts['core']['nch']>3): return
-		if (not self.opt['ready']['ts']['ne']  and self.ts['core']['nch']>3): return
+		# isdata variable is included to check available data for given time slices
+		if (not self.opt['ready']['ces']['ti'] and self.opt['isdata']['ces']): return
+		if (not self.opt['ready']['ces']['vt'] and self.opt['isdata']['ces']): return
+		if (not self.opt['ready']['ts']['te']  and self.opt['isdata']['ts']):  return
+		if (not self.opt['ready']['ts']['ne']  and self.opt['isdata']['ts']):  return
 
 		currdir = os.getcwd()
-		if self.ts['core']['nch']<3:
+		if not self.opt['isdata']['ts']:
 			self.te_file = ''
 			self.ne_file = ''
 			self.te_file_edge = ''
@@ -1502,7 +1507,7 @@ class kstar_diagnostic_tool:
 			self.te_file_edge = currdir+'/te_%i_%i_edge.dat'%(self.shotn,self.time)
 			self.ne_file_edge = currdir+'/ne_%i_%i_edge.dat'%(self.shotn,self.time)
 
-		if self.ces['nch']<3:
+		if not self.opt['isdata']['ces']:
 			self.ti_file = ''
 			self.vt_file = ''
 		else:

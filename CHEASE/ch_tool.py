@@ -284,7 +284,7 @@ class chease:
 		NN[len2-1] = self.ne[0]
 
 		line_sum = np.trapz(NN,x=RR)
-		line_avg = line_sum /1.9 * 2.0;
+		line_avg = line_sum /(RR[-1]-RR[0]);
 
 		if not (not_only_print):
 			self.scaled_density = 1.0

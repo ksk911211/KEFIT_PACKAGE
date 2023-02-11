@@ -155,7 +155,7 @@ class fit_tool:
 
 		#CHECK BETTER FILTER METHOD
 		for i in range(linec):
-			if not (datX[1] == 0.0):	
+			if not (datX[1] <= 10.0): #Default for ECE false value 10.	
 				if (datX[i] > 3.0*datX[1] and datX[1] < 2.e3):
 					datX[i] = 0.0
 		f4.close()

@@ -70,7 +70,9 @@ def get_efit_list2(shotn):
 
 		if isefit:
 			out = out.split('\n')
-			out = out[1:]
+			for i in range(len(out)):
+				if out[i].find('rw')>-1: break
+			out = out[i:]
 			for i in range(len(out)):
 				try: out[i] = int(out[i].split('.')[-1])
 				except: print(out[i]); isefit = False

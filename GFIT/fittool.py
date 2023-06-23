@@ -7,6 +7,7 @@ from scipy.interpolate import interp1d, interp2d
 from scipy.interpolate import UnivariateSpline as smoothspline
 from scipy.interpolate import LSQUnivariateSpline as lspline
 from scipy.interpolate import make_interp_spline as mspline
+from uncertainties import ufloat, unumpy
 from progress import *
 from exec_dirs import dummy_dir
 import matplotlib.pyplot as plt
@@ -454,8 +455,7 @@ class fit_tool:
 						self.ne_prof['fit2'] = self.ne_prof['fit2'] * self.post['scaled_density']
 						self.ne_prof['fit1'] = self.ne_prof['fit1'] * self.post['scaled_density']
 						self.ne_prof['fit2p']= self.ne_prof['fit2p']* self.post['scaled_density'] 			
-				except:	pass
-			
+				except:	pass		
 		return		
 	
 	def print_scale_density(self,line_avgt,use_scale):
@@ -1260,7 +1260,7 @@ class fit_tool:
 		
 		return
 		
-	def eped_prof(self, x, a1, a2, a3, a4, a5, a6):
+	def eped_prof(self, x, a1=0, a2=0, a3=0, a4=0, a5=0, a6=0, a7=0, a8=0):
 
 		y = a1
 		y = y + a2*(np.tanh(1) - np.tanh((x - 1.0 + 0.5*(a3))/(a3)*2.0))
@@ -1269,7 +1269,7 @@ class fit_tool:
 		
 		return y
 
-	def eped_prof3(self, x, a1, a2, a3, a4, a5, a6):
+	def eped_prof3(self, x, a1=0, a2=0, a3=0, a4=0, a5=0, a6=0, a7=0, a8=0):
 			
 		y = a2*(np.tanh(1) - np.tanh((x - 1.0 + 0.5*(a3))/(a3)*2.0))
 		alp1 = 1.1 + abs(a5) #3.*0.5*(1.+np.tanh((1-a5)/10.))
@@ -1280,7 +1280,7 @@ class fit_tool:
 
 		return y 
 
-	def eped_prof2(self, x, a1, a2, a3, a4, a5, a6, a7):
+	def eped_prof2(self, x, a1=0, a2=0, a3=0, a4=0, a5=0, a6=0, a7=0, a8=0):
 
 		y = a1
 		y = y + a2*(np.tanh((1. - a7)/(a3)*2.0) - np.tanh((x - a7)/(a3)*2.0))
@@ -1289,7 +1289,7 @@ class fit_tool:
 		
 		return y
 
-	def core_prof(self, x, a1, a2, a3, a4): # Core gaussian
+	def core_prof(self, x, a1=0, a2=0, a3=0, a4=0, a5=0, a6=0, a7=0, a8=0): # Core gaussian
 
 		y = a1
 		yt = x ** (a3)
@@ -1302,7 +1302,7 @@ class fit_tool:
 		y = ((1.0 + b*x)*np.exp(x) - np.exp(-x)) / (np.exp(x) + np.exp(-x))
 		return y
 
-	def mtanh_prof(self, x, a1, a2, a3, a4, a5, a6, a7, a8): #mtanh_prof
+	def mtanh_prof(self, x, a1=0, a2=0, a3=0, a4=0, a5=0, a6=0, a7=0, a8=0): #mtanh_prof
 
 		y = (a2 - a1)/ 2.0 * (self.mtanh((a4-x)/2/(a3/4+1.e-7),a5) + 1.0) + a1
 
@@ -1310,7 +1310,7 @@ class fit_tool:
 
 		return y
 
-	def tanh_prof(self,x,a1,a2,a3,a4,a5,a6,a7): #tanh_prof
+	def tanh_prof(self, x, a1=0, a2=0, a3=0, a4=0, a5=0, a6=0, a7=0, a8=0): #tanh_prof
 
 		y = (a2 -  a1) * (1.0 + a3*x + a4 * x**2 + a5 * x**3) * 0.5 * (1.0 - np.tanh((x-a7)/a6*2.)) + a1
 
@@ -1451,14 +1451,23 @@ class fit_tool:
 			llegend.append(line1)
 
 		if np.sum(self.__dict__['%s_prof'%flag]['fit_old']) > 0:
+
+			valerr = self.make_error_boundary(flag,False)
 			if self.fit_opt['use_rho'][flag]:
 				line2, = fig.plot(self.fit_eq['psi_to_rho'](self.fit_eq['psin2']),self.__dict__['%s_prof'%flag]['fit_old'],'blue',linestyle= '--')
+				if not valerr==None: fig.fill_between(self.fit_eq['psi_to_rho'](self.fit_eq['psin2']),valerr[0]-valerr[1],valerr[0]+valerr[1],alpha=0.1,facecolor='blue')
 			else:
 				line2, = fig.plot(self.fit_eq['psin2'],self.__dict__['%s_prof'%flag]['fit_old'],'blue',linestyle= '--')
+				if not valerr==None: fig.fill_between(self.fit_eq['psin2'],valerr[0]-valerr[1],valerr[0]+valerr[1],alpha=0.1,facecolor='blue')
 			plegend.append('Pre Fitted prof')
 			llegend.append(line2)		
 
 		line2, = fig.plot(self.fit_eq['psin2'],self.__dict__['%s_prof'%flag]['fit2'],'red')
+		valerr = self.make_error_boundary(flag,True)
+
+		if not valerr==None:
+			fig.fill_between(self.fit_eq['psin2'],valerr[0]-valerr[1],valerr[0]+valerr[1],alpha=0.1,facecolor='red')
+
 		plegend.append('New Fitted prof')
 		llegend.append(line2)
 
@@ -1954,7 +1963,111 @@ class fit_tool:
 				f.write('COEFS[VAL,ERR]\n');
 				for i in range(len(self.post['popt'][flag])):
 					f.write('a%02i: %13.7e %13.7e\n'%(i+1,self.post['popt'][flag][i],self.post['popte'][flag][i]))
+
+		for flag in self.prof_list:
+			if flag in self.post['errnom'].keys():
+				with open('PROFILES/fit_%s_bound.dat'%flag.upper(),'w') as f:
+					f.write('%9s %9s %9s\n'%('PSIN','UPPER','LOWER'))
+					for i in range(len(self.post['errnom'][flag])):
+						val = self.post['errnom'][flag][i]
+						err = self.post['errstd'][flag][i]
+						f.write('%9.5f %9.5f %9.5f\n'%(self.fit_eq['psin2'][i],val+err,val-err))
 		return
+
+	def ueped_prof(self, x, a1=0, a2=0, a3=0, a4=0, a5=0, a6=0, a7=0, a8=0, a9=0, a10=0):
+
+		A1 = a2*(np.tanh(1) - unumpy.tanh((x - 1.0 + 0.5*(a3))/(a3)*2.0))
+		yt = (x/(1.0-a3)) ** (a5)
+		A2 = a4 
+		A3 = (abs(1-yt) **(a6))
+		A4 = 0.5 * (1.0 + np.sign(1.0-a3.nominal_value-x))
+
+		y  = unumpy.nominal_values(A3) * A2 * A4 * 0.3
+		y += unumpy.nominal_values(A2) * A3 * A4 * 0.7
+		y += A1 + a1
+		return y
+
+	def ueped_prof2(self, x, a1=0, a2=0, a3=0, a4=0, a5=0, a6=0, a7=0, a8=0, a9=0, a10=0):
+
+		A1 = y + a2*(unumpy.tanh((1. - a7)/(a3)*2.0) - unumpy.tanh((x - a7)/(a3)*2.0))
+		yt = (x/(a7-0.5*a3)) ** (a5)
+		A2 = a4
+		A3 = (abs(1-yt)) **(a6)
+		A4 = 0.5 * (1.0 + np.sign(a7.nominal_value-0.5*a3.nominal_value-x))
+		
+		y  = unumpy.nominal_values(A3) * A2 * A4 * 0.3
+		y += unumpy.nominal_values(A2) * A3 * A4 * 0.7
+		y += A1+ a1	
+		return y
+
+	def ucore_prof(self, x, a1=0, a2=0, a3=0, a4=0, a5=0, a6=0, a7=0, a8=0, a9=0, a10=0): # Core gaussian
+
+		yt = x ** (a3)
+		y = a2 * abs(1 - yt)**(a4)
+
+		return y + a1
+
+	def umtanh(self,x,b): # mtanh
+		
+		y = ((1.0 + b*x)*unumpy.exp(x) - unumpy.exp(-x)) / (unumpy.exp(x) + unumpy.exp(-x))
+		return y
+
+	def umtanh_prof(self, x, a1=0, a2=0, a3=0, a4=0, a5=0, a6=0, a7=0, a8=0, a9=0, a10=0): #mtanh_prof
+
+		A1 = (a2 - a1)/ 2.0
+		A2 = (self.umtanh((a4-x)/2/(a3/4+1.e-7),a5) + 1.0)
+		yt = A1*A2 + a1
+		A3 = a6 - yt
+		A4 = unumpy.exp(-1.*(x/(a7+0.2))**(a8))
+
+		y = unumpy.nominal_values(A1) * A2 * 0.3
+		y+= unumpy.nominal_values(A2) * A1 * 0.7
+		y+= unumpy.nominal_values(A3) * A4 * 0.3
+		y+= unumpy.nominal_values(A4) * A3 * 0.7
+		return y + a1
+
+	def utanh_prof(self, x, a1=0, a2=0, a3=0, a4=0, a5=0, a6=0, a7=0, a8=0, a9=0, a10=0): #tanh_prof
+
+		A1= (a2 - a1)
+		A2= (1.0 + a3*x + a4 * x**2 + a5 * x**3)
+		A3= (1.0 - unumpy.tanh((x-a7)/a6*2.)) * 0.5
+		
+		y = unumpy.nominal_values(A1 * A3) * A2 * 0.1
+		y+= unumpy.nominal_values(A2) * A1 * A3 * 0.9
+	
+		return y + a1
+
+	def make_error_boundary(self,flag,isnew=True):
+
+		fit_type = self.fit_opt['func_type'][flag]
+		if isnew: 
+			popt = self.post['popt'][flag]
+			popte= self.post['popte'][flag]
+		else:
+			if not flag in self.post['errnom_old'].keys(): return None
+			return self.post['errnom_old'][flag], self.post['errstd_old'][flag]
+
+		if   (fit_type==1):func = self.ucore_prof
+		elif (fit_type==2):func = self.umtanh_prof
+		elif (fit_type==3):func = self.utanh_prof
+		elif (fit_type==4):func = self.ueped_prof
+		elif (fit_type==6):func = self.ueped_prof2
+		else: return None
+
+		inps = {} 
+
+		for i in range(len(popt)):
+			val = popt[i]
+			err = popte[i]
+			if (np.isnan(err) or np.isinf(err) or err==None): err= 0
+			inps['a%i'%(i+1)] = ufloat(val,err)
+		errdat = func(self.fit_eq['psin2'],**inps)
+		errnom = unumpy.nominal_values(errdat)
+		errstd = unumpy.std_devs(errdat)
+		for i in range(len(errstd)): errstd[i] = max(errstd[i],errnom[i]*0.1)
+		self.post['errnom'][flag] = errnom
+		self.post['errstd'][flag] = errstd
+		return errnom,errstd
 
 	def make_psiRZ_extended(self,psi,Z,islfs=True):
 
@@ -1984,7 +2097,6 @@ class fit_tool:
 			for i in range(len(xx)):
 				if xx[i] <= self.fit_eq['psin2'][-1]: val = pf(xx[i])
 				self.__dict__['%s_prof'%flag]['fit2p'][i] = val
-
 		return
 
 	def adjust_sepval(self):
@@ -2565,6 +2677,10 @@ class fit_tool:
 		self.post['pedmid'] 	 = dict()
 		self.post['popt']   	 = dict()
 		self.post['popte']  	 = dict()
+		self.post['errnom']      = dict()
+		self.post['errstd']      = dict()		
+		self.post['errnom_old']  = dict()
+		self.post['errstd_old']  = dict()
 		self.post['same_opt']    = dict()
 		self.post['fit_ind']     = dict()
 		self.post['oli_ind']     = dict()
@@ -2584,7 +2700,7 @@ class fit_tool:
 			self.post['pedmid'][i]    = 0.97
 			self.post['width'][i]     = 0.97
 			self.post['popt'][i]      = np.ones(10)
-			self.post['popte'][i]     = np.ones(10)
+			self.post['popte'][i]     = np.ones(10)		
 			self.post['same_opt'][i]  = False
 			self.post['didfit'][i]    = False
 			self.post['fit_ind'][i]   = dict()
@@ -2843,7 +2959,10 @@ class fit_tool:
 		if (self.forcefit or self.forcefit2): self.forced_fit_params()
 
 		if (self.post['isdat']['ti'] and self.post['opt_change']['ti']):
-			if self.post['didfit']['ti']: self.ti_prof['fit_old'] = np.copy(self.ti_prof['fit2p'])
+			if self.post['didfit']['ti']: 
+				self.ti_prof['fit_old'] = np.copy(self.ti_prof['fit2p'])
+				self.post['errnom_old']['ti'] = np.copy(self.post['errnom']['ti'])
+				self.post['errstd_old']['ti'] = np.copy(self.post['errstd']['ti'])
 			self.lmfit_fit('ti'); self.post['didfit']['ti'] = True;
 
 			if (self.fit_opt['ped_scan_fit'] and self.fit_opt['use_ti_eped'] and self.fit_opt['use_rho']['ti']):
@@ -2896,7 +3015,10 @@ class fit_tool:
 				
 
 		if (self.post['isdat']['ne'] and self.post['opt_change']['ne']):
-			if self.post['didfit']['ne']: self.ne_prof['fit_old'] = np.copy(self.ne_prof['fit2p'])
+			if self.post['didfit']['ne']: 
+				self.ne_prof['fit_old'] = np.copy(self.ne_prof['fit2p'])
+				self.post['errnom_old']['ne'] = np.copy(self.post['errnom']['ne'])
+				self.post['errstd_old']['ne'] = np.copy(self.post['errstd']['ne'])
 			self.adjust_ts_scale()
 			self.lmfit_fit('ne'); self.post['didfit']['ne'] = True;
 
@@ -2914,7 +3036,11 @@ class fit_tool:
 
 
 		if (self.post['isdat']['te'] and self.post['opt_change']['te']):
-			if self.post['didfit']['te']: self.te_prof['fit_old'] = np.copy(self.te_prof['fit2p'])			
+			if self.post['didfit']['te']: 
+				self.te_prof['fit_old'] = np.copy(self.te_prof['fit2p'])
+				self.post['errnom_old']['te'] = np.copy(self.post['errnom']['te'])
+				self.post['errstd_old']['te'] = np.copy(self.post['errstd']['te'])
+
 			self.lmfit_fit('te'); self.post['didfit']['te'] = True;
 			if (self.fit_opt['ped_scan_fit'] and self.fit_opt['use_rho']['te']):
 				temp_coef = self.modify_rho_to_psi_eped(self.post['popt']['te'],'te',True)
@@ -2928,7 +3054,10 @@ class fit_tool:
 		
 
 		if (self.post['isdat']['vt'] and self.post['opt_change']['vt']):	
-			if self.post['didfit']['vt']: self.vt_prof['fit_old'] = np.copy(self.vt_prof['fit2p'])
+			if self.post['didfit']['vt']: 
+				self.vt_prof['fit_old'] = np.copy(self.vt_prof['fit2p'])
+				self.post['errnom_old']['vt'] = np.copy(self.post['errnom']['vt'])
+				self.post['errstd_old']['vt'] = np.copy(self.post['errstd']['vt'])
 			self.lmfit_fit('vt'); self.post['didfit']['vt'] = True;
 			self.make_fitp('vt')
 

@@ -172,7 +172,6 @@ class eqdsk:
 		for cc in cs:
 			cc[:,1] = cc[:,1] * (max(self.Rcntr)-min(self.Rcntr))/(len(self.Rcntr)-1.) + min(self.Rcntr)
 			cc[:,0] = cc[:,0] * (max(self.Zcntr)-min(self.Zcntr))/(len(self.Zcntr)-1.) + min(self.Zcntr)
-	
 		rz = np.copy(cs[0])
 		rz[:,0] = cs[0][:,1]
 		rz[:,1] = cs[0][:,0]
@@ -997,7 +996,7 @@ class eqdsk:
 			line = line + '{:25s} {:7.3f} [m2]\n'.format('AREA',self.area)		
 
 		
-		line = line + '\n\nCtr-clockwise direction is (+)'
+		line = line + '\n\nCCW direction is (+)'
 
 		ax6=plt.subplot2grid((2,4),(0,3),rowspan=2)
 		ax6.set_xlim([0, 1])

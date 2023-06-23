@@ -1,0 +1,47 @@
+!-- Plasma geometry.
+!-- Plasma 0-d parameters (all in g-file)
+EQDSK = g018594.006450
+ZEFF = 2.0
+ZIMP = 6
+BND_PSIN = 0.997000 
+Beta_criterion_type = 0
+
+!-- Fast ion profile option APF * (1-(psi/BPF)**CPF)**DPF 
+APF = 0.1
+BPF = 0.8
+CPF = 2.0
+DPF = 3.0
+
+!-- Current profile option
+USE_NEO           = False
+USE_HAGER         = False
+USE_CHANG         = True
+HAG_CORE_MOD      = True                                                                                           
+HAG_CORE_MOD=True 
+HAG_CORE_MOD_PSIN = 0.3
+Core_neo = 0.05 
+BSMULTI = 1.0
+
+!AJF * (1-(psi/BJF)**CJF)**DJF 
+AJF           = 0.2
+BJF           = 1.0
+CJF           = 2.0  
+DJF           = 2.0
+
+!-- convergence option
+EPSILON       = 1e-08 !force balance in CHEASE
+Current_ITERN = 25
+NUBEAM_ITERN = 5
+RELAX = 0.6
+IP_CRIT = 1.000000e-04
+BS_CRIT = 1.000000e-04
+Beta_crit = 0.01
+Li_crit   = 0.02
+Li_ITERN = 15
+
+!-- default option
+RUN_MODE = EPED
+ADJUST_PROF = False
+kinetic_profile_type = 3
+chease_kinetic_file = chease_eped
+NIDEAL = 8

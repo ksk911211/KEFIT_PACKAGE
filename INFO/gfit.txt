@@ -1,5 +1,9 @@
 GFIT
 -------------------------------------------------*
+#2023/06/22
+ FIT error range is added.
+ Also file is saved in PROFILES/fit_x_bound.dat
+
 #2022/08/06
  GFITPT (gfit_plotting tool is added)
 

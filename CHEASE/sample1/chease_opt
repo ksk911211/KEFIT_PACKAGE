@@ -1,0 +1,57 @@
+!-- Plasma geometry.
+USE_PARAM_SHAPE = True 
+ELONG  = 1.86
+TRIA   = 0.6
+SQUARE = 0.
+AMINOR = 0.65 ![m]
+RMAJOR = 1.7 ![m]
+
+!-- Plasma 0-d parameters 
+IP                  = 700000.000000 ![A/m2]
+BVAC                = 2.0        ![T]
+ZIMP                = 6.0        !Carbon charge #
+ZEFF                = 2.0 
+AMAIN               = 2.0        !Deutrium
+AIMP                = 12.0       !Carbon impurity
+Beta_val            = 1.5        !Target beta value
+Beta_criterion_type = 1          !1: Beta_pol, 3: Beta_norm
+LITARGET            = 0.65 
+ 
+!-- Fast ion profile option APF * (1-(psi/BPF)**CPF)**DPF 
+APF = 0.1 
+BPF = 0.8 
+CPF = 2.0 
+DPF = 3.0 
+ 
+!-- Current profile option 
+USE_NEO           = False 
+USE_HAGER         = False 
+USE_CHANG         = True 
+HAG_CORE_MOD      = True 
+HAG_CORE_MOD_PSIN = 0.3
+Core_neo      = 0.01 
+BSMULTI       = 1.0 
+
+!AJF * (1-(psi/BJF)**CJF)**DJF
+AJF           = 0.2 
+BJF           = 1.0 
+CJF           = 2.0 
+DJF           = 2.0 
+ 
+!-- convergence option
+EPSILON   = 1e-08 !force balance in CHEASE
+Beta_crit = 0.01 
+Li_crit   = 0.02 
+Ip_crit   = 1e-04 
+Bs_crit   = 1e-04
+Relax     = 0.8
+Current_ITERN = 30 
+Li_ITERN  = 15 
+
+!-- default option
+RUN_MODE             = NORMAL 
+ADJUST_PROF          = False 
+kinetic_profile_type = 3 
+EQDSK                = None
+chease_kinetic_file  = chease_eped 
+NIDEAL               = 8

@@ -1311,6 +1311,7 @@ class chease:
 			if not (self.vloop_ext == 0.0):
 				self.VLOOP = self.vloop_ext
 				self.bscurt = 0.0
+				self.excurt = 0.0
 				self.corecurt = 1.0
 			else:
 				self.init_current()

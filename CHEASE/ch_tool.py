@@ -702,9 +702,9 @@ class chease:
 	def hager_bs(self):
 
 		f = open('neo_coefs','w')
-		f.write('%9s\t%9s\t%9s\t%9s\t%9s\t%9s\n'%('psi_norm','gamma','nu_i','nu_e','gamma_cs','b02av'))
+		f.write('%9s\t%9s\t%9s\t%9s\t%9s\t%9s\t%13s\n'%('psi_norm','gamma','nu_i','nu_e','gamma_cs','b02av','sigma'))
 		f.write('%i\n'%self.num)	
-		f.write('%9.6f\t%9.6f\t%9.6f\t%9.6f\t%9.6f\t%9.6f\n'%(0.,0.,0.,0.,0.,self.b02av[0]))
+		f.write('%9.6f\t%9.6f\t%9.6f\t%9.6f\t%9.6f\t%9.6f\t%13.6e\n'%(0.,0.,0.,0.,0.,self.b02av[0],0.))
 
 		self.hager_const()
 		self.alps = np.zeros(self.num)
@@ -887,7 +887,22 @@ class chease:
 			self.alps[i] = alps_hag
 			if self.use_hager: gama_hag2 = gama_hag
 			else: gama_hag2 = 1.
-			f.write('%9.6f\t%9.6f\t%9.6f\t%9.6f\t%9.6f\t%9.6f\n'%(self.psin[i],-alps_hag*gama_hag2,self.nuis[i],self.nues[i],-alps_hag,self.b02av[i]))
+
+			F33TEF = self.ft[i] / (1. + (0.55-0.1*self.ft[i])*np.sqrt(self.nues[i]) + 0.45*(1.-self.ft[i])*self.nues[i]/self.Z**1.5)
+			if self.use_neo:
+				F33TEF = 1+0.25*(1-0.7*self.ft[i])*np.sqrt(self.nues[i])*(1+0.45*(Z2_hag-1.)**2)+0.61*(1-0.41*self.ft[i])*self.nues[i]/np.sqrt(Z2_hag)
+				F33TEF = self.ft[i]/F33TEF
+	
+			ZNZ = 0.58 + 0.74/(0.76+Z2_hag)
+			SIGSPITZ = 1.9012*1.e4 * (self.te[i]*1.e3)**1.5 / (self.Z * ZNZ * self.ZLE[i])
+			
+			X=F33TEF
+			SIGNEO = 1. -(1.+0.36/Z2_hag)*X + 0.59/Z2_hag * X*X - 0.23/Z2_hag * X**3
+			if self.use_neo:
+				SIGNEO = 1. - (1.+0.21/Z2_hag)*X +0.54/Z2_hag*X**2-0.33/Z2_hag*X**3
+			SIGNEO = SIGNEO * SIGSPITZ
+
+			f.write('%9.6f\t%9.6f\t%9.6f\t%9.6f\t%9.6f\t%9.6f\t%13.6e\n'%(self.psin[i],-alps_hag*gama_hag2,self.nuis[i],self.nues[i],-alps_hag,self.b02av[i],SIGNEO))
 			
 			self.jb_hag1[i] = (gam1_hag*l31s_hag)/self.pe[i]*self.dpt[i] + (gam2_hag*l32s_hag) / self.te[i] * self.dte[i] + (gam4_hag*l34s_hag) * (gama_hag*alps_hag) / Z2_hag / self.te[i] * (1.-2.*DPSI_hag*(-1.5*LTI_hag + LN_hag + Lq_hag))*self.dti[i]
 

@@ -143,7 +143,7 @@ comment['fgefit']     = '||                Bug report: sk42@princeton.edu       
 
 version = dict()
 version['eped']       = '1.0'
-version['gfit']       = '3.3' 
+version['gfit']       = '3.4'
 version['chease']     = '2.2' 
 version['jatool']     = '1.1' 
 version['pedscanner'] = '1.0'
@@ -151,6 +151,6 @@ version['gfitp']      = '2.0'
 version['gefit']      = '3.2' 
 version['bs2kstar']   = '1.0'
 version['fgefit']     = '1.0'
-version['dena']       = '1.2' 
+version['dena']       = '1.3' 
 version['rdena']      = '1.0'
-version['mds']        = '2.0'
+version['mds']        = '2.1'

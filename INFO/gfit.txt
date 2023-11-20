@@ -1,5 +1,14 @@
 GFIT
 -------------------------------------------------*
+#2023/11/20
+ EPED3 profile is added: 
+ * Sep/Ped value ratio constraint
+ * Decaying SOL profile is added
+ MDS data loader also supports TGF-file for CES.
+ * Set env."TGF_PATH" where TGF file will be stored
+ * Put TGF file to "TGF_PATH" with name two@[shot#].txt
+ * Ex. $TGF_PATH/two30000.txt for #30000
+
 #2023/06/22
  FIT error range is added.
  Also file is saved in PROFILES/fit_x_bound.dat

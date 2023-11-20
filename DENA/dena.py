@@ -340,7 +340,7 @@ class kstar_density_tool:
 			self.note_in['e%i'%(i+26)] = tk.Entry(self.note_in['frame9'],textvariable=self.note_in['%s'%labels[i]],width=4,justify='center')
 			self.note_in['e%i'%(i+26)].pack(side='left',padx=2)
 
-		self.l1 = tk.Label(self.note_in['frame9'], text='MINPH')
+		self.l1 = tk.Label(self.note_in['frame9'], text='SEP')
 		self.l1.pack(side='left')
 		self.note_in['e29'] = tk.Entry(self.note_in['frame9'],textvariable=self.note_in['MINPH'],width=4,justify='center')
 		self.note_in['e29'].pack(side='left',padx=2)				
@@ -1567,7 +1567,7 @@ class kstar_density_tool:
 			if isdrift:
 				self.note_in['tci%i'%(ch+1)].set(0)
 		if self.brutal: 
-			self.note_in['WTCI%02i'%(5)].set(0.05)
+			self.note_in['WTCI%02i'%(5)].set(0.07)
 		
 	def _make_ts_raw_files(self):
 
@@ -1753,7 +1753,7 @@ class kstar_density_tool:
 #			self.fit.param['ne']['min'][0] = 0.1
 #			self.fit.param['ne']['val'][0] = max(min_ped * 0.4,0.4)
 #			self.fit.param['ne']['max'][0] = 1.2
-			self.fit.fit_opt['sep_val']['ne'] = max(min_ped * 0.3,0.1)
+			self.fit.fit_opt['sep_val']['ne'] = min_ped
 			self.fit.fit_opt['width_fix']['ne'] = True #False
 			self.fit.fit_opt['width_val']['ne'] = wid_ped
 			self.fit.param['ne']['min'][2] = wid_ped*0.5
@@ -1764,10 +1764,10 @@ class kstar_density_tool:
 			self.fit.param['ne']['max'][4] = 2.2 #2.7 #2.2
 			self.fit.param['ne']['min'][5] = 1.1
 			self.fit.param['ne']['max'][5] = 2.2 #2.7 #2.2
-			self.fit.param['ne']['min'][1] = max((min_ped- self.fit.fit_opt['sep_val']['ne']) / 2. / np.tanh(1),0.1)
+			self.fit.param['ne']['min'][1] = 0.1 #max((min_ped- self.fit.fit_opt['sep_val']['ne']) / 2. / np.tanh(1),0.1)
 		else:
 #			self.fit.fit_opt['sep_fix']['ne'] = True
-			self.fit.fit_opt['sep_val']['ne'] = max(min_ped * 0.3,0.1)
+			self.fit.fit_opt['sep_val']['ne'] = min_ped #max(min_ped * 0.3,0.1)
 			self.fit.param['ne']['min'][2] = wid_ped*0.9
 			self.fit.param['ne']['val'][2] = wid_ped
 			self.fit.param['ne']['max'][2] = wid_ped*1.1
@@ -1777,7 +1777,7 @@ class kstar_density_tool:
 			self.fit.param['ne']['max'][4] = 2.6 #3.0
 			self.fit.param['ne']['min'][5] = 1.05
 			self.fit.param['ne']['max'][5] = 2.6 #3.0
-			self.fit.param['ne']['min'][1] = 0.0
+			self.fit.param['ne']['min'][1] = 0.1
 #			self.fit.param['ne']['max'][1] = 2.0
 #			self.fit.param['ne']['val'][1] = min_ped
 
@@ -1974,7 +1974,7 @@ class kstar_density_tool:
 		self.profiles['didfit']     = False
 		self.profiles['tmin']		= 0
 		self.profiles['tmax']		= 0
-		self.profiles['delt']		= 200
+		self.profiles['delt']		= 20
 		self.profiles['times']		= np.array([])
 		self.profiles['diag']       = dict()
 		self.profiles['infile']     = dict()
@@ -2098,8 +2098,8 @@ class kstar_density_tool:
 		self.ints_preset = np.zeros(2)
 		self.note_in['fcore'].set(1)
 #		self.note_in['gflag'].set(1)
-		self.note_in['MINPH'].set('0.4')
-		self.note_in['WIDTH'].set('0.05')
+		self.note_in['MINPH'].set('0.3')
+		self.note_in['WIDTH'].set('0.07')
 		self.note_ps['xmap'].set(1)
 
 		self.ts_core_ex_preset      = []
@@ -2146,10 +2146,11 @@ if __name__ == "__main__":
 		except: print('>>> Invalid Shot number [#]  ')
 
 	try:
-		if   sys.argv[2]== 'b': brutal_mode = True; nogui = True;  efitv = 0;
-		elif sys.argv[2]== 'B': brutal_mode = True; nogui = True;  efitv = 1;
-		elif sys.argv[2]== 'r': read_mode   = True; nogui = False; efitv = 1;
-		elif sys.argv[2]== 'R': read_mode   = True; nogui = True;  efitv = 1;
+		if   sys.argv[2]== 'B0': brutal_mode = True; nogui = True;  efitv = 0;
+		elif sys.argv[2]== 'B1': brutal_mode = True; nogui = True;  efitv = 1;
+		elif sys.argv[2]== 'B4': brutal_mode = True; nogui = True;  efitv = 4;
+		elif sys.argv[2]== 'r' : read_mode   = True; nogui = False; efitv = 1;
+		elif sys.argv[2]== 'R' : read_mode   = True; nogui = True;  efitv = 1;
 	except: pass
 
 	efit_list = get_efit_list2(shotn)	

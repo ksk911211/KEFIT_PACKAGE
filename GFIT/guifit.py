@@ -749,6 +749,10 @@ class guifittool:
 			line = '$y = a_1 + a_2(tanh[\\frac{1-a7}{a_3/2}] - tanh[\\frac{x - a7}{a3/2}] $\n'
 			line = line + '$y = y + a_4(1 - (\\frac{x}{a7-a_3/2})^{a_5})^{a_6}$'
 			line = line + '\n'
+		elif self.note_fn['func_type']['etc'].get().lower() == 'eped3':
+			line = '$y = 2tanh[1]a_2\\frac{a_1}{1-a_1} + a_2(tanh[\\frac{1-a7}{a_3/2}] - tanh[\\frac{x - a7}{a3/2}] $\n'
+			line = line + '$y = y + a_4(1 - (\\frac{x}{a7-a_3/2})^{a_5})^{a_6}$'
+			line = line + '\n'
 		elif self.note_fn['func_type']['etc'].get().lower() == 'spline':
 			line = 'Smoothed Cubic SPLINE\n'
 			line = line + 'S-Factor = VALUE\n\n'
@@ -2100,7 +2104,7 @@ class guifittool:
 					title = '$V_\phi$ [km/s]'				
 
 				WPED = 0.
-				if (fit_opt['func_type'][flag] == 4 or fit_opt['func_type'][flag] == 2):
+				if (fit_opt['func_type'][flag] == 4 or fit_opt['func_type'][flag] == 2 or fit_opt['func_type'][flag] == 9):
 					WPED = post['popt'][flag][2]
 					PMID = 1.0 - 0.5*WPED
 					if fit_opt['use_rho'][flag]: WPED,PMID = self.fit.pwidth2rwidth(WPED,PMID)
@@ -2443,7 +2447,7 @@ class guifittool:
 		self.post_opt   = dict()
 
 		self.fit.prof_list = ['te','ne','ti','vt']
-		self.func_list = ['CORE','MTANH','PTANH','EPED','SPLINE','EPED2','NSPLINE','SPLINE2']
+		self.func_list = ['CORE','MTANH','PTANH','EPED','SPLINE','EPED2','NSPLINE','SPLINE2','EPED3']
 		self.initialise_opt = True
 		self.didfit = False
 		self.plot_type = 0

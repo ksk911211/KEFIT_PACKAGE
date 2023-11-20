@@ -838,7 +838,7 @@ class fit_tool:
 			else: self.lmfit_set_param(self.param[flag],6,0.05,0.03,0.1,True)	
 			self.lmfit_set_param(self.param[flag],7,0.98,0.88,1.04,True)
 
-		if (fit_type == 4 or fit_type == 9):
+		if (fit_type == 4):
 			if (flag == 'te' or flag == 'ti'):
 				self.lmfit_set_param(self.param[flag],1,0.15,0.05,0.3,True)
 				self.lmfit_set_param(self.param[flag],2,0.5,0.15,5.0,True)
@@ -883,6 +883,29 @@ class fit_tool:
 			self.lmfit_set_param(self.param[flag],5,1.3,1.01,4.0,True)
 			self.lmfit_set_param(self.param[flag],6,2.0,1.01,4.0,True)
 			self.lmfit_set_param(self.param[flag],7,0.98,0.9,0.99,True)		
+
+		if (fit_type == 9):
+			if (flag == 'te' or flag == 'ti'):
+				self.lmfit_set_param(self.param[flag],1,0.1,0.05,0.3,True)
+				self.lmfit_set_param(self.param[flag],2,0.5,0.15,5.0,True)
+			elif (flag == 'ne'):
+				self.lmfit_set_param(self.param[flag],1,0.3,0.1,0.5,True)
+				self.lmfit_set_param(self.param[flag],2,1.0,0.15,5.0,True)
+			elif (flag == 'vt'):
+				self.lmfit_set_param(self.param[flag],1,0.1,0.05,0.3,True)
+				self.lmfit_set_param(self.param[flag],2,100,0.0,np.inf,True)
+
+			if (flag == 'ti' or flag == 'vt'): self.lmfit_set_param(self.param[flag],3,0.05,0.04,0.15,True)
+			else: self.lmfit_set_param(self.param[flag],3,0.05,0.03,0.1,True)
+
+			if (flag == 'vt'):
+				self.lmfit_set_param(self.param[flag],4,200,0.0,np.inf,True)
+			else:
+				self.lmfit_set_param(self.param[flag],4,3.0,0.2,10.0,True)
+			coef5 = 4.
+			if flag=='ne': coef5 = 2.5
+			self.lmfit_set_param(self.param[flag],5,1.3,1.01,coef5,True)
+			self.lmfit_set_param(self.param[flag],6,2.0,1.01,coef5,True)			
 
 		return
 
@@ -1269,16 +1292,18 @@ class fit_tool:
 		
 		return y
 
-	def eped_prof3(self, x, a1=0, a2=0, a3=0, a4=0, a5=0, a6=0, a7=0, a8=0):
-			
-		y = a2*(np.tanh(1) - np.tanh((x - 1.0 + 0.5*(a3))/(a3)*2.0))
-		alp1 = 1.1 + abs(a5) #3.*0.5*(1.+np.tanh((1-a5)/10.))
-		alp2 = 1.1 + abs(a6) #3.*0.5*(1.+np.tanh((1-a6)/10.))
-		yt = abs(x/(1.0-a3)) ** (alp1)
-		y = y + a1 * a4 * ((abs(1-yt)) **(alp2)) * 0.5 * (1.0 + np.sign(1.0-a3-x))
-		y = y + a1 * a2
+	def ueped_prof(self, x, a1=0, a2=0, a3=0, a4=0, a5=0, a6=0, a7=0, a8=0, a9=0, a10=0):
 
-		return y 
+		A1 = a2*(np.tanh(1) - unumpy.tanh((x - 1.0 + 0.5*(a3))/(a3)*2.0))
+		yt = (x/(1.0-a3)) ** (a5)
+		A2 = a4 
+		A3 = (abs(1-yt) **(a6))
+		A4 = 0.5 * (1.0 + np.sign(1.0-a3.nominal_value-x))
+
+		y  = unumpy.nominal_values(A3) * A2 * A4 * 0.3
+		y += unumpy.nominal_values(A2) * A3 * A4 * 0.7
+		y += A1 + a1
+		return y
 
 	def eped_prof2(self, x, a1=0, a2=0, a3=0, a4=0, a5=0, a6=0, a7=0, a8=0):
 
@@ -1289,6 +1314,44 @@ class fit_tool:
 		
 		return y
 
+	def ueped_prof2(self, x, a1=0, a2=0, a3=0, a4=0, a5=0, a6=0, a7=0, a8=0, a9=0, a10=0):
+
+		A1 = y + a2*(unumpy.tanh((1. - a7)/(a3)*2.0) - unumpy.tanh((x - a7)/(a3)*2.0))
+		yt = (x/(a7-0.5*a3)) ** (a5)
+		A2 = a4
+		A3 = (abs(1-yt)) **(a6)
+		A4 = 0.5 * (1.0 + np.sign(a7.nominal_value-0.5*a3.nominal_value-x))
+		
+		y  = unumpy.nominal_values(A3) * A2 * A4 * 0.3
+		y += unumpy.nominal_values(A2) * A3 * A4 * 0.7
+		y += A1+ a1	
+		return y
+
+	def eped_prof3(self, x, a1=0, a2=0, a3=0, a4=0, a5=0, a6=0, a7=0, a8=0):
+			
+		y = a1/(1-a1)*2*a2*np.tanh(1)
+		y = y + a2*(np.tanh(1) - np.tanh((x - 1.0 + 0.5*(a3))/(a3)*2.0))
+		yt = (x/(1.0-a3)) ** (a5)
+		y = y + a4 * ((abs(1-yt)) **(a6)) * 0.5 * (1.0 + np.sign(1.0-a3-x)) #(abs)
+
+		z = 1.- 0.5 * (1.0 - np.sign(1.-x)) * np.tanh((x-1.) / 0.15) * 0.6 
+
+		return y * z
+
+	def ueped_prof3(self, x, a1=0, a2=0, a3=0, a4=0, a5=0, a6=0, a7=0, a8=0, a9=0, a10=0):
+
+		A1 = a2*(np.tanh(1) - unumpy.tanh((x - 1.0 + 0.5*(a3))/(a3)*2.0))
+		yt = (x/(1.0-a3)) ** (a5)
+		A2 = a4 
+		A3 = (abs(1-yt) **(a6))
+		A4 = 0.5 * (1.0 + np.sign(1.0-a3.nominal_value-x))
+
+		y  = unumpy.nominal_values(A3) * A2 * A4 * 0.3
+		y += unumpy.nominal_values(A2) * A3 * A4 * 0.7
+		y += A1 + unumpy.nominal_values(a1/(1-a1)) * 2. * a2  * np.tanh(1)
+		z  = 1.- 0.5 * (1.0 - np.sign(1.-x)) * np.tanh((x-1.) / 0.15) * 0.6
+		return y * z		
+
 	def core_prof(self, x, a1=0, a2=0, a3=0, a4=0, a5=0, a6=0, a7=0, a8=0): # Core gaussian
 
 		y = a1
@@ -1296,6 +1359,13 @@ class fit_tool:
 		y = y + a2 * abs(1 - yt)**(a4)
 
 		return y
+
+	def ucore_prof(self, x, a1=0, a2=0, a3=0, a4=0, a5=0, a6=0, a7=0, a8=0, a9=0, a10=0): # Core gaussian
+
+		yt = x ** (a3)
+		y = a2 * abs(1 - yt)**(a4)
+
+		return y + a1
 
 	def mtanh(self,x,b): # mtanh
 		
@@ -1308,13 +1378,43 @@ class fit_tool:
 
 		y = y + (a6 - y) * np.exp(-1.*(x/(a7+0.2))**(a8))
 
+		return y		
+
+	def umtanh(self,x,b): # mtanh
+		
+		y = ((1.0 + b*x)*unumpy.exp(x) - unumpy.exp(-x)) / (unumpy.exp(x) + unumpy.exp(-x))
 		return y
+
+	def umtanh_prof(self, x, a1=0, a2=0, a3=0, a4=0, a5=0, a6=0, a7=0, a8=0, a9=0, a10=0): #mtanh_prof
+
+		A1 = (a2 - a1)/ 2.0
+		A2 = (self.umtanh((a4-x)/2/(a3/4+1.e-7),a5) + 1.0)
+		yt = A1*A2 + a1
+		A3 = a6 - yt
+		A4 = unumpy.exp(-1.*(x/(a7+0.2))**(a8))
+
+		y = unumpy.nominal_values(A1) * A2 * 0.3
+		y+= unumpy.nominal_values(A2) * A1 * 0.7
+		y+= unumpy.nominal_values(A3) * A4 * 0.3
+		y+= unumpy.nominal_values(A4) * A3 * 0.7
+		return y + a1
 
 	def tanh_prof(self, x, a1=0, a2=0, a3=0, a4=0, a5=0, a6=0, a7=0, a8=0): #tanh_prof
 
 		y = (a2 -  a1) * (1.0 + a3*x + a4 * x**2 + a5 * x**3) * 0.5 * (1.0 - np.tanh((x-a7)/a6*2.)) + a1
 
-		return y
+		return y		
+
+	def utanh_prof(self, x, a1=0, a2=0, a3=0, a4=0, a5=0, a6=0, a7=0, a8=0, a9=0, a10=0): #tanh_prof
+
+		A1= (a2 - a1)
+		A2= (1.0 + a3*x + a4 * x**2 + a5 * x**3)
+		A3= (1.0 - unumpy.tanh((x-a7)/a6*2.)) * 0.5
+		
+		y = unumpy.nominal_values(A1 * A3) * A2 * 0.1
+		y+= unumpy.nominal_values(A2) * A1 * A3 * 0.9
+	
+		return y + a1		
 
 	def spline_knot_params(self,knots_num):
 
@@ -1974,69 +2074,6 @@ class fit_tool:
 						f.write('%9.5f %9.5f %9.5f\n'%(self.fit_eq['psin2'][i],val+err,val-err))
 		return
 
-	def ueped_prof(self, x, a1=0, a2=0, a3=0, a4=0, a5=0, a6=0, a7=0, a8=0, a9=0, a10=0):
-
-		A1 = a2*(np.tanh(1) - unumpy.tanh((x - 1.0 + 0.5*(a3))/(a3)*2.0))
-		yt = (x/(1.0-a3)) ** (a5)
-		A2 = a4 
-		A3 = (abs(1-yt) **(a6))
-		A4 = 0.5 * (1.0 + np.sign(1.0-a3.nominal_value-x))
-
-		y  = unumpy.nominal_values(A3) * A2 * A4 * 0.3
-		y += unumpy.nominal_values(A2) * A3 * A4 * 0.7
-		y += A1 + a1
-		return y
-
-	def ueped_prof2(self, x, a1=0, a2=0, a3=0, a4=0, a5=0, a6=0, a7=0, a8=0, a9=0, a10=0):
-
-		A1 = y + a2*(unumpy.tanh((1. - a7)/(a3)*2.0) - unumpy.tanh((x - a7)/(a3)*2.0))
-		yt = (x/(a7-0.5*a3)) ** (a5)
-		A2 = a4
-		A3 = (abs(1-yt)) **(a6)
-		A4 = 0.5 * (1.0 + np.sign(a7.nominal_value-0.5*a3.nominal_value-x))
-		
-		y  = unumpy.nominal_values(A3) * A2 * A4 * 0.3
-		y += unumpy.nominal_values(A2) * A3 * A4 * 0.7
-		y += A1+ a1	
-		return y
-
-	def ucore_prof(self, x, a1=0, a2=0, a3=0, a4=0, a5=0, a6=0, a7=0, a8=0, a9=0, a10=0): # Core gaussian
-
-		yt = x ** (a3)
-		y = a2 * abs(1 - yt)**(a4)
-
-		return y + a1
-
-	def umtanh(self,x,b): # mtanh
-		
-		y = ((1.0 + b*x)*unumpy.exp(x) - unumpy.exp(-x)) / (unumpy.exp(x) + unumpy.exp(-x))
-		return y
-
-	def umtanh_prof(self, x, a1=0, a2=0, a3=0, a4=0, a5=0, a6=0, a7=0, a8=0, a9=0, a10=0): #mtanh_prof
-
-		A1 = (a2 - a1)/ 2.0
-		A2 = (self.umtanh((a4-x)/2/(a3/4+1.e-7),a5) + 1.0)
-		yt = A1*A2 + a1
-		A3 = a6 - yt
-		A4 = unumpy.exp(-1.*(x/(a7+0.2))**(a8))
-
-		y = unumpy.nominal_values(A1) * A2 * 0.3
-		y+= unumpy.nominal_values(A2) * A1 * 0.7
-		y+= unumpy.nominal_values(A3) * A4 * 0.3
-		y+= unumpy.nominal_values(A4) * A3 * 0.7
-		return y + a1
-
-	def utanh_prof(self, x, a1=0, a2=0, a3=0, a4=0, a5=0, a6=0, a7=0, a8=0, a9=0, a10=0): #tanh_prof
-
-		A1= (a2 - a1)
-		A2= (1.0 + a3*x + a4 * x**2 + a5 * x**3)
-		A3= (1.0 - unumpy.tanh((x-a7)/a6*2.)) * 0.5
-		
-		y = unumpy.nominal_values(A1 * A3) * A2 * 0.1
-		y+= unumpy.nominal_values(A2) * A1 * A3 * 0.9
-	
-		return y + a1
-
 	def make_error_boundary(self,flag,isnew=True):
 
 		fit_type = self.fit_opt['func_type'][flag]
@@ -2052,6 +2089,7 @@ class fit_tool:
 		elif (fit_type==3):func = self.utanh_prof
 		elif (fit_type==4):func = self.ueped_prof
 		elif (fit_type==6):func = self.ueped_prof2
+		elif (fit_type==9):func = self.ueped_prof3
 		else: return None
 
 		inps = {} 
@@ -2858,7 +2896,7 @@ class fit_tool:
 		self.fit_opt['psi_end']['ne']['tse'] = 1.0
 		
 		self.fit_opt['func_type']['te']   = 4
-		self.fit_opt['func_type']['ne']   = 4
+		self.fit_opt['func_type']['ne']   = 9
 		self.fit_opt['func_type']['ti']   = 3
 		self.fit_opt['func_type']['vt']   = 3
 

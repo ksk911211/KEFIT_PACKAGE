@@ -260,15 +260,108 @@ class kstar_diagnostic_tool:
 								
 				if flag=='ti': self.ces['rr']=np.append(self.ces['rr'],rr/1.e3); self.ces['nch'] = ch
 
-			if self.ces['nch'] == 0: print('>>> CES data unavail.');
+			if self.ces['nch'] == 0: print('>>> CES %s data unavail.'%(flag.upper()));
 			else: print('>>> CES %s CH. %i [#] '%(flag.upper(),self.ces['nch']))
 
 			nfile      = self.savfile+'%s_size'%(flag.upper())
 			if not os.path.isfile(nfile):
 				f = open(nfile,'w')
 				f.write('%i %i %i %i\n'%(len(self.ces[flag]['val'][ch][0]),len(self.mds['da'][0]),self.ces['nch'],self.ces['nch']))
-				f.close()				
+				f.close()	
+
+		use_tgf = 'n'; tgf_dir = '';
+		tgf_default = os.environ["TGF_PATH"]+'/twoCES@%i.txt'%self.shotn
+		if self.ces['nch'] == 0: 
+			if os.path.isfile(tgf_default):
+				print('>>> No CES on MDSplus but found TGF file at TGF_PATH!')
+				print('>>> TGF file -> %s'%tgf_default)
+				tgf_dir = tgf_default
+				use_tgf = 'y'
+			else:
+				print('>>> ----------------------------------------------------------------------------------------')
+				print('>>> Do you have two gaussian fitting (TGF)? > Then, follow this procedure')
+				print('>>> 1. Set env."TGF_PATH" where TGF file will be stored, ex)/home/%s/TGF'%(os.environ['USER']))
+				print('>>> 2. Put TGF file to "TGF_PATH" with name two@xxxxx.txt, ex) two@30000 for shot No. 30000')
+				print('>>> 3. Re-run MDS Load')
+				print('>>> ----------------------------------------------------------------------------------------')
+
+		if os.path.isfile(tgf_default) and self.ces['nch']>0:
+			use_tgf=input('>>> Do you want to use TGF instead of MDS?[y/n]  ')
+			if use_tgf.lower()=='y':
+				tgf_dir = tgf_default
+			else: use_tgf = 'n'
+
+		if (use_tgf.lower()=='y' and os.path.isfile(tgf_dir)):
+			self.ces['rr'] = np.array([])
+			ces_dat = self._read_tgf(tgf_dir)
+			self.ces['nch'] = ces_dat['radius'].shape[0]
+			for ch in range(1,self.ces['nch']+1):
+				nfile_t      = self.savfile+'%s%i.npz'%('TI',ch)
+				nfile_v      = self.savfile+'%s%i.npz'%('VT',ch)
+				self.ces['ti']['val'][ch]    = [ces_dat['times'],ces_dat['Ti'][ch-1]*1.e+3]
+				self.ces['ti']['err'][ch]    = [ces_dat['times'],ces_dat['Ti'][ch-1]*1.e+2]
+				self.ces['vt']['val'][ch]    = [ces_dat['times'],ces_dat['Vc'][ch-1]*1.e+0]
+				self.ces['vt']['err'][ch]    = [ces_dat['times'],ces_dat['Vc'][ch-1]*1.e-1]
+
+				rr = ces_dat['radius'][ch-1]*1.e3
+				if os.path.isfile(nfile_t+'.gz'): os.remove(nfile_t+'.gz')
+				if os.path.isfile(nfile_v+'.gz'): os.remove(nfile_v+'.gz')	
+				self._get_save_zipf(nfile_t,[self.ces['ti']['val'][ch][0],self.ces['ti']['val'][ch][1],self.ces['ti']['err'][ch][1],rr])
+				self._get_save_zipf(nfile_v,[self.ces['vt']['val'][ch][0],self.ces['vt']['val'][ch][1],self.ces['vt']['err'][ch][1],rr])
+			
+				self.ces['rr']=np.append(self.ces['rr'],rr/1.e3);
+	
+			nfile_t      = self.savfile+'%s_size'%('TI')
+			nfile_v      = self.savfile+'%s_size'%('VT')
+			for ch in range(1,self.ces['nch']+1):
+				with open(nfile_t,'w') as f:
+					f.write('%i %i %i %i\n'%(len(self.ces['ti']['val'][ch][0]),len(self.mds['da'][0]),self.ces['nch'],self.ces['nch']))
+				with open(nfile_v,'w') as f:
+					f.write('%i %i %i %i\n'%(len(self.ces['vt']['val'][ch][0]),len(self.mds['da'][0]),self.ces['nch'],self.ces['nch']))
+			print('>>> CES TI/VT CH. %i [#] '%(self.ces['nch']))
 		return
+
+	def _read_tgf(self,nfile):
+
+		with open(nfile,'r') as f:
+
+			for i in range(16):
+				line = f.readline()
+				if line.find('DimSize')>-1:
+					[ntime,nradial] = np.array(line.split('=')[1].split(','),dtype='int')
+
+				if line.find('ValNo')>-1:
+					nval = int(line.split('=')[1])
+
+				if line.find('ValName')>-1:
+
+					dat  = {}
+					dat['times'] = np.zeros(ntime)
+					dat['radius'] = np.zeros(nradial)
+					vals = []
+					line2= line.split('=')[1].split("'")
+					
+					for i in range(nval):
+						ind = 1+2*i
+						dat[line2[ind]] = {}
+						vals.append(line2[ind])
+
+						for j in range(nradial):
+							dat[line2[ind]][j] = np.zeros(ntime)
+
+			line = f.readline()
+			if line.find('[data]')>-1:
+				for i in range(ntime):
+					for j in range(nradial):
+						line = f.readline()
+						if not line: break
+						line2= np.array(line.split(','),dtype='float')
+						dat['times'][i] = line2[0]
+						dat['radius'][j] = line2[1]
+
+						for k in range(nval):
+							dat[vals[k]][j][i] = line2[k+2]
+		return dat
 
 	def _load_ts(self):
 
@@ -1199,6 +1292,7 @@ class kstar_diagnostic_tool:
 
 		self.figure['axes']['home'][0].set_ylim(0.,ip_max*1.1)
 		self.figure['axes']['home'][0].set_xlabel('time [s]')
+
 		if    self.note_in['xmap'].get() ==1: self.figure['axes']['home'][1].set_xlabel('R[m]')
 		elif  self.note_in['xmap'].get() ==2: self.figure['axes']['home'][1].set_xlabel('$\\psi_N$')
 		else:                             self.figure['axes']['home'][1].set_xlabel('$\\rho_N$')
@@ -1365,8 +1459,9 @@ class kstar_diagnostic_tool:
 
 		if self.opt['c_ch'] == ch: return
 		self._sync_list(True)
+		self.note_in['xmap'].set(self.opt['xmap']['ces'][ch]);
 		self._clear_home_canvas()
-		self.opt['cpage'] = 'ces'; self.opt['c_ch'] = ch; self.note_in['xmap'].set(self.opt['xmap']['ces'][ch]); 
+		self.opt['cpage'] = 'ces'; self.opt['c_ch'] = ch;
 		self.prev_xmap = self.opt['xmap']['ces'][ch]
 		self.note_in['e1'].delete(0,'end'); self.note_in['e1'].insert(10,'%i'%self.opt['TCES']);
 		self.note_in['e2'].delete(0,'end'); self.note_in['e2'].insert(10,'%i'%self.opt['ACES']);
@@ -1386,8 +1481,9 @@ class kstar_diagnostic_tool:
 
 		if self.opt['c_ch'] == ch: return
 		self._sync_list(True)
+		self.note_in['xmap'].set(self.opt['xmap']['ts'][ch]);
 		self._clear_home_canvas()
-		self.opt['cpage'] = 'ts'; self.opt['c_ch'] = ch; self.note_in['xmap'].set(self.opt['xmap']['ts'][ch]); 
+		self.opt['cpage'] = 'ts'; self.opt['c_ch'] = ch; 
 		self.prev_xmap = self.opt['xmap']['ts'][ch]
 		self.note_in['e1'].delete(0,'end'); self.note_in['e1'].insert(10,'%i'%self.opt['TTS']);
 		self.note_in['e2'].delete(0,'end'); self.note_in['e2'].insert(10,'%i'%self.opt['ATS']);
@@ -1636,6 +1732,7 @@ class kstar_diagnostic_tool:
 			self.figure['pegend']['time2'] = []; self.figure['legend']['time2'] = [];
 			self.figure['pegend']['stime'] = []; self.figure['legend']['stime'] = [];
 			self.figure['axes']['home'][0].set_xlabel('time [s]')
+
 			if    self.note_in['xmap'].get() ==1: self.figure['axes']['home'][1].set_xlabel('R[m]')
 			elif  self.note_in['xmap'].get() ==2: self.figure['axes']['home'][1].set_xlabel('$\\psi_N$')
 			else:                             self.figure['axes']['home'][1].set_xlabel('$\\rho_N$')			

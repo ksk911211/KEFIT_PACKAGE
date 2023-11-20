@@ -49,6 +49,7 @@ Updated for KSTAR 2022 campaign (V.3.1)<br />
 -Ver 1.0: Density fit using interferometers <br />
 -Ver 1.1: General EFIT schemes are launched <br />
 -Ver 1.2: Improved scaler/ and pre-run reading subroutines<br />
+-Ver 1.3: EPED-PROF3 is used for fitting<br />
 <br />
 @EPED<br />
 -Ver 1.0: Gui-based EPED<br />
@@ -74,6 +75,7 @@ Updated for KSTAR 2022 campaign (V.3.1)<br />
 -Ver 3.2: New smooth spline scheme using CSPAS<br />
 -Ver 3.3: TS CORE/EDGE calibration factor<br />
 -Ver 3.3: GFIT plot tool is added (gfitpt)<br />
+-Ver 3.4: Fitting error and EPED-PROF3 is added<br />
 <br />
 @JASTAB<br />
 -Ver 1.0: Gui-based ideal pedestal stability tool<br />
@@ -84,6 +86,7 @@ Updated for KSTAR 2022 campaign (V.3.1)<br />
 <br />
 @GMDS<br />
 -Ver 1.0: Gui-based MDS loader (beta, GEFIT2.0 compatible)<br />
--Ver 2.0: Gui-based MDS loader (GEFIT 3.0 compatiable), supporting EFIT01-05/CES/TS/TCI/MSE/RMP compensation
+-Ver 2.0: Gui-based MDS loader (GEFIT 3.0 compatiable), supporting EFIT01-05/CES/TS/TCI/MSE/RMP compensation<br />
+-Ver 2.1: Supporting two Gauissian fitting
 <br />
 

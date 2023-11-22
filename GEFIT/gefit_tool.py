@@ -262,9 +262,9 @@ def read_comment(sim,filename):
 		sim.textpad.delete('1.0',sim.END)
 		return
 	contents = textfile.read()
-	sim.textpad.delete('1.0',sim.END)
-	sim.textpad.insert('1.0',contents)
 	textfile.close()
+	sim.textpad.delete(1.0,sim.END)
+	sim.textpad.insert('1.0',contents)
 	return
 
 def save_comment(sim,filename):
@@ -272,7 +272,8 @@ def save_comment(sim,filename):
 	textfile = open(filename,'w')
 	contents = sim.textpad.get('1.0',sim.END).split('\n')
 	nline = len(contents)
-	for i in range(nline-2): textfile.write(contents[i]+'\n')
+	for i in range(nline-2):
+		textfile.write(contents[i]+'\n')
 	for i in range(2):
 		if not len(contents[nline-2+i])==0: textfile.write(contents[i]+'\n')
 	textfile.close()
@@ -1982,13 +1983,35 @@ def make_pf_knots(sim,type):
 
 	return sknot
 
+def find_max_current(xx,yy):
+
+	yf = interp1d(xx,yy)
+	scan_xs = np.linspace(0.8,1.0,6,'linear')
+	maxy= np.zeros(scan_xs.shape[0]-1)
+	maxx= np.ones(scan_xs.shape[0]-1) * 0.95
+	
+	for i in range(scan_xs.shape[0]-1):
+	
+		xxs = np.linspace(scan_xs[i],scan_xs[i+1],11)
+		yys = yf(xxs)
+		maxind = np.argmax(yys) 
+
+		if (maxind>0 and maxind<(xxs.shape[0]-1)):
+			maxy[i] = yys[maxind]
+			maxx[i] = xxs[maxind]
+
+	maxind = np.argmax(maxy)
+	return maxx[maxind]
+
 def make_current_knots(sim,coren,edgen,knots,knote):
 
 	xx = np.copy(sim.jconst[:,0]);	yy = np.copy(sim.jconst[:,1]);
 
 	ind = np.where(xx>0.8);	maxloc = xx[ind][np.argmax(yy[ind])];
+	maxloc = find_max_current(xx,yy)
 	ind = np.where(xx<maxloc);	minloc = xx[ind][np.argmin(yy[ind])];
-
+	print('>>> Min current location = %4.3f'%minloc)
+	print('>>> Max current location = %4.3f'%maxloc)
 	if edgen < 6:
 		print('>>> Edge [#] > 5 is needed')
 		edgen = 6;
@@ -2001,10 +2024,12 @@ def make_current_knots(sim,coren,edgen,knots,knote):
 	else:
 		pedn1 = int(pedn1);	pedn2 = pedn1;
 
-	dx = np.linspace(maxloc,0.994,pedn1+2)
+	dx = np.linspace(maxloc,knote-0.006,pedn1+2)
 	for i in range(1,pedn1+1):	x.append(dx[i])
-	dx = np.linspace(min(minloc+0.03,maxloc-0.01),maxloc,pedn2+2)
+	
+	dx = np.linspace(min(minloc,maxloc),maxloc,pedn2+2)
 	for i in range(0,pedn2+1):	x.append(dx[i])
+
 	dx = np.linspace(minloc-0.05,min(minloc+0.03,maxloc-0.01),int(pedn2/2)+2)
 	for i in range(0,int(pedn2/2)+1):	x.append(dx[i])
 

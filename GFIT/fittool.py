@@ -1316,7 +1316,7 @@ class fit_tool:
 
 	def ueped_prof2(self, x, a1=0, a2=0, a3=0, a4=0, a5=0, a6=0, a7=0, a8=0, a9=0, a10=0):
 
-		A1 = y + a2*(unumpy.tanh((1. - a7)/(a3)*2.0) - unumpy.tanh((x - a7)/(a3)*2.0))
+		A1 = a2*(unumpy.tanh((1. - a7)/(a3)*2.0) - unumpy.tanh((x - a7)/(a3)*2.0))
 		yt = (x/(a7-0.5*a3)) ** (a5)
 		A2 = a4
 		A3 = (abs(1-yt)) **(a6)
@@ -2719,6 +2719,11 @@ class fit_tool:
 		self.post['errstd']      = dict()		
 		self.post['errnom_old']  = dict()
 		self.post['errstd_old']  = dict()
+
+#		for key in ['errnom','errstd','errnom_old','errstd_old']:
+#			for i in ['ti','vt','ne','te']: 
+
+
 		self.post['same_opt']    = dict()
 		self.post['fit_ind']     = dict()
 		self.post['oli_ind']     = dict()
@@ -2999,8 +3004,10 @@ class fit_tool:
 		if (self.post['isdat']['ti'] and self.post['opt_change']['ti']):
 			if self.post['didfit']['ti']: 
 				self.ti_prof['fit_old'] = np.copy(self.ti_prof['fit2p'])
-				self.post['errnom_old']['ti'] = np.copy(self.post['errnom']['ti'])
-				self.post['errstd_old']['ti'] = np.copy(self.post['errstd']['ti'])
+				try:
+					self.post['errnom_old']['ti'] = np.copy(self.post['errnom']['ti'])
+					self.post['errstd_old']['ti'] = np.copy(self.post['errstd']['ti'])
+				except: pass
 			self.lmfit_fit('ti'); self.post['didfit']['ti'] = True;
 
 			if (self.fit_opt['ped_scan_fit'] and self.fit_opt['use_ti_eped'] and self.fit_opt['use_rho']['ti']):
@@ -3055,8 +3062,10 @@ class fit_tool:
 		if (self.post['isdat']['ne'] and self.post['opt_change']['ne']):
 			if self.post['didfit']['ne']: 
 				self.ne_prof['fit_old'] = np.copy(self.ne_prof['fit2p'])
-				self.post['errnom_old']['ne'] = np.copy(self.post['errnom']['ne'])
-				self.post['errstd_old']['ne'] = np.copy(self.post['errstd']['ne'])
+				try:
+					self.post['errnom_old']['ne'] = np.copy(self.post['errnom']['ne'])
+					self.post['errstd_old']['ne'] = np.copy(self.post['errstd']['ne'])
+				except: pass
 			self.adjust_ts_scale()
 			self.lmfit_fit('ne'); self.post['didfit']['ne'] = True;
 
@@ -3076,8 +3085,10 @@ class fit_tool:
 		if (self.post['isdat']['te'] and self.post['opt_change']['te']):
 			if self.post['didfit']['te']: 
 				self.te_prof['fit_old'] = np.copy(self.te_prof['fit2p'])
-				self.post['errnom_old']['te'] = np.copy(self.post['errnom']['te'])
-				self.post['errstd_old']['te'] = np.copy(self.post['errstd']['te'])
+				try:
+					self.post['errnom_old']['te'] = np.copy(self.post['errnom']['te'])
+					self.post['errstd_old']['te'] = np.copy(self.post['errstd']['te'])
+				except: pass
 
 			self.lmfit_fit('te'); self.post['didfit']['te'] = True;
 			if (self.fit_opt['ped_scan_fit'] and self.fit_opt['use_rho']['te']):
@@ -3094,8 +3105,10 @@ class fit_tool:
 		if (self.post['isdat']['vt'] and self.post['opt_change']['vt']):	
 			if self.post['didfit']['vt']: 
 				self.vt_prof['fit_old'] = np.copy(self.vt_prof['fit2p'])
-				self.post['errnom_old']['vt'] = np.copy(self.post['errnom']['vt'])
-				self.post['errstd_old']['vt'] = np.copy(self.post['errstd']['vt'])
+				try:
+					self.post['errnom_old']['vt'] = np.copy(self.post['errnom']['vt'])
+					self.post['errstd_old']['vt'] = np.copy(self.post['errstd']['vt'])
+				except: pass
 			self.lmfit_fit('vt'); self.post['didfit']['vt'] = True;
 			self.make_fitp('vt')
 

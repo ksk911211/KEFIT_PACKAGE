@@ -1992,7 +1992,7 @@ def find_max_current(xx,yy):
 	
 	for i in range(scan_xs.shape[0]-1):
 	
-		xxs = np.linspace(scan_xs[i],scan_xs[i+1],11)
+		xxs = np.linspace(scan_xs[i],scan_xs[i+1],501)
 		yys = yf(xxs)
 		maxind = np.argmax(yys) 
 

@@ -1516,7 +1516,7 @@ class fit_tool:
 			title = '$V_\phi$ [km/s]'
 
 		WPED = 0.
-		if (self.fit_opt['func_type'][flag] == 4 or self.fit_opt['func_type'][flag] == 2):
+		if (self.fit_opt['func_type'][flag] == 4 or self.fit_opt['func_type'][flag] == 2 or self.fit_opt['func_type'][flag] == 9):
 			WPED = self.post['popt'][flag][2]
 			PMID = 1.0 - 0.5*WPED
 			if self.fit_opt['use_rho'][flag]: WPED,PMID = self.pwidth2rwidth(WPED,PMID)
@@ -3195,11 +3195,11 @@ class fit_tool:
 			if not self.compare_dict(self.param[i],self.param_old[i]):self.post['opt_change'][i] = True
 
 		for flag in self.prof_list:
-			if (self.fit_opt['func_type'][flag] == 4 and self.post['fit_opt']['func_type'][flag] == 6):
+			if ((self.fit_opt['func_type'][flag] in [4,9]) and self.post['fit_opt']['func_type'][flag] == 6):
 				for i in ['vary','val','min','max']:
 					for j in range(6): self.param[flag][i][j] = self.param_old[flag][i][j]
 
-			if (self.fit_opt['func_type'][flag] == 6 and self.post['fit_opt']['func_type'][flag] == 4):
+			if (self.fit_opt['func_type'][flag] == 6 and (self.post['fit_opt']['func_type'][flag] in [4,9])):
 				for i in ['vary','val','min','max']:
 					for j in range(6): self.param[flag][i][j] = self.param_old[flag][i][j]
 
@@ -3284,7 +3284,7 @@ class fit_tool:
 		elif (self.fit_opt['func_type']['ti'] == 6):
 			tiw = self.post['popt']['ti'][2];	tip = self.post['popt']['ti'][6] - 0.5*tiw;	tiwe = self.post['popte']['ti'][2];
 			tihe = 2.*np.tanh(1)*self.post['popte']['ti'][1]	
-		elif (self.fit_opt['func_type']['ti'] == 4):
+		elif (self.fit_opt['func_type']['ti'] == 4 or self.fit_opt['func_type']['ne'] == 9):
 			tiw = self.post['popt']['ti'][2];	tip = 1.0 - tiw;					
 			tiwe = self.post['popte']['ti'][2];	tihe = 2.*np.tanh(1)*self.post['popte']['ti'][1]
 		elif (self.fit_opt['func_type']['ti'] == 2):
@@ -3299,7 +3299,7 @@ class fit_tool:
 			vthe = (self.post['popt']['vt'][1]-self.post['popt']['vt'][0])*(1+np.tanh(1))*0.5*(s1*vtp+s2*vtp**2+s3*vtp**3)
 		elif (self.fit_opt['func_type']['vt'] == 6):
 			vtw = self.post['popt']['vt'][2];	vtp = self.post['popt']['vt'][6] - 0.5*vtw;	vtwe = self.post['popte']['vt'][2];	vthe = 2.*np.tanh(1)*self.post['popte']['vt'][1]			
-		elif (self.fit_opt['func_type']['vt'] == 4):
+		elif (self.fit_opt['func_type']['vt'] == 4 or self.fit_opt['func_type']['ne'] == 9):
 			vtw = self.post['popt']['vt'][2];	vtp = 1.0 - vtw;			vtwe = self.post['popte']['vt'][2];	vthe = 2.*np.tanh(1)*self.post['popte']['vt'][1]
 		elif (self.fit_opt['func_type']['vt'] == 2):
 			vtw = self.post['popt']['vt'][2];	vtp = self.post['popt']['vt'][3] - 0.5*vtw;	vtwe = self.post['popte']['vt'][2];	vthe = self.post['popte']['vt'][1]
@@ -3313,7 +3313,7 @@ class fit_tool:
 			tehe = (self.post['popt']['te'][1]-self.post['popt']['te'][0])*(1+np.tanh(1))*0.5*(s1*tep+s2*tep**2+s3*tep**3)
 		elif (self.fit_opt['func_type']['te'] == 6):
 			tew = self.post['popt']['te'][2];	tep = self.post['popt']['te'][6] - 0.5*tew;	tewe = self.post['popte']['te'][2];	tehe = 2.*np.tanh(1)*self.post['popte']['te'][1]		
-		elif (self.fit_opt['func_type']['te'] == 4):
+		elif (self.fit_opt['func_type']['te'] == 4 or self.fit_opt['func_type']['ne'] == 9):
 			tew = self.post['popt']['te'][2];	tep = 1.0 - tew;					tewe = self.post['popte']['te'][2];	tehe = 2.*np.tanh(1)*self.post['popte']['te'][1]
 		elif (self.fit_opt['func_type']['te'] == 2):
 			tew = self.post['popt']['te'][2];	tep = self.post['popt']['te'][3] - 0.5*tew;	tewe = self.post['popte']['te'][2];	tehe = self.post['popte']['te'][1]
@@ -3327,7 +3327,7 @@ class fit_tool:
 			nehe = (self.post['popt']['ne'][1]-self.post['popt']['ne'][0])*(1+np.tanh(1))*0.5*(s1*nep+s2*nep**2+s3*nep**3)
 		elif (self.fit_opt['func_type']['ne'] == 6):
 			new = self.post['popt']['ne'][2];	nep = self.post['popt']['ne'][6] - 0.5*new;	newe = self.post['popte']['ne'][2];	nehe = 2.*np.tanh(1)*self.post['popte']['ne'][1]			
-		elif (self.fit_opt['func_type']['ne'] == 4):
+		elif (self.fit_opt['func_type']['ne'] == 4 or self.fit_opt['func_type']['ne'] == 9):
 			new = self.post['popt']['ne'][2];	nep = 1.0 - new;					newe = self.post['popte']['ne'][2];	nehe = 2.*np.tanh(1)*self.post['popte']['ne'][1]
 		elif (self.fit_opt['func_type']['ne'] == 2):
 			new = self.post['popt']['ne'][2];	nep = self.post['popt']['ne'][3] - 0.5*new;	newe = self.post['popte']['ne'][2];	nehe = self.post['popte']['ne'][1]

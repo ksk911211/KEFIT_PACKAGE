@@ -269,11 +269,15 @@ class kstar_diagnostic_tool:
 				f.write('%i %i %i %i\n'%(len(self.ces[flag]['val'][ch][0]),len(self.mds['da'][0]),self.ces['nch'],self.ces['nch']))
 				f.close()	
 
-		use_tgf = 'n'; tgf_dir = '';
-		tgf_default = os.environ["TGF_PATH"]+'/twoCES@%i.txt'%self.shotn
+		use_tgf = 'n'; tgf_dir = ''; tgf_default = '.';
+		if "TGF_PATH" in os.environ: 
+			tgf_default = os.environ["TGF_PATH"]
+		else: print('>>> No TGF_PATH variable')
+
+		tgf_default += '/twoCES@%i.txt'%self.shotn
 		if self.ces['nch'] == 0: 
 			if os.path.isfile(tgf_default):
-				print('>>> No CES on MDSplus but found TGF file at TGF_PATH!')
+				print('>>> No CES on MDSplus but found TGF file!')
 				print('>>> TGF file -> %s'%tgf_default)
 				tgf_dir = tgf_default
 				use_tgf = 'y'

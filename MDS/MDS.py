@@ -57,7 +57,8 @@ class mds():
    
 #   def __init__(self,tree=None,shot=None,server='172.17.250.21:8005'):
 #   def __init__(self,tree=None,shot=None,server='localhost:8005'):
-   def __init__(self,tree=None,shot=None,server='172.17.100.200:8005'):
+#   def __init__(self,tree=None,shot=None,server='172.17.100.200:8005'):
+   def __init__(self,tree=None,shot=None,server='mdsr.kstar.kfe.re.kr:8005'):
        """ 
        Create an instance of MDSplus.Connection class
          tree     : tree name. Default='kstar'

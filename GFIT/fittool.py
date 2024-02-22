@@ -154,11 +154,11 @@ class fit_tool:
 					datP[i] = self.fit_eq['psif'](datR[i],datZ[i])
 				i = i + 1
 
-		#CHECK BETTER FILTER METHOD
-		for i in range(linec):
-			if not (datX[1] <= 10.0): #Default for ECE false value 10.	
-				if (datX[i] > 3.0*datX[1] and datX[1] < 2.e3):
-					datX[i] = 0.0
+		#CHECK BETTER FILTER METHOD (No more use)
+	#	for i in range(linec):
+	#		if not (datX[1] <= 10.0): #Default for ECE false value 10.	
+	#			if (datX[i] > 3.0*datX[1] and datX[1] < 2.e3):
+	#				datX[i] = 0.0
 		f4.close()
 
 		return (datP, datX, datS, datR, datZ)

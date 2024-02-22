@@ -992,6 +992,9 @@ class chease:
 				self.jb_hag[i] = self.jb_hag2[i] * (1.0 - hag_weight2) + self.jb_hag1[i] * hag_weight2
 		f.close()
 
+		#multiplication
+		self.jb_hag = self.jb_hag * self.bsmulti
+
 		self.neoclass_flow3()
 		return
 
@@ -1175,7 +1178,7 @@ class chease:
 		
 		for i in range(self.num):
 			
-			self.zjz[i] = self.VLOOP * (1.0 - (1.0-self.vloop_core_mod)*((1.0-self.psin[i]**2.0)))* self.jcore[i] + self.jb_hag[i]*self.bsmulti
+			self.zjz[i] = self.VLOOP * (1.0 - (1.0-self.vloop_core_mod)*((1.0-self.psin[i]**2.0)))* self.jcore[i] + self.jb_hag[i]
 
 			if (self.use_ext_current):
 				self.zjz[i] = self.zjz[i] +  self.curr_ex[i] * self.gm9[i] / self.gm1[i] * self.b02av[i] / self.f[i] / self.BMAG	#Change NUBEAM Current to jdotB/Bmag
@@ -1193,7 +1196,7 @@ class chease:
 			for i in range(self.num):
 				ww = self.BMAG / self.rc[-1] / self.f[i] / (self.gm1[i]) / (self.BMAG * self.rc[i]/self.f[i])
 				j1 = self.jcore[i]*self.VLOOP
-				j2 = self.jb_hag[i] * self.bsmulti
+				j2 = self.jb_hag[i]
 				j3 = self.jb_hag2[i] * self.bsmulti
 				j4 = self.curr_ex[i] * self.gm9[i] / self.gm1[i] * self.b02av[i] / self.f[i] / self.BMAG
 				if (len(self.zjz_old) >3):

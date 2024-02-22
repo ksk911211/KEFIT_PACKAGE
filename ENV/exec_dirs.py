@@ -15,7 +15,7 @@ efit_source_dir = '/EFIT'
 efit_address = '172.17.250.23'
 #efit years
 shotk = dict()
-years = ['2015','2016','2017','2018','2019','2020','2021','2022']
+years = ['2015','2016','2017','2018','2019','2020','2021','2022','2023']
 for i in years: shotk[i] = dict()
 shotk['2015']['shot'] = range(12289,14389)
 shotk['2016']['shot'] = range(14954,17364)
@@ -24,7 +24,8 @@ shotk['2018']['shot'] = range(19815,21760)
 shotk['2019']['shot'] = range(21761,24080)
 shotk['2020']['shot'] = range(24180,27400)
 shotk['2021']['shot'] = range(27401,30450)
-shotk['2022']['shot'] = range(30451,36000)
+shotk['2022']['shot'] = range(30451,32768)
+shotk['2023']['shot'] = range(32769,36000)
 for year in years:
       for efit_no in range(1,6):
               shotk[year][efit_no] = '/EFIT_RUN/EFITDATA_%s/EFIT%02i'%(year,efit_no)

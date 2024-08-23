@@ -291,7 +291,7 @@ class eqdsk:
 		RR2 = np.linspace(min(self.R)*1.001,self.rmag,301)
 		
 		psif = interp2d(self.R,self.Z,self.psirz)
-		
+
 		psir = psif(RR,self.zmag)
 		psir2 = psif(RR2,self.zmag)
 
@@ -304,7 +304,7 @@ class eqdsk:
 
 		psirn[0] = 0.0;
 		psirn2[-1] = 0.0;
-		
+
 		prf = interp1d(psirn,RR,'cubic')
 		prf2 = interp1d(psirn2,RR2,'cubic')
 		
@@ -609,7 +609,7 @@ class eqdsk:
 		chease_namelist1.append('TENSBND=    -0.1,\n');
 		chease_namelist1.append('NSYM=0, \n');
 		chease_namelist1.append('NTCASE=0, \n');
-		chease_namelist1.append('RELAX = 0.2,\n');
+		chease_namelist1.append('RELAX = %f,\n'%self.relax);
 		chease_namelist1.append('NPLOT=0,\n');
 		chease_namelist1.append('NSMOOTH=1,\n');
 		chease_namelist1.append('NDIAGOP=1,\n');
@@ -1225,6 +1225,7 @@ class eqdsk:
 		self.ner = 2;
 		self.nideal = 11;
 		self.ncscal = 1;
+		self.relax  = 0.5;
 		self.qloc = 0.0;
 		self.pscale = 1.0;
 		self.use_bnd_smooth = True;
@@ -1305,6 +1306,7 @@ class eqdsk:
 			self.nideal = self.read_namelist_str(line,'CHEASE_NIDEAL',self.nideal,1)
 			
 			self.ncscal = self.read_namelist_str(line,'CHEASE_NCSCAL',self.ncscal,1)
+			self.ncscal = self.read_namelist_str(line,'CHEASE_RELAX',self.relax,2)
 			self.qloc = self.read_namelist_str(line,'CHEASE_QLOC',self.qloc,2)
 			
 			self.use_bnd_smooth = self.read_namelist_str(line,'USE_BND_SMOOTH',self.use_bnd_smooth,4)

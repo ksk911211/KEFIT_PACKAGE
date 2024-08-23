@@ -393,6 +393,8 @@ class GENpFile:
 
         self.V['N Z A'] = dict()
         self.V['N Z A']['description'] = 'N Z A of ION SPECIES'
+
+	#IMP1,IMP2,MAIN_ION,FAST_ION in order
         self.V['N Z A']['N'] = np.array([self.pfile['zimp'], 1, 1])
         self.V['N Z A']['Z'] = np.array([self.pfile['zimp'], 1, 1])
         self.V['N Z A']['A'] = np.array([self.pfile['aimp'], self.pfile['amain'], self.pfile['amain']])
@@ -400,7 +402,7 @@ class GENpFile:
         thermal_list = ['ne','te','ni','ti']
         fast_list    = ['nb','pb','ptot',]
         flow_list    = ['omeg','omegp','omgvb','omgpp','omgeb','er','ommvb','ommpp','omevb','omepp','kpol','omghb']
-        imp_list     = ['nz1','vtor1','vpol1','nz2','vtor2','vpol2']
+        imp_list     = ['nz1','vtor1','vpol1'] #,'nz2','vtor2','vpol2']
         for key in thermal_list:
             self.V[key]['psinorm']    = self.pfile['psi_norm']
             self.V[key]['data']       = self.pfile[key]

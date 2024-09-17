@@ -60,6 +60,7 @@ class MDS(object):
     """
     __DefaultTree = "KSTAR"
     __DefaultServer = "172.17.100.200:8005"
+    __DefaultServer = "mdsr.kstar.kfe.re.kr:8005"
 
     def __init__(self, shot=None, tree =__DefaultTree, server=__DefaultServer):
         try:                    
@@ -181,8 +182,8 @@ def run(shot,time_i,time_f,treename='EFITRT1'):
    
    geqdsk=[];
 
-
-   with MDS(server="172.17.100.200:8005") as mds:
+   with MDS(server="mdsr.kstar.kfe.re.kr:8005") as mds:
+#   with MDS(server="172.17.100.200:8005") as mds:
 #   with MDS(server="localhost:8005") as mds:
       try:
           eq=mds.open(shot=shot, tree=treename);
@@ -218,7 +219,7 @@ def run(shot,time_i,time_f,treename='EFITRT1'):
        time_f =  geqdsk[index_time][len(geqdsk[index_time])-1]
        print( "the final time set to", time_f)
 
-   time_distance = 0.095 # 95 ms distance 
+   time_distance = 0.01 #0.095 # 95 ms distance 
    t_before = 0.
    for i in range(0,len(geqdsk[index_time])):
        time = geqdsk[index_time][i];

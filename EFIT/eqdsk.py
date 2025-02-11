@@ -190,7 +190,7 @@ class eqdsk:
 	def get_ext_bnd(self):
 		if len(sys.argv) == 1: return
 		if sys.argv[1] == 'comp': return
-		if not len(sys.argv) > 3: return	
+		if not len(sys.argv) > 5: return	
 		if not os.path.isfile(sys.argv[3]): return
 		f = open(sys.argv[3],'r')
 		ndat = int(float(f.readline()));
@@ -291,7 +291,7 @@ class eqdsk:
 		RR2 = np.linspace(min(self.R)*1.001,self.rmag,301)
 		
 		psif = interp2d(self.R,self.Z,self.psirz)
-
+		
 		psir = psif(RR,self.zmag)
 		psir2 = psif(RR2,self.zmag)
 
@@ -304,7 +304,7 @@ class eqdsk:
 
 		psirn[0] = 0.0;
 		psirn2[-1] = 0.0;
-
+		
 		prf = interp1d(psirn,RR,'cubic')
 		prf2 = interp1d(psirn2,RR2,'cubic')
 		
@@ -1306,7 +1306,7 @@ class eqdsk:
 			self.nideal = self.read_namelist_str(line,'CHEASE_NIDEAL',self.nideal,1)
 			
 			self.ncscal = self.read_namelist_str(line,'CHEASE_NCSCAL',self.ncscal,1)
-			self.ncscal = self.read_namelist_str(line,'CHEASE_RELAX',self.relax,2)
+			self.relax  = self.read_namelist_str(line,'CHEASE_RELAX',self.relax,2)
 			self.qloc = self.read_namelist_str(line,'CHEASE_QLOC',self.qloc,2)
 			
 			self.use_bnd_smooth = self.read_namelist_str(line,'USE_BND_SMOOTH',self.use_bnd_smooth,4)
@@ -1345,11 +1345,11 @@ class eqdsk:
 	
 	def find_q1_surface(self):
 
-		if min(self.q)>1.:	return None	
+		if min(abs(self.q))>1.:	return None	
 		radius = np.array([])
 		for i in range(len(self.q)-1):
-			if ((self.q[i+1]-1.)*(self.q[i]-1.)<0.):
-				q1r = (self.prhoR[i+1,2]-self.prhoR[i,2])/(self.q[i+1]-self.q[i])*(1.-self.q[i])+self.prhoR[i,2]
+			if ((abs(self.q[i+1])-1.)*(abs(self.q[i])-1.)<0.):
+				q1r = (self.prhoR[i+1,2]-self.prhoR[i,2])/(abs(self.q[i+1])-abs(self.q[i]))*(1.-abs(self.q[i]))+self.prhoR[i,2]
 				radius = np.append(radius,q1r)	
 	
 		return	radius

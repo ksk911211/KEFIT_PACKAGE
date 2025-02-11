@@ -791,7 +791,7 @@ class eped:
 		
 	def find_target_point(self,fit,crit):
 	
-		w = np.linspace(self.w_min,self.w_max,1000)
+		w = np.linspace(self.w_min,self.w_max,1.e3)
 		gr = fit(w)
 		
 		width = -1

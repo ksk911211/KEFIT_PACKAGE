@@ -161,6 +161,7 @@ with open('nubeam_out0d','w') as f:
 	f.write('ptot [W] %f\n'%pp_data['ptot'])
 	f.write('wfast [J] %f\n'%pp_data['wfast'])
 	f.write('torque [Nm] %f\n'%pp_data['tqbt'])
+	f.write('current_drive [A] %f\n'%(np.sum(nubeam_data['curbeam'])))
 	with netcdf_file(glob.glob('*_scalars_out.cdf')[0],'r') as scalars_out:
 		f.write('beam-beam neutron rate [#/s] %e\n'%(scalars_out.variables['bbntot'].data))
 		f.write('beam-thermal neutron rate [#/s] %e\n'%(scalars_out.variables['btneut'].data))

@@ -155,7 +155,6 @@ iscoil = False
 for yy in years:
 	if shotn in shotk[yy]['shot']: break
 dirs = efit_source_dir+shotk[yy][1]+'/EXP%06i/'%shotn
-print(dirs)
 if os.path.isdir('EXP%06i'%shotn): exit();
 os.mkdir('EXP%06i'%shotn);
 os.chdir('EXP%06i'%shotn);
@@ -171,7 +170,4 @@ while itime < 1.e6:
 	command = efit_dir + '/efit65p'
 	os.system(command)
 	if not os.path.isfile('g%06i.%06i'%(x.shot,itime)): itime = itime + idel; continue;
-#	move('g%06i.%06i'%(x.shot,itime),'OUT/g%06i.%06i'%(x.shot,itime))
-#	move('m%06i.%06i'%(x.shot,itime),'OUT/m%06i.%06i'%(x.shot,itime))
-#	move('a%06i.%06i'%(x.shot,itime),'OUT/a%06i.%06i'%(x.shot,itime))
 	itime = itime + idel

@@ -2,37 +2,50 @@
 #job scheduler
 scheduler = 'pbs'       #sge
 qsub_exec = '/opt/pbs/bin/qsub'
-qstat_exec = '/opt/pbs/bin/qstat'
+qstat_exec= '/opt/pbs/bin/qstat'
 qdel_exec = '/opt/pbs/bin/qdel'
+#MDS
+mds_address = 'mdsr.kstar.kfe.re.kr:8005'
 #node list option
-node_machine = 'ukstar' #fusma
-node_force=True         #True
-node_init='compute'     #'none'
-node_default='compute'  #old_group.q@node10
+node_machine = 'ukstar'
+node_force   = True     #True
+node_init    ='compute' #'none'
+node_default ='compute'
 #efit links
 efit_source_dir = '/home/users/efit'
 efit_source_dir = '/EFIT'
-efit_address = '172.17.250.23'
+efit_address    = '172.17.250.23'
 #efit years
 shotk = dict()
-years = ['2015','2016','2017','2018','2019','2020','2021','2022','2023']
+years = []
+for i in range(2007,2025): years.append('%i'%i)
 for i in years: shotk[i] = dict()
-shotk['2015']['shot'] = range(12289,14389)
-shotk['2016']['shot'] = range(14954,17364)
-shotk['2017']['shot'] = range(17857,19393)
-shotk['2018']['shot'] = range(19815,21760)
-shotk['2019']['shot'] = range(21761,24080)
-shotk['2020']['shot'] = range(24180,27400)
-shotk['2021']['shot'] = range(27401,30450)
-shotk['2022']['shot'] = range(30451,32768)
-shotk['2023']['shot'] = range(32769,36000)
+shotk['2007']['shot'] = range(  635, 1284)
+shotk['2008']['shot'] = range(  635, 1284)
+shotk['2009']['shot'] = range( 1284, 2457)
+shotk['2010']['shot'] = range( 2457, 4469)
+shotk['2011']['shot'] = range( 4469, 5569)
+shotk['2012']['shot'] = range( 7232, 8355)
+shotk['2013']['shot'] = range( 8355, 9428)
+shotk['2014']['shot'] = range(10616,11725)
+shotk['2015']['shot'] = range(13302,14408)
+shotk['2016']['shot'] = range(16277,17377)
+shotk['2017']['shot'] = range(18370,19397)
+shotk['2018']['shot'] = range(20648,21759)
+shotk['2019']['shot'] = range(21801,24082)
+shotk['2020']['shot'] = range(24082,27401)
+shotk['2021']['shot'] = range(27401,30446)
+shotk['2022']['shot'] = range(30446,32769)
+shotk['2023']['shot'] = range(32769,34837)
+shotk['2024']['shot'] = range(34925,37900)
 for year in years:
       for efit_no in range(1,6):
               shotk[year][efit_no] = '/EFIT_RUN/EFITDATA_%s/EFIT%02i'%(year,efit_no)
 #mse favorable channels.
 mse_good_ch = dict()
 for i in years: mse_good_ch[i] = []
-mse_good_ch['2015'] = [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
+for i in range(2007,2016):
+	mse_good_ch['%i'%i] = [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
 mse_good_ch['2016'] = [1,1,1,0,1, 1,1,1,1,1, 1,1,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
 mse_good_ch['2017'] = [0,1,1,1,1, 1,1,1,1,0, 0,1,1,1,0, 0,0,1,1,0, 0,0,0,0,0]
 mse_good_ch['2018'] = [0,0,1,1,1, 1,1,1,1,1, 1,1,1,1,0, 0,0,1,0,0, 0,0,0,0,0]
@@ -40,7 +53,8 @@ mse_good_ch['2019'] = [0,0,1,1,1, 0,1,0,0,0, 1,1,1,0,1, 0,0,1,1,0, 0,0,0,0,0]
 mse_good_ch['2020'] = [1,1,1,0,1, 1,1,1,1,1, 1,1,0,0,0, 0,0,1,0,0, 0,0,0,0,0]
 mse_good_ch['2021'] = [1,1,1,0,1, 1,1,1,1,1, 1,1,0,0,0, 0,0,1,0,0, 0,0,0,0,0]
 mse_good_ch['2022'] = [1,1,1,0,1, 1,1,1,1,1, 1,1,0,0,0, 0,0,1,0,0, 0,0,0,0,0]
-
+mse_good_ch['2023'] = [1,1,1,0,1, 1,1,1,1,1, 1,1,0,0,0, 0,0,1,0,0, 0,0,0,0,0]
+mse_good_ch['2024'] = [1,1,1,0,1, 1,1,1,1,1, 1,1,0,0,0, 0,0,1,0,0, 0,0,0,0,0]
 ##---Executables
 #chease
 chease_exec  = '/usr/local/analysis/EQUI/CHEASE/bin/chease'
@@ -50,7 +64,9 @@ helena_exec  = '/usr/local/analysis/EQUI/HELENA/bin/hel13'
 mis_exec     = '/usr/local/analysis/STAB/MISHKA/bin/mishka1fast_'
 #elite
 elite_exec   = '/usr/local/analysis/STAB/ELITE/bin/elite'
+elite_exce   = '/home/ksk911211/CODE/STAB/ELITE/bin/elite'
 elite_dir    = '/usr/local/analysis/STAB/ELITE/bin'
+elite_dir    = '/home/ksk911211/CODE/STAB/ELITE/bin'
 #gzip
 gzip_dir     = 'gzip'
 #python
@@ -59,8 +75,8 @@ python3_exec = '/usr/local/anaconda3/bin/python3'
 pythonc_exec = python3_exec
 
 ##---python scripts
-#python_home  = '/home/ksk911211/PYTHON/KEFIT_PACKAGE/'
-python_home  = '/usr/local/analysis/KEFIT/'
+python_home  = '/home/ksk911211/PYTHON/KEFIT_PACKAGE/'
+#python_home  = '/usr/local/analysis/KEFIT/'
 #chease
 chease_dir    = python_home+'/CHEASE/chease'
 #nubeam

@@ -682,13 +682,20 @@ class gefitk:
 					if self.rrrgam[i] < 0: 
 						self.fwtgam[i] = 0.
 						self.sgamma[i] = 0.;
+				for i in range(200,200+self.clen3):
+					self.__dict__['CoilVar%d'%(i+1)].set(int(self.fwtgam[i-200]))
+
+				self.MenuVar7.set('eMSE')
+
 		self.dtgamma = np.copy(self.sgamma)
 		for i in range(61,61+len(self.sgamma)):
 			if self.__dict__['StrVar%i'%i].get() == '': self.__dict__['StrVar%i'%i].set('0.0') 
 			self.dtgamma[i-61] = float(self.__dict__['StrVar%i'%i].get())
 
-		if not self.ismse:	self.MenuVar7.set('sMSE')
-		if not self.ismse:
+		if not self.ismse:	
+			self.MenuVar5.set('sMSE')
+			self.MenuVar7.set('sMSE')
+
 			print('>>> No MSE data in K-FILE, please use sMSE option!')
 			self.use_smse = True
 			self.CheckVar3.set(1)
@@ -2403,7 +2410,7 @@ class gefitk:
 			a3 = self.StrVar40.get()
 			self.StrVar38.set('201')
 			self.StrVar39.set('0.5')
-			self.StrVar40.set('1.e-4')
+			self.StrVar40.set('1.e-3')
 			make_kfile(self,True)
 			write_efit_input(self,kfile_dir)
 			os.chdir(efitdir)
@@ -2567,7 +2574,7 @@ class gefitk:
 		a3 = self.StrVar40.get()
 		self.StrVar38.set('201')
 		self.StrVar39.set('0.5')
-		self.StrVar40.set('1.e-4')
+		self.StrVar40.set('1.e-3')
 
 		s1 = self.StrVar17.get()
 		s2 = self.StrVar18.get()
@@ -3599,7 +3606,7 @@ class gefitk:
 		self.wkin = 0.0
 		self.rmag = 1.8
 
-		self.run_type = 'sMSE'
+		self.run_type = 'eMSE'
 		self.beamdiff = 0.0
 		self.adjust_prof = False
 		self.bsmulti = 1.0
@@ -3697,7 +3704,7 @@ class gefitk:
 		self.use_jconst = True
 		self.mxiter = 101
 		self.efit_relax = 0.5
-		self.efit_conv = 1.e-4
+		self.efit_conv = 1.e-3
 		self.fwtcur = 2.
 		self.use_q_const = False
 		self.use_bnd_const = True

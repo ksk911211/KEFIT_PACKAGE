@@ -114,7 +114,8 @@ def gefit_ece(shot, t_sample = 0.0002, lfs_option = 'y'):
 	for i in INX2:
 		try:
 #			ch_name = 'ECE' + str(i).zfill(2)
-			print('ECE Ch. %02i/%02i is avail'%(i+1-INX2[0],INX2[-1]-INX2[0]+1))
+			sys.stdout.write('\rECE Ch. %02i/%02i is avail'%(i+1-INX2[0],INX2[-1]-INX2[0]+1))
+			sys.stdout.flush()
 #			tt, yy = getmds(g, ch_name,t_start,t_end,t_sample)
 			tt = ECE_pll.t[multi_count]
 			yy = ECE_pll.y[multi_count]
@@ -123,7 +124,7 @@ def gefit_ece(shot, t_sample = 0.0002, lfs_option = 'y'):
 			comm = 'gzip ' + filename
 			os.system(comm)
 			count1 = count1 + 1
-		except: print('ECE Ch. %i/%i is unavail'%(i+1-INX2[0],INX2[-1]-INX2[0])) 
+		except: print('\nECE Ch. %i/%i is unavail'%(i+1-INX2[0],INX2[-1]-INX2[0])) 
 		multi_count = multi_count + 1
 	f = open('DATASAVE/%i/ECE_size'%shot,'w')
 	f.write('%i'%(count1-1))
@@ -131,6 +132,7 @@ def gefit_ece(shot, t_sample = 0.0002, lfs_option = 'y'):
 		
 	endtime = time_check.time() - start
 	timedone = 'Working time is ... ' + str(endtime) +' [s]'
+	print()
 	print(timedone)
 	return
 

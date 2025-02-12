@@ -1763,7 +1763,7 @@ if __name__ == "__main__":
 	try: shotn = int(sys.argv[1]); time = int(sys.argv[2])
 	except: exit() 
 	try: aces = int(sys.argv[3]); ats = int(sys.argv[4])
-	except: aces = 150; ats = 150;
+	except: aces = 100; ats = 150;
 	try:    nogui = int(sys.argv[5])
 	except: nogui = 0
 

@@ -591,7 +591,8 @@ def run_smse(sim,bdiff,chease_exec):
 	command = command + 'mv ' + out_dir1+'/nubeam_iter_result '+ save_dir+'/nubeam_iter_result'+'\n'
 
 	#if sim.nbeam > 0:
-	command = command + 'rmdir ' + save_dir+'/PROFILES'+'\n'
+	if os.path.isdir(save_dir+'/PROFILES'):
+		command = command + 'rm -rf ' + save_dir+'/PROFILES'+'\n'
 	command = command + 'mv ' + out_dir2+' '+save_dir+'/PROFILES'+'\n'
 	
 	for i in range(run_n+1):
@@ -1160,12 +1161,12 @@ def make_kfile(sim,mse_shift=True):
 	if sim.CheckVar5.get() == 1:	sim.kfile_in1.append('  fwtqa   = 1  \n')
 	else:	sim.kfile_in1.append('  fwtqa   = 0  \n')
 
+	mse_rshift = 0.
 	if len(sim.StrVar42.get().split(',')) > 1:
 		qvfit = float(sim.StrVar42.get().split(',')[0])
-		mse_rshift = float(sim.StrVar42.get().split(',')[1])
+		#mse_rshift = float(sim.StrVar42.get().split(',')[1])
 	else:
 		qvfit = float(sim.StrVar42.get().split(',')[0])
-		mse_rshift = 0.
 
 	sim.kfile_in1.append('  qvfit   = %s \n\n'%qvfit)		
 
@@ -2234,10 +2235,14 @@ def draw_efit_runs(sim,filename,map_name,ax1,ax2,ax3,ax4,index,skip=False):
 	ax4.plot(sim.efit_psin,sim.efit_q)
 	ax4.axhline(y=1.,color='gold',linestyle='--',linewidth = 1.0);
 
-	radius,ismap = find_q1_surface(sim.efit_psin,sim.efit_q,map_name)
+	draw_qv = 1;
+	try: draw_qv = float(sim.e54.get())
+	except: draw_qv = 0;
 
-	if not ismap: line = ', q=1 at $\psi_N$ = '
-	else: line = ', q=1 at R[m] = '
+	radius,ismap = find_q1_surface(sim.efit_psin,sim.efit_q,map_name,draw_qv)
+
+	if not ismap: line = ', q=%4.2f at $\psi_N$ = '%draw_qv
+	else: line = ', q=%4.2f at R[m] = '%draw_qv
 	if radius[0]==-1:	line = ''
 	else: 
 		for i in range(len(radius)): line = line + '%3.2f '%radius[i]
@@ -2269,7 +2274,7 @@ def draw_efit_runs(sim,filename,map_name,ax1,ax2,ax3,ax4,index,skip=False):
 	
 	return
 
-def find_q1_surface(psin,qq,map_dir):
+def find_q1_surface(psin,qq,map_dir,qtarget=1):
 
 	ismap = False
 	if os.path.isfile(map_dir):
@@ -2285,7 +2290,7 @@ def find_q1_surface(psin,qq,map_dir):
 		pRf = interp1d(psin2,RP)
 		ismap = True
 
-	qtarget = 1.
+#	qtarget = 1.
 	if min(qq) > qtarget:	return [-1], ismap
 	radius = np.array([])
 	q1r_old = -1

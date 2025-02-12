@@ -1508,7 +1508,7 @@ class gefitk:
 		self.e41.insert(10,self.StrVar41.get())
 		self.e41.grid(row=16, column=4,columnspan=3)
 
-		self.l1 = tk.Label(self.t6, text="QCONST",justify='center')
+		self.l1 = tk.Label(self.t6, text="Q0 CONST",justify='center')
 		self.l1.grid(row=17, column=0,columnspan=4)
 		self.e42 = tk.Entry(self.t6,width=6,justify='center')
 		self.e42.insert(10,self.StrVar42.get())
@@ -1915,7 +1915,6 @@ class gefitk:
 					self.MenuVar10.set(self.efit_index[-1])
 
 		self.efit_index = find_efit_runs(self)
-
 		self.t8 = tk.Toplevel(self.root)
 		self.t8.wm_title("EFIT RUN #%s %s[ms]-%s"%(self.e1.get(),self.e2.get(),self.MenuVar1.get()))
 		self.t8_close = False		
@@ -1945,6 +1944,8 @@ class gefitk:
 
 		b1 = tk.Button(self.t8, text="SGAM",  bg = "lightgray",command=lambda: self.button_func11(),height = 1,width = 5)
 		b1.grid(row=3,column=2,columnspan=2)
+		b2 = tk.Button(self.t8, text="DTAM",  bg = "lightgray",command=lambda: self.button_func12(),height = 1,width = 5)
+		b2.grid(row=3,column=4,columnspan=2)
 		
 		self.l1 = tk.Label(self.t8, text="sMSE",justify='center')
 		self.l1.grid(row=3, column=6,columnspan=2,sticky='e')
@@ -1993,13 +1994,16 @@ class gefitk:
 		self.e41.insert(10,self.StrVar41.get())
 		self.e41.grid(row=16, column=4,columnspan=3)
 
-		self.l1 = tk.Label(self.t8, text="QCONST",justify='center')
+		self.l1 = tk.Label(self.t8, text="Q0[CONS/PLOT]",justify='center')
 		self.l1.grid(row=17, column=0,columnspan=4)
 		self.e42 = tk.Entry(self.t8,width=6,justify='center')
 		self.e42.insert(10,self.StrVar42.get())
 		self.e42.grid(row=17, column=4,columnspan=3)
+		self.e54 = tk.Entry(self.t8,width=4,justify='center')
+		self.e54.insert(10,'1.0')
+		self.e54.grid(row=17, column=6,columnspan=2)
 		self.c1 = tk.Checkbutton(self.t8,variable=self.CheckVar5)
-		self.c1.grid(row=17, column=7)
+		self.c1.grid(row=17, column=8)
 
 		if self.ts:
 			self.l1 = tk.Label(self.t8, text="Er-Correct [#]",justify='center')
@@ -2261,7 +2265,7 @@ class gefitk:
 			except:	self.__dict__['CheckVar%d'%i].set(int(float('0')))
 
 		for i in range(61,90):
-			try:    line = f.readline().split('\n')[0].split('!')[0].split()[0]
+			try: line = f.readline().split('\n')[0].split('!')[0].split()[0]
 			except: line = '0.0'
 			self.__dict__['StrVar%d'%i].set(line)
 	
@@ -3162,17 +3166,15 @@ class gefitk:
 		self.StrVar16.set(self.e16.get())
 		if float(self.StrVar16.get()) <= 0.:	return
 		for i in range(171,171+len(self.sgamma)):
-			self.__dict__['StrVar%d'%i].set(self.StrVar16.get())
 			self.__dict__['e%d'%i].delete(0,'end')	
-			self.__dict__['e%d'%i].insert(10,self.__dict__['StrVar%d'%i].get())
+			self.__dict__['e%d'%i].insert(10,self.StrVar16.get())
 		return
 
 	def button_func11b(self):
 
 		for i in range(171,171+len(self.sgamma)):
-			self.__dict__['StrVar%d'%i].set('%5.4e'%self.sgamma[i-171])
 			self.__dict__['e%d'%i].delete(0,'end')
-			self.__dict__['e%d'%i].insert(10,self.__dict__['StrVar%d'%i].get())
+			self.__dict__['e%d'%i].insert(10,'%5.4e'%self.sgamma[i-171])
 		return
 
 	def button_func11c(self,rtype=1):
@@ -3188,7 +3190,7 @@ class gefitk:
 		self.t16.destroy()
 		return
 
-	def button_func12(self,rtype=1):
+	def button_func12(self,rtype=2):
 
 		if not self.t19_close:
 			print('>>> Current DTGAMMA is already opened...')
@@ -3217,7 +3219,17 @@ class gefitk:
 			k = k + 1
 			j = j + 1
 			if j == 5: j = 0; i = i + 1
+		
+		self.l1 = tk.Label(self.t19, text="UNIFORM MSE-DTG ",justify='center')
+		self.l1.grid(row=i+1, column=0,columnspan=2,sticky='e')
+		self.e53 = tk.Entry(self.t19,width=8,justify='center')
+		self.e53.insert(10,'0.0')
+		self.e53.grid(row=i+1, column=2,columnspan=1)
 
+		b1 = tk.Button(self.t19, text="SET", bg = "lightgray",command=lambda: self.button_func12b(),height = 1,width = 5)
+		b1.grid(row=i+1,column=3)
+		b1 = tk.Button(self.t19, text="RESET", bg = "lightgray",command=lambda: self.button_func12c(),height = 1,width = 5)
+		b1.grid(row=i+1,column=4)
 		b1 = tk.Button(self.t19, text="SAVE", bg = "lightgray",command=lambda: self.button_func12a(rtype),height = 1,width = 5)
 		b1.grid(row=i+2,column=0,columnspan=5)
 
@@ -3226,7 +3238,6 @@ class gefitk:
 
 		self.c1 = tk.Checkbutton(self.t19,variable=self.CheckVar7)
 		self.c1.grid(row=i+2, column=1,sticky='w')
-
 
 		return
 
@@ -3239,6 +3250,20 @@ class gefitk:
 		if rtype==1:    draw_mse_constraint(self)
 		self.t19_close = True
 		self.t19.destroy()
+		return
+
+	def button_func12b(self):
+
+		for i in range(61,61+len(self.sgamma)):
+			self.__dict__['e%d'%i].delete(0,'end')
+			self.__dict__['e%d'%i].insert(10,self.e53.get())
+		return
+
+	def button_func12c(self):
+
+		for i in range(61,61+len(self.sgamma)):
+			self.__dict__['e%d'%i].delete(0,'end')
+			self.__dict__['e%d'%i].insert(10,'0.0')
 		return
 
 	def gui_efit(self):
@@ -3740,6 +3765,9 @@ class gefitk:
 
 		self.StrVar51.set(self.bdyrc)
 		self.StrVar52.set(self.bdyzc)
+
+		self.StrVar53.set('0.0') #DTGAM shift
+		self.StrVar54.set('1.0') #Drawing qrat target
 	
 		self.StrVar38.set(self.trans_vars(self.mxiter,1))
 		self.StrVar39.set(self.trans_vars(self.efit_relax,2))

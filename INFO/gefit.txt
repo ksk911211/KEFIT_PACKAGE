@@ -1,5 +1,9 @@
 GEFIT
 -------------------------------------------------*
+#2024/02/12
+ Version is updated to v3.3
+ Updates for W-divertor,MSE,qrat_draw, and code stabilisation
+
 #2022/09/04
  Omega in pfile are corrected
 

@@ -2706,19 +2706,41 @@ def draw_efit_j(sim,ax1):
 	eq2.read_eqdsk(gfile_dir2)
 	eq2.make_grid()
 	eq2.construct_volume()
+	eq2.make_rho_R_psin()
 	isjconst = True
+
+	legend = []
+	plots = []
+
+#	rhof = interp1d(eq2.prhoR[:,0],eq2.prhoR[:,1])
+
 	try:	xx, yy = read_j_result(j_dir2)
 	except:	
 		print('>>> No current constraint')
 		isjconst = False
 
-	try:	ax1.plot(sim.efit_psin,abs(sim.efit_jav/eq2.ip*eq2.area),'--',color='green')
+	try:	
+#		ax1.plot(rhof(sim.efit_psin),abs(sim.efit_jav/eq2.ip*eq2.area),'--',color='green')
+		p,=ax1.plot(sim.efit_psin,abs(sim.efit_jav/eq2.ip*eq2.area),'--',color='green')
+		legend.append('EFIT')
+		plots.append(p)
 	except:	print('>>> Press Load run!')
 	if isjconst:
-		ax1.scatter(xx,yy,marker='+',s=40,color='magenta')
+#		ax1.scatter(rhof(xx),yy,marker='+',s=40,color='magenta')
+		s=ax1.scatter(xx,yy,marker='+',s=40,color='magenta')
+		legend.append('Constraint')
+		plots.append(s)
+		try: 
+#			ax1.plot(rhof(sim.jconst[:,0]),sim.jconst[:,1],'--',color='gray')
+			p,=ax1.plot(sim.jconst[:,0],sim.jconst[:,1],'--',color='gray')
+			legend.append('Modeled')
+			plots.append(p)
+		except: pass
 	ax1.set_title('$<j_{\phi}>_A$')
+#	ax1.set_xlabel('$\\rho_N$ [a.u]')
 	ax1.set_xlabel('$\psi_N$ [a.u]')
 	ax1.set_ylabel('Normalised current density [a.u]')
+	ax1.legend(plots,legend)
 
 	sim.fig13.tight_layout();	
 	return

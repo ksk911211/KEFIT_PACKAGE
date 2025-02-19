@@ -2,6 +2,7 @@ import os,sys
 import numpy as np
 from nubeamtool import *
 from exec_dirs import Mfile,Sfile,Ifile,stepfile
+from scipy.interpolate import interp1d
 
 try:
 	f = open('nubeam_opt','r')
@@ -25,6 +26,7 @@ Avgdt = 0.01
 Mfile2 = Mfile
 Sfile2 = Sfile
 Ifile2 = Ifile
+Efile2 = ''
 	
 while True:
 
@@ -64,10 +66,11 @@ while True:
 	if (line2[0].lower().find('sfile') > -1):
 		Sfile2 = line2[1]
 	if (line2[0].lower().find('ifile') > -1):
-		Ifile2 = line2[1]				
+		Ifile2 = line2[1]
+	if (line2[0].lower().find('efile') > -1):
+		Efile2 = line2[1]
 		
 f.close()		
-
 
 currdir = os.getcwd()+'/'
 Eqdsk = currdir+Eqdsk
@@ -131,15 +134,31 @@ for i in range(101):
 	prho[i] = pp_data['rho'][i]
 	pcur[i] = pp_data['curbeam'][i]
 
+pec = np.linspace(0,1,2);
+Iec = np.zeros(2);
+
+if os.path.isfile(Efile2):
+	with open(Efile2,'r') as f:
+		nec = int(f.readline())
+		pec = np.zeros(nec);
+		Iec = np.zeros(nec);
+
+		for i in range(nec):
+			line = f.readline().split()
+			pec[i] = float(line[0])
+			Iec[i] = float(line[1])
+
+Iecf = interp1d(pec,Iec);
+
 f1 = open('chease_pres','w');
 f2 = open('chease_curr','w')
 f1.write('101\n')
 f2.write('101\n')
 
 for i in range(101):
-
+	
 	f1.write('%9.6f %9.6f %9.6f \n'%(prho[i],ppll[i],pperp[i]))
-	f2.write('%9.6f %9.6f \n'%(prho[i],pcur[i]))
+	f2.write('%9.6f %9.6f \n'%(prho[i],pcur[i]+Iecf(prho[i])))
 
 f1.close()
 f2.close()

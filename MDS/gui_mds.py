@@ -365,6 +365,16 @@ class kstar_diagnostic_tool:
 
 						for k in range(nval):
 							dat[vals[k]][j][i] = line2[k+2]
+
+		if 'vT' in dat.keys():
+			for j in range(nradial):
+				dat['Ti'][j] = dat['Ti'][j] * 1.e-3
+				dat['Tierr'][j] = dat['Tierr'][j] * 1.e-3
+			dat['Tier'] = dat['Tierr']
+			dat['Vc']   = dat['vT']
+			dat['Vcer'] = dat['vTerr']
+
+
 		return dat
 
 	def _load_ts(self):

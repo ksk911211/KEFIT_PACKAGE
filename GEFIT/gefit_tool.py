@@ -500,6 +500,7 @@ def make_nubeam_opt(sim,filename='nubeam_opt',eqtype=1):
 	if not sim.StrVar119.get() == '':	f.write('MFILE = %s\n'%sim.StrVar119.get())
 	if not sim.StrVar120.get() == '':	f.write('SFILE = %s\n'%sim.StrVar120.get())
 	if not sim.StrVar121.get() == '':	f.write('IFILE = %s\n'%sim.StrVar121.get())
+	if not sim.StrVar163.get() == '':       f.write('EFILE = %s\n'%sim.StrVar163.get())
 
 	f.close()
 

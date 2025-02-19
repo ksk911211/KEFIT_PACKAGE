@@ -1016,6 +1016,9 @@ class gefitk:
 		for i in range(151,163):
 			self.__dict__['StrVar%d'%(i)].set(self.__dict__['e%d'%(i)].get())			
 
+		for i in range(163,164):
+			self.__dict__['StrVar%d'%(i)].set(self.__dict__['e%d'%(i)].get())
+
 		self.bpower, self.benergy, self.nbeam = make_nubeam_config(self)
 
 		print('>>> BPOWER',self.bpower)
@@ -1103,7 +1106,7 @@ class gefitk:
 		self.l1 = tk.Label(self.t3, text="------ Numeric ------",justify='center')
 		self.l1.grid(row=8, column=4,columnspan=4)
 
-		label = ['RUN STEP [#]','RUN AVG [#]','RUN DT [s]','AVG DT [s]','NPROC [#]','MFILE','SFILE','IFILE']
+		label = ['RUN STEP [#]','RUN AVG [#]','RUN DT [s]','AVG DT [s]','NPROC [#]','MFILE','SFILE','IFILE','EFILE']
 		for i in range(5):
 
 			self.l1 = tk.Label(self.t3, text=label[i],justify='left')
@@ -1134,15 +1137,23 @@ class gefitk:
 		b1.grid(row=18, column=5,columnspan=2)
 		self.e121 = tk.Entry(self.t3,width=25,justify='center')
 		self.e121.insert(10,self.StrVar121.get())
-		self.e121.grid(row=19,column=4,columnspan=4)		
+		self.e121.grid(row=19,column=4,columnspan=4)
+
+		self.l1 = tk.Label(self.t3, text=label[8],justify='left')
+		self.l1.grid(row=20, column=4,columnspan=2)
+		b1 = tk.Button(self.t3, text="OPEN", bg = "lightgray",command=lambda: self.button_func7aa(self.e163),height =1,width = 4)
+		b1.grid(row=20, column=5,columnspan=2)
+		self.e163 = tk.Entry(self.t3,width=25,justify='center')
+		self.e163.insert(20,self.StrVar163.get())
+		self.e163.grid(row=21,column=4,columnspan=4)
 
 		self.l1 = tk.Label(self.t3, text='USE_BEAM',justify='left')
-		self.l1.grid(row=20, column=4,columnspan=2)
+		self.l1.grid(row=22, column=4,columnspan=2)
 		self.c1 = tk.Checkbutton(self.t3,variable=self.CheckVar22)
-		self.c1.grid(row=20, column=6)			
+		self.c1.grid(row=22, column=6)			
 
 		b1 = tk.Button(self.t3, text="SAVE", bg = "lightgray",command=lambda: self.button_func7ab(),height =1,width = 4)
-		b1.grid(row=21, column=6,columnspan=2)		
+		b1.grid(row=23, column=6,columnspan=2)		
 
 		return		
 
@@ -3646,6 +3657,7 @@ class gefitk:
 		self.mdescrf = ''
 		self.sconfigf = ''
 		self.iconfigf = ''
+		self.econfigf = ''
 		self.use_beam = True
 
 		self.b1ap = 0.	#BEAM option 151
@@ -3855,6 +3867,7 @@ class gefitk:
 		self.StrVar161.set(self.trans_vars(self.b2cp,2))
 		self.StrVar162.set(self.trans_vars(self.b2ce,2))
 
+		self.StrVar163.set(self.econfigf) #EC file
 
 		self.MenuVar11.set('--')
 		return

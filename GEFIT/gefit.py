@@ -3698,7 +3698,7 @@ class gefitk:
 
 		self.corenj = 14
 		self.edgenj = 20
-		self.knotsj = 0.7
+		self.knotsj = 0.6
 		self.knotej = 1.0
 
 		self.use_jconst = True

@@ -2282,12 +2282,15 @@ def find_q1_surface(psin,qq,map_dir,qtarget=1):
 		datlen = int(f.readline())
 		psin2 = np.zeros(datlen)
 		RP = np.zeros(datlen)
+		RO = np.copy(RP)
 		for i in range(datlen):
 			line = f.readline().split()
 			psin2[i] = float(line[0])
-			RP[i]   = float(line[2])
+			RP[i]    = float(line[2])
+			RO[i]    = float(line[3])
 		f.close()
 		pRf = interp1d(psin2,RP)
+		pOf = interp1d(psin2,RO)
 		ismap = True
 
 #	qtarget = 1.
@@ -2298,9 +2301,12 @@ def find_q1_surface(psin,qq,map_dir,qtarget=1):
 	for i in range(len(qq)-1):
 		if ((qq[i]-qtarget)*(qq[i+1]-qtarget) <= 0.):	
 			q1r = (psin[i+1]-psin[i])/(qq[i+1]-qq[i])*(qtarget-qq[i]) + psin[i]
-			if ismap: q1r = pRf(q1r)
+			if ismap: 
+				q2r = pOf(q1r)
+				q1r = pRf(q1r)
 			if not (q1r == q1r_old):
 				q1r_old = q1r
+				radius = np.append(radius,q2r)
 				radius = np.append(radius,q1r)
 	return radius, ismap
 
@@ -2712,33 +2718,39 @@ def draw_efit_j(sim,ax1):
 	legend = []
 	plots = []
 
-#	rhof = interp1d(eq2.prhoR[:,0],eq2.prhoR[:,1])
-
 	try:	xx, yy = read_j_result(j_dir2)
 	except:	
 		print('>>> No current constraint')
 		isjconst = False
 
+
+	x1     = sim.efit_psin
+	x2     = sim.jconst[:,0]
+	xcoord = '$\psi_N$ [a.u]'
+	
+	if os.getenv("RADIUS_TYPE") == 'RHO':
+		rhof = interp1d(eq2.prhoR[:,0],eq2.prhoR[:,1])
+		x1   = rhof(x1)
+		xx   = rhof(xx)
+		x2   = rhof(x2)
+		xcoord = '$\\rho_N$ [a.u]'
+
 	try:	
-#		ax1.plot(rhof(sim.efit_psin),abs(sim.efit_jav/eq2.ip*eq2.area),'--',color='green')
-		p,=ax1.plot(sim.efit_psin,abs(sim.efit_jav/eq2.ip*eq2.area),'--',color='green')
+		p,=ax1.plot(x1,abs(sim.efit_jav/eq2.ip*eq2.area),'--',color='green')
 		legend.append('EFIT')
 		plots.append(p)
 	except:	print('>>> Press Load run!')
 	if isjconst:
-#		ax1.scatter(rhof(xx),yy,marker='+',s=40,color='magenta')
 		s=ax1.scatter(xx,yy,marker='+',s=40,color='magenta')
 		legend.append('Constraint')
 		plots.append(s)
 		try: 
-#			ax1.plot(rhof(sim.jconst[:,0]),sim.jconst[:,1],'--',color='gray')
-			p,=ax1.plot(sim.jconst[:,0],sim.jconst[:,1],'--',color='gray')
+			p,=ax1.plot(x2,sim.jconst[:,1],'--',color='gray')
 			legend.append('Modeled')
 			plots.append(p)
 		except: pass
 	ax1.set_title('$<j_{\phi}>_A$')
-#	ax1.set_xlabel('$\\rho_N$ [a.u]')
-	ax1.set_xlabel('$\psi_N$ [a.u]')
+	ax1.set_xlabel(xcoord)
 	ax1.set_ylabel('Normalised current density [a.u]')
 	ax1.legend(plots,legend)
 

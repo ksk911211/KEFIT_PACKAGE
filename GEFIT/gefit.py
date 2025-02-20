@@ -321,7 +321,7 @@ class gefitk:
 			self.button_func4c(True,True,self.e45.get())			
 
 		if os.path.isfile(self.e5.get()):
-			self.button_func5(True,self.e5.get(),False)		
+			self.button_func5(True,self.e5.get(),False,True)		
 
 		if ( not self.MenuVar1.get() == '0' and self.MenuVar4.get() == '--'): self.MenuVar4.set('0')
 		
@@ -390,7 +390,7 @@ class gefitk:
 				self.__dict__['StrVar%i'%(i+142)].set(val)
 
 		self.button_func3a(True,self.e3.get())
-		self.button_func5(True,self.e5.get(),True)
+		self.button_func5(True,self.e5.get(),True,False)
 
 		self.te_edge_file = 'MDS/'+dat[2].split('/')[-1]
 		self.ne_edge_file = 'MDS/'+dat[3].split('/')[-1]
@@ -635,7 +635,7 @@ class gefitk:
 
 		return
 
-	def button_func5(self,skip=False,filename=None,draw_plot=True):	#Read kfile
+	def button_func5(self,skip=False,filename=None,draw_plot=True,skip_mse=True):#Read kfile
 
 		self.iskfile_already = False
 		if not skip:
@@ -682,8 +682,9 @@ class gefitk:
 					if self.rrrgam[i] < 0: 
 						self.fwtgam[i] = 0.
 						self.sgamma[i] = 0.;
-				for i in range(200,200+self.clen3):
-					self.__dict__['CoilVar%d'%(i+1)].set(int(self.fwtgam[i-200]))
+				if not skip_mse:
+					for i in range(200,200+self.clen3):
+						self.__dict__['CoilVar%d'%(i+1)].set(int(self.fwtgam[i-200]))
 
 				self.MenuVar7.set('eMSE')
 
@@ -1566,7 +1567,6 @@ class gefitk:
 
 		print('>>> Generate Field information....')
 		get_efit_constraint_eq(self)
-
 		print('>>> Done!')
 		draw_efit_constraint(self,self.fig6)
 

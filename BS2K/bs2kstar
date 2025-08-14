@@ -1,11 +1,11 @@
-#!/usr/local/anaconda3/bin/python3
+#!/usr/bin/env python3
 import os,sys
 from exec_dirs import chease_dir, author, version
 
-try:	filename=sys.argv[1]
-except:	
-	print('No input!')
-	exit()
+try:    filename=sys.argv[1]
+except: 
+    print('No input!')
+    exit()
 
 
 print('>>> %s <<<'%author['bs2kstar'])

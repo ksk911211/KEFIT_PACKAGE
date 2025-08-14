@@ -30,6 +30,6 @@ def update_progress(progress):
 #time.sleep(1)
 
 #for i in range(10):
-#	update_progress(0.033*i)
-#	time.sleep(1)
+#   update_progress(0.033*i)
+#   time.sleep(1)
 #print()

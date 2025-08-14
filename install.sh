@@ -23,7 +23,7 @@ POPUP=../ENV/popup/py
 
 cd bin
 chmod 777 gefit gfit
-rm -f aeqdsk bs2k dena denaf rdena rdenaf reqdsk fgefit gped pchease ercal gjastab readp gfitp
+rm -f aeqdsk bs2k dena denaf rdena rdenaf reqdsk fgefit gped pchease ercal gjastab readp gfitp exec_dirs.py gfitpt
 ln -s ../GEFIT/aeqdsk.py aeqdsk
 ln -s ../BS2K/bs2kstar bs2k
 ln -s ../DENA/dena.py dena
@@ -40,6 +40,7 @@ ln -s ../GFIT/read_pfile.py readp
 #ln -s ../GEFIT/read_pfile.py readp2
 ln -s ../GFIT/gfitp.py gfitp
 ln -s ../GFIT/gfit_plot.py gfitpt
+ln -s ../ENV/exec_dirs.py
 
 cd ../
 

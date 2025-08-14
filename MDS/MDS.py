@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """ 
 A module for data interfacing to MDSplus
 """
@@ -10,12 +10,14 @@ __version__='1.0';
 import ctypes as _C
 from MDSplus import Connection
 #from MDSplus._mdsshr import _load_library, MdsException 
-from MDSplus._mdsshr import MdsshrException
+#from MDSplus._mdsshr import MdsshrException
 
 #ConnectToMds=_load_library('MdsIpShr').ConnectToMds
 #ConnectToMds.argtypes=[_C.c_char_p]
 #DisconnectFromMds = _load_library('MdsIpShr').DisconnectFromMds
 #DisconnectFromMds.argtypes = [_C.c_int]
+
+from exec_dirs import mds_address
 
 class _Connection(Connection):
     """
@@ -25,14 +27,18 @@ class _Connection(Connection):
     """
     __version__=__version__;
     def __del__(self):
-        self.closeConnection()
+        try:
+            self.closeConnection()
+        except Exception as e:
+            print('Error',e)
+            pass
         
     def closeConnection(self):
-        if self.socket != -1:
-             if False: #DisconnectFromMds(self.socket) == 0: 
-                raise Exception("Error in disconnection")
-             else:
-                self.socket = -1
+        try:
+            super().disconnect()
+        except Exception as e:
+            print('Error',e)
+            pass
 
 #--------------------------------------------------------------------------------#
 import subprocess as sub
@@ -57,8 +63,7 @@ class mds():
    
 #   def __init__(self,tree=None,shot=None,server='172.17.250.21:8005'):
 #   def __init__(self,tree=None,shot=None,server='localhost:8005'):
-#   def __init__(self,tree=None,shot=None,server='172.17.100.200:8005'):
-   def __init__(self,tree=None,shot=None,server='mdsr.kstar.kfe.re.kr:8005'):
+   def __init__(self,tree=None,shot=None,server=mds_address):
        """ 
        Create an instance of MDSplus.Connection class
          tree     : tree name. Default='kstar'
@@ -84,8 +89,8 @@ class mds():
           self.__G__=_Connection(self.server);
           if(tree is not None) and (shot is not None):
              self.open(tree,shot);
-       except MdsshrException:
-          raise MdsshrException("Error in connection to %s" %(server));
+       #except MdsshrException:
+       #   raise MdsshrException("Error in connection to %s" %(server));
        except:
           raise Exception("Unknown error in connection to %s" %(server));
    
@@ -113,7 +118,7 @@ class mds():
              self.__G__.closeTree(tree,shot);
           except:
              raise MdsshrException("Error in close(): unknown error");
-       
+             #print('error') 
    def disconnect(self): self.__G__.closeConnection();
    
    def get(self,sig):
@@ -121,7 +126,7 @@ class mds():
        Get the data for given 'SIG' and return the data in a form of (time, value)
          sig     : a statement for execution. Ex) '\\pcrc03'
        """
-       from scipy import array
+       from numpy import array
        try:
           v=self.__G__.get(sig).data();
        except: # no data available
@@ -143,10 +148,10 @@ class mds():
    
    def time(self):
        try:
-          t_time = self.__G__.get('\T0_STR').data()
+          t_time = self.__G__.get('\\T0_STR').data()
        except:
           t_time = None            
-          raise MdsshrException("Error in getting time-info of the shot '%s'" %(self.shot));
+          #raise MdsshrException("Error in getting time-info of the shot '%s'" %(self.shot));
        return t_time
 
 #--------------------------------------------------------------------------------#

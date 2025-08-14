@@ -1,4 +1,5 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
+from exec_dirs import mds_address
 """ 
   GEQDSK EXTRACTER FROM MDS-PLUS (By Hyunsun)
 
@@ -32,12 +33,12 @@ class _Connection( Connection):
         self.closeConnection()
         
     def closeConnection(self):
-        if self.socket != -1:
-             if False:# DisconnectFromMds(self.socket) == 0: 
-                raise Exception("Error in disconnection")
-             else:
-                self.socket = -1
-                
+        try:
+            super().disconnect()
+        except Exception as e:
+            print('Error',e)
+            pass
+
     def reconnect(self):
         if self.hostspec == None:
              raise MdsException("Error: no host specified")
@@ -60,7 +61,7 @@ class MDS(object):
     """
     __DefaultTree = "KSTAR"
     __DefaultServer = "172.17.100.200:8005"
-    __DefaultServer = "mdsr.kstar.kfe.re.kr:8005"
+    __DefaultServer = mds_address
 
     def __init__(self, shot=None, tree =__DefaultTree, server=__DefaultServer):
         try:                    

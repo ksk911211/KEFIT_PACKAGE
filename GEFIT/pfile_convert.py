@@ -394,7 +394,7 @@ class GENpFile:
         self.V['N Z A'] = dict()
         self.V['N Z A']['description'] = 'N Z A of ION SPECIES'
 
-	#IMP1,IMP2,MAIN_ION,FAST_ION in order
+    #IMP1,IMP2,MAIN_ION,FAST_ION in order
         self.V['N Z A']['N'] = np.array([self.pfile['zimp'], 1, 1])
         self.V['N Z A']['Z'] = np.array([self.pfile['zimp'], 1, 1])
         self.V['N Z A']['A'] = np.array([self.pfile['aimp'], self.pfile['amain'], self.pfile['amain']])

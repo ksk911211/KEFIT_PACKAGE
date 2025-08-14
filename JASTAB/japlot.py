@@ -1,4 +1,4 @@
-#!/usr/local/anaconda3/bin/python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Created on Tue Jun  5 15:04:32 2018
@@ -16,14 +16,14 @@ input_file = None
 
 #inputs
 try:
-	input_file = sys.argv[1]
+    input_file = sys.argv[1]
 except:
-	pass
+    pass
 #input_file='ja_result_6452_mis2'
 
 if (input_file == None):
-	print('Command should include [plot_file]')
-	exit()
+    print('Command should include [plot_file]')
+    exit()
 
 # Stability diagram opt.
 use_elite_a=True
@@ -99,7 +99,7 @@ lines=f1.readlines()
 resultlen=len(lines)
 result=np.zeros((resultlen,15))
 for i in range(resultlen):
-	result[i]=lines[i].split()
+    result[i]=lines[i].split()
 f1.close()
 
 #except:
@@ -361,10 +361,10 @@ f.write('%s' %s1)
 for i in range(len(c3)):
     f.write('%f %f \n' %(c3[i,0],c3[i,1]))
 if (inf_plot):
-	s1=' n = Inf ball \n'
-	f.write('%s' %s1)
-	for i in range(len(inc2)):
-	    f.write('%f %f \n' %(inc2[i,0],inc2[i,1]))
+    s1=' n = Inf ball \n'
+    f.write('%s' %s1)
+    for i in range(len(inc2)):
+        f.write('%f %f \n' %(inc2[i,0],inc2[i,1]))
 f.close()
 if plot_spectrum:
     plt.figure('Growth rate spectrum')

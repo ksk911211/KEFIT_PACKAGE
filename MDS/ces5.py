@@ -19,6 +19,8 @@ import numpy as np
 #DisconnectFromMds = _load_library('MdsIpShr').DisconnectFromMds
 #DisconnectFromMds.argtypes = [_C.c_int]
 
+from exec_dirs import mds_address
+
 offset_factor = 1.001
 
 CES_RR = dict()
@@ -68,6 +70,7 @@ class MDS(object):
     __DefaultTree = "KSTAR"
 #    __DefaultServer = "172.17.250.21:8005"
     __DefaultServer = "172.17.100.200:8005"
+    __DefaultServer = mds_address
 
     def __init__(self, shot=None, tree =__DefaultTree, server=__DefaultServer):
         try:                    
@@ -344,7 +347,7 @@ def _generate2():
     if choix==0:
         fname='ti_%d_%d.dat'%(shot,mtime*1000)
         f=open(fname,'w')
-        f.write(' R[m]	Z[m]	TI[eV]	Error[eV]\n')
+        f.write(' R[m]  Z[m]    TI[eV]  Error[eV]\n')
         liste=lb2.get(0,Tkinter.END)
 
         for i in liste:
@@ -356,7 +359,7 @@ def _generate2():
     else:
         fname='vt_%d_%d.dat'%(shot,mtime*1000)
         f=open(fname,'w')
-        f.write(' R[m]	Z[m]	VT[km/s]	Error[km/s]\n')
+        f.write(' R[m]  Z[m]    VT[km/s]    Error[km/s]\n')
         liste=lb2.get(0,Tkinter.END)
 
         for i in liste:
@@ -380,7 +383,7 @@ def gprofdat(shot,treename,temps,dt):
 
 # connection to MDSPlus data
 #    with MDS(server="172.17.250.21:8005") as mds:
-    with MDS(server="172.17.100.200:8005") as mds:
+    with MDS(server=mds_address) as mds:
         try:
             eq=mds.open(shot=shot, tree=treename)
         except: 
@@ -460,7 +463,7 @@ def gprofdat(shot,treename,temps,dt):
 
                 alpha_offset = 0.
                 if (Dalpha[0] < 0.):alpha_offset = -offset_factor * Dalpha[0]
-		Dalpha = Dalpha + alpha_offset
+        Dalpha = Dalpha + alpha_offset
                 for i in range(size):
                     if (tabtime[0] <= time[i] ) and (time[i]<= tabtime[tailj-1]):
                         tALPHA[tail2]=time[i]

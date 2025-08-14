@@ -1,5 +1,10 @@
 GFIT
 -------------------------------------------------*
+#2025/02/10
+ Uncertainty quantification is added
+ * Provides fitting error if well converged
+ * n_sampled data for UQ is saved if you check SAMPLE in ETC option
+
 #2023/11/20
  EPED3 profile is added: 
  * Sep/Ped value ratio constraint

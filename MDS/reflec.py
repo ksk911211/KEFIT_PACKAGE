@@ -19,6 +19,8 @@ from matplotlib import gridspec
 #DisconnectFromMds = _load_library('MdsIpShr').DisconnectFromMds
 #DisconnectFromMds.argtypes = [_C.c_int]
 
+from exec_dirs import mds_adress
+
 class _Connection( Connection):
     """
     Updating 'Connection' class in 'MDSplus' to manange the connection to the server
@@ -59,8 +61,8 @@ class MDS(object):
     Last modification : Aug 2012
     """
     __DefaultTree = "KSTAR"
-#    __DefaultServer = "ssh://ksk911211@203.230.126.229"
     __DefaultServer = "172.17.100.200:8005"
+    __DefaultServer = mds_address
 
     def __init__(self, shot=None, tree =__DefaultTree, server=__DefaultServer):
         try:                    
@@ -181,7 +183,7 @@ def gprofdat(shot,treename):
     prof['time'] = np.zeros(8)
     prof['prof'] = dict()
 #    with MDS(server="ssh://ksk911211@203.230.126.229") as mds:
-    with MDS(server="172.17.100.200:8005") as mds:
+    with MDS(server=mds_address) as mds:
         try:
             eq=mds.open(shot=shot, tree=treename)
         except: 

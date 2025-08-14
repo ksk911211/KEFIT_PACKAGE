@@ -19,6 +19,8 @@ import numpy as np
 #DisconnectFromMds = _load_library('MdsIpShr').DisconnectFromMds
 #DisconnectFromMds.argtypes = [_C.c_int]
 
+from exec_dirs import mds_address
+
 CORE_R = [1806, 1826, 1848, 1871, 1894, 1917, 1942, 1966, 1991, 2016, 2041, 2068, 2093, 2120]
 EDGE_R = [2124, 2137, 2143, 2149, 2156, 2162, 2177, 2191, 2202, 2216, 2229, 2242, 2257, 2271, 2285, 2297, 2311]
 
@@ -67,7 +69,7 @@ class MDS(object):
     __DefaultTree = "KSTAR"
 #    __DefaultServer = "172.17.250.21:8005"
     __DefaultServer = "172.17.100.200:8005"
-
+    __DefaultServer = mds_address
     def __init__(self, shot=None, tree =__DefaultTree, server=__DefaultServer):
         try:                    
             self.alist = {"tree":None, "shot":None, "server":None}
@@ -346,7 +348,7 @@ def _generate2():
         fname1='te_%d_%d.dat'%(shot,mtime*1000)
         fname2='te_%d_%d_edge.dat'%(shot,mtime*1000)
         f1=open(fname1,'w'); f2=open(fname2,'w');
-        f1.write(' R[m]	Z[m]	TE[eV]	Error[eV]\n')
+        f1.write(' R[m] Z[m]    TE[eV]  Error[eV]\n')
         f2.write(' R[m]  Z[m]    TE[eV]  Error[eV]\n')
         liste=lb2.get(0,Tkinter.END)
 
@@ -362,7 +364,7 @@ def _generate2():
         fname1='ne_%d_%d.dat'%(shot,mtime*1000)
         fname2='ne_%d_%d_edge.dat'%(shot,mtime*1000)
         f1=open(fname1,'w'); f2=open(fname2,'w');
-        f1.write(' R[m]	Z[m]	NE[#E18/m3]	Error[#E18/m3]\n')
+        f1.write(' R[m] Z[m]    NE[#E18/m3] Error[#E18/m3]\n')
         f2.write(' R[m] Z[m]    NE[#E18/m3]     Error[#E18/m3]\n')
         liste=lb2.get(0,Tkinter.END)
 
@@ -393,7 +395,7 @@ def gprofdat(shot,treename,temps,dt):
 
 # connection to MDSPlus data
 #    with MDS(server="172.17.250.21:8005") as mds:
-    with MDS(server="172.17.100.200:8005") as mds:
+    with MDS(server=mds_address) as mds:
         try:
             eq=mds.open(shot=shot, tree=treename)
         except: 
@@ -518,7 +520,7 @@ def gprofdat(shot,treename,temps,dt):
                     for i in range(size):
                         if (tabtime[0] <= time[i] ) and (time[i]<= tabtime[tailj-1]):
                             tALPHA[tail2]=time[i]
-			
+            
                             DALPHA[tail2]=Dalpha[i]
                             tail2=tail2+1
             else:
@@ -635,7 +637,7 @@ def gprofdatmds(shot,treename,temps,dt):
 
 # connection to MDSPlus data
 #    with MDS(server="172.17.250.21:8005") as mds:
-    with MDS(server="172.17.100.200:8005") as mds:
+    with MDS(server=mds_address) as mds:
         try:
             eq=mds.open(shot=shot, tree=treename)
         except: 
@@ -767,7 +769,7 @@ def gprofdatmds(shot,treename,temps,dt):
                 Dalpha=eq.get(dat).data()
                 alpha_offset = 0.
                 if (Dalpha[0] < 0.):alpha_offset = -offset_factor * Dalpha[0]
-                Dalpha = Dalpha + alpha_offset	
+                Dalpha = Dalpha + alpha_offset  
                 tstart=-1
                 for i in range(size2):
                     if (tabtime[0] <= time[i] ) and (time[i]<= tabtime[tailj-1]):

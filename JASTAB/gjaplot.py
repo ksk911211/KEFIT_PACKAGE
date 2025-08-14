@@ -1,4 +1,4 @@
-#!/usr/local/anaconda3/bin/python3
+#!/usr/bin/env python3
 import os, sys
 import numpy as np
 import matplotlib.pyplot as plt
@@ -239,7 +239,7 @@ class japlot:
                     self.jphimtt[i,j] = self.result[nline2,7]
                     self.infwt[i,j]   = self.result[nline1,14]
                     self.infwtt[i,j]  = self.result[nline2,14]
-                    self.jphimed[i,j] = self.result[nline2,15]		
+                    self.jphimed[i,j] = self.result[nline2,15]      
 
                     if self.infwt[i,j]>0:
                         self.infwt[i,j]=1/self.infwt[i,j]

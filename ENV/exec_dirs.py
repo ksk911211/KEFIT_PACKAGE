@@ -1,24 +1,11 @@
 ##---machine inform
-#job scheduler
-scheduler = 'pbs'       #sge
-qsub_exec = '/opt/pbs/bin/qsub'
-qstat_exec= '/opt/pbs/bin/qstat'
-qdel_exec = '/opt/pbs/bin/qdel'
-#MDS
-mds_address = 'mdsr.kstar.kfe.re.kr:8005'
-#node list option
-node_machine = 'ukstar'
-node_force   = True     #True
-node_init    ='compute' #'none'
-node_default ='compute'
-#efit links
-efit_source_dir = '/home/users/efit'
-efit_source_dir = '/EFIT'
-efit_address    = '172.17.250.23'
+machine = 'nkstar' #nkstar, ukstar_root, ukstar
+
+##---Experimental setup
 #efit years
-shotk = dict()
+shotk = {}
 years = []
-for i in range(2007,2025): years.append('%i'%i)
+for i in range(2007,2027): years.append('%i'%i)
 for i in years: shotk[i] = dict()
 shotk['2007']['shot'] = range(  635, 1284)
 shotk['2008']['shot'] = range(  635, 1284)
@@ -38,14 +25,16 @@ shotk['2021']['shot'] = range(27401,30446)
 shotk['2022']['shot'] = range(30446,32769)
 shotk['2023']['shot'] = range(32769,34837)
 shotk['2024']['shot'] = range(34925,37900)
+shotk['2025']['shot'] = range(37925,39900)
+shotk['2026']['shot'] = range(39925,40900)
 for year in years:
-      for efit_no in range(1,6):
-              shotk[year][efit_no] = '/EFIT_RUN/EFITDATA_%s/EFIT%02i'%(year,efit_no)
+    for efit_no in range(1,6):
+        shotk[year][efit_no] = '/EFIT_RUN/EFITDATA_%s/EFIT%02i'%(year,efit_no)
 #mse favorable channels.
-mse_good_ch = dict()
+mse_good_ch = {}
 for i in years: mse_good_ch[i] = []
 for i in range(2007,2016):
-	mse_good_ch['%i'%i] = [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
+    mse_good_ch['%i'%i] = [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
 mse_good_ch['2016'] = [1,1,1,0,1, 1,1,1,1,1, 1,1,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
 mse_good_ch['2017'] = [0,1,1,1,1, 1,1,1,1,0, 0,1,1,1,0, 0,0,1,1,0, 0,0,0,0,0]
 mse_good_ch['2018'] = [0,0,1,1,1, 1,1,1,1,1, 1,1,1,1,0, 0,0,1,0,0, 0,0,0,0,0]
@@ -55,42 +44,117 @@ mse_good_ch['2021'] = [1,1,1,0,1, 1,1,1,1,1, 1,1,0,0,0, 0,0,1,0,0, 0,0,0,0,0]
 mse_good_ch['2022'] = [1,1,1,0,1, 1,1,1,1,1, 1,1,0,0,0, 0,0,1,0,0, 0,0,0,0,0]
 mse_good_ch['2023'] = [0,1,1,1,1, 0,1,1,1,1, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
 mse_good_ch['2024'] = [0,0,1,1,1, 0,1,1,1,1, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
-##---Executables
-#chease
-chease_exec  = '/usr/local/analysis/EQUI/CHEASE/bin/chease'
-#helena
-helena_exec  = '/usr/local/analysis/EQUI/HELENA/bin/hel13'
-#mishka
-mis_exec     = '/usr/local/analysis/STAB/MISHKA/bin/mishka1fast_'
-#elite
-elite_exec   = '/usr/local/analysis/STAB/ELITE/bin/elite'
-elite_exce   = '/home/ksk911211/CODE/STAB/ELITE/bin/elite'
-elite_dir    = '/usr/local/analysis/STAB/ELITE/bin'
-elite_dir    = '/home/ksk911211/CODE/STAB/ELITE/bin'
-#gzip
-gzip_dir     = 'gzip'
-#python
-python2_exec = '/usr/local/anaconda2/bin/python2'
-python3_exec = '/usr/local/anaconda3/bin/python3'
-pythonc_exec = python3_exec
+mse_good_ch['2025'] = [0,0,1,1,1, 0,1,1,1,1, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
+mse_good_ch['2026'] = [0,0,1,1,1, 0,1,1,1,1, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
+
+##--Diagnostic exception
+ts_location_core = {}
+ts_location_edge = {}
+ts_location_core[2019] = [1806.0,1826.0,1848.0,1871.0,1894.0,1917.0,1942.0,1966.0,1991.0,2016.0,2041.0,2068.0,2093.0,2120.0]
+ts_location_edge[2019] = [2124.0,2137.0,2143.0,2149.0,2156.0,2162.0,2177.0,2191.0,2202.0,2216.0,2229.0,2242.0,2257.0,2271.0,2285.0,2297.0,2311.0]
+ts_location_core[2024] = [1790.6,1813.6,1836.1,1857.8,1881.9,1905.8,1927.6,1952.4,1976.9,2001.8,2027.7,2053.3,2080.0,2105.6]
+ts_location_edge[2024] = [2115.6,2124.3,2135.1,2143.8,2154.0,2162.1,2170.9,2179.7,2190.1,2199.7,2212.4,2221.3,2231.1,2252.2,2273.5,2295.7,2305.7]
+
+ces_location = {}
+ces_location[2011] = [1.795,1.800,1.850,1.900,1.950,2.000,2.050,2.100,2.140,2.160,2.170,2.180,2.190,2.200,2.205,2.210,2.215,2.220,2.225,2.230,2.235,2.240,2.245,2.250,2.255,2.265,2.275,2.280,2.285,2.290,2.295,2.300]
+ces_location[2012] = [1.800,1.850,1.900,1.950,2.000,2.050,2.100,2.150,2.170,2.180,2.190,2.200,2.205,2.210,2.215,2.220,2.225,2.230,2.235,2.240,2.245,2.250,2.255,2.260,2.265,2.270,2.275,2.280,2.285,2.290,2.295,2.300]
+ces_location[2013] = [1.795,1.850,1.900,1.950,2.000,2.050,2.100,2.150,2.170,2.180,2.190,2.200,2.205,2.210,2.215,2.220,2.225,2.230,2.235,2.240,2.245,2.250,2.255,2.260,2.265,2.270,2.275,2.280,2.285,2.290,2.295,2.300]
+ces_location[2014] = [1.795,1.850,1.900,1.950,2.000,2.050,2.100,2.150,2.170,2.180,2.190,2.200,2.205,2.210,2.215,2.220,2.225,2.230,2.235,2.240,2.245,2.250,2.255,2.260,2.265,2.270,2.275,2.280,2.285,2.290,2.295,2.300]
+ces_location[2015] = [1.801,1.822,1.843,1.874,1.895,1.945,1.995,2.016,2.047,2.078,2.099,2.125,2.150,2.171,2.192,2.203,2.213,2.223,2.228,2.233,2.238,2.243,2.248,2.253,2.259,2.264,2.269,2.273,2.280,2.286,2.291,2.296]
+
+if 'ukstar' in machine:
+    python_home     = '/usr/local/analysis/KEFIT/'
+    mds_address     = 'nkstar.kstar.kfe.re.kr:8005' #mds_address
+    efit_source_dir = '/EFIT/'                      #efit_source 
+    scheduler       = 'pbs'                         #scheduler
+    qsub_exec       = '/opt/pbs/bin/qsub'           
+    qstat_exec      = '/opt/pbs/bin/qstat'          
+    qdel_exec       = '/opt/pbs/bin/qdel'
+    node_machine    = machine                       #node list option
+    node_force      = True
+    node_init       = 'workq'
+    node_default    = 'workq'
+    chease_exec     = '/usr/local/analysis/EQUIL/CHEASE/bin/chease'
+    #helena
+    helena_exec     = '/usr/local/analysis/EQUIL/HELENA/bin/hel13'
+    #mishka
+    mis_exec        = '/usr/local/analysis/STAB/MISHKA/bin/mishka1fast_'
+    #elite
+    elite_exec      = '/usr/local/analysis/STAB/ELITE/bin/elite'
+    elite_dir       = '/usr/local/analysis/STAB/ELITE/bin'
+    #gzip
+    gzip_dir        = 'gzip'
+    #python
+    python2_exec    = '/usr/bin/python2'
+    python3_exec    = '/usr/local/analysis/Python_env/gefit_env/miniconda3-py38/bin/python3'
+    ##---Default DBs
+    rdena_db_dir    = '/UKSTAR_HOME/ksk911211/DENA/DBs'    
+    #nubeam
+    plasma_state_test_exec='/usr/local/analysis/NUBEAM/ntcc/LINUX/test/plasma_state_test'
+    nubeam_comp_exec      ='/usr/local/analysis/NUBEAM/ntcc/LINUX/test/mpi_nubeam_comp_exec'
+    adasdir               ='/usr/local/analysis/NUBEAM/ntcc/LINUX/adas'
+    preactdir             ='/usr/local/analysis/NUBEAM/ntcc/LINUX/preact'
+    mpirun                ='/usr/local/mpich/bin/mpirun'
+
+else:
+    python_home     = '/home/users/ksk911211/PYTHON/KEFIT_PACKAGE/'
+    mds_address     = 'nkstar.kstar.kfe.re.kr:8005'
+    efit_source_dir = '/EFIT/'
+    scheduler       = ''
+    qsub_exec       = ''           
+    qstat_exec      = ''          
+    qdel_exec       = ''
+    node_machine    = '' 
+    node_force      = True
+    node_init       = ''
+    node_default    = ''
+    chease_exec     = ''
+    helena_exec     = ''
+    #mishka
+    mis_exec        = ''
+    #elite
+    elite_exec      = ''
+    elite_dir       = ''
+    #gzip
+    gzip_dir        = 'gzip'
+    #python
+    python2_exec    = '/usr/bin/python2'
+    python3_exec    = '/usr/bin/python3'
+    ##---Default DBs
+    rdena_db_dir    = ''
+    #nubeam
+    plasma_state_test_exec=''
+    nubeam_comp_exec      =''
+    adasdir               =''
+    preactdir             =''
+    mpirun                =''
+
+if machine == 'ukstar':
+    python_home     = '/UKSTAR_HOME/ksk911211/PYTHON/KEFIT_PACKAGE/'
+    chease_exec     = '/UKSTAR_HOME/ksk911211/CODE/EQUIL/CHEASE/bin/chease'
+    helena_exec     = '/UKSTAR_HOME/ksk911211/CODE/EQUIL/HELENA/bin/hel13'
+    mis_exec        = '/UKSTAR_HOME/ksk911211/CODE/STAB/MISHKA/bin/mishka1fast_'
+    elite_exec      = '/UKSTAR_HOME/ksk911211/CODE/STAB/ELITE/bin/elite'
+    elite_dir       = '/UKSTAR_HOME/ksk911211/CODE/STAB/ELITE/bin'
 
 ##---python scripts
-python_home  = '/home/ksk911211/PYTHON/KEFIT_PACKAGE/'
-#python_home  = '/usr/local/analysis/KEFIT/'
+pythonc_exec  = python3_exec
+#gefit
+gefit_exec2   = python_home+'/GEFIT/gefit.py'
+gefit_exec3   = python_home+'/GEFIT/gefit.py'
+#gfit
+gfit_exec2    = python_home+'/GFIT/guifit.py'
+gfit_exec3    = python_home+'/GFIT/guifit.py'
 #chease
 chease_dir    = python_home+'/CHEASE/chease'
 #nubeam
 nubeam_dir    = python_home+'/NUBEAM/nubeam.py'
 nubeam_dir2   = python_home+'/NUBEAM/nubeam_run.py'
+nubeam_config = python_home+'/NUBEAM/configs/'
 Mfile         = python_home+'/NUBEAM/mdescr_A123B123.dat'
 Sfile         = python_home+'/NUBEAM/sconfig_A123B123.dat'
 Ifile         = python_home+'/NUBEAM/nubeam_init.dat'
 stepfile      = python_home+'/NUBEAM/nubeam_step.dat'
-plasma_state_test_exec='/usr/local/analysis/KEFIT/NTCC/LINUX/test/plasma_state_test'
-nubeam_comp_exec      ='/usr/local/analysis/KEFIT/NTCC/LINUX/test/mpi_nubeam_comp_exec'
-adasdir               ='/usr/local/analysis/KEFIT/NTCC/adas310_fortran_driver'
-preactdir             ='/usr/local/analysis/KEFIT/NTCC/preact'
-mpirun                ='/usr/local/mpich/bin/mpirun'
 #infos
 popup_dir     = python_home+'/ENV/popup.py'
 gefit_info    = python_home+'/INFO/gefit.txt'
@@ -126,7 +190,6 @@ mse_dir       = ''
 gfitp_dir     = python_home+'/GFIT/gfitp.py'
 gfit_dir      = python_home+'/GFIT/guifit.py'
 dummy_dir     = python_home+'/GFIT/TS_NE_dummy.dat'
-rdena_db_dir  = '/home/ksk911211/DENA/DBs'
 #efit
 efit_dir      = python_home+'/EFIT'
 kindata_dir   = python_home+'/EFIT/kindata'
@@ -160,7 +223,7 @@ comment['fgefit']     = '||                Bug report: sk42@princeton.edu       
 
 version = dict()
 version['eped']       = '1.0'
-version['gfit']       = '3.4'
+version['gfit']       = '3.5'
 version['chease']     = '2.2' 
 version['jatool']     = '1.1' 
 version['pedscanner'] = '1.0'

@@ -14,6 +14,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import gridspec
 
+from exec_dirs import mds_address
+
 #ConnectToMds=_load_library('MdsIpShr').ConnectToMds
 #ConnectToMds.argtypes=[_C.c_char_p]
 #DisconnectFromMds = _load_library('MdsIpShr').DisconnectFromMds
@@ -28,14 +30,18 @@ class _Connection( Connection):
     Last Modification : Aug 2012
     """
     def __del__(self):
-        self.closeConnection()
+        try:
+            self.closeConnection()
+        except Exception as e:
+            print('Error',e)
+            pass
         
     def closeConnection(self):
-        if self.socket != -1:
-            if False:
-                raise Exception("Error in disconnection")
-            else:
-                self.socket = -1
+        try:
+            super().disconnect()
+        except Exception as e:
+            print('Error',e)
+            pass
                 
     def reconnect(self):
         if self.hostspec == None:
@@ -59,7 +65,8 @@ class MDS(object):
     Last modification : Aug 2012
     """
     __DefaultTree = "KSTAR"
-    __DefaultServer = "172.17.100.200:8005"
+    __DefaultServer = 'mdsr.kstar.kfe.re.kr:8005' #"172.17.100.200:8005"
+    __DefaultServer = mds_address
 
     def __init__(self, shot=None, tree =__DefaultTree, server=__DefaultServer):
         try:                    
@@ -134,7 +141,7 @@ class MDS(object):
         
     def get_T0(self):
         try:
-            ret_str = self.__mds__.get('\T0_STR').data()
+            ret_str = self.__mds__.get('\\T0_STR').data()
         except:
             ret_str = None            
             raise MdsException("Error in get")
@@ -186,7 +193,7 @@ def gprofdat(shot,treename):
     ISTCI = [False,False,False,False,False,False,False]
     LETCI = [0,0,0,0,0,0,0]
 # connection to MDSPlus data
-    with MDS(server="172.17.100.200:8005") as mds:
+    with MDS(server=mds_address) as mds:
         try:
             eq=mds.open(shot=shot, tree=treename)
         except: 
@@ -225,22 +232,22 @@ def gprofdat(shot,treename):
         mds.close()
     return
 
-def post_data(shot,time,dt,dirs,noplot):
+def post_data(shot,time0,dt,drift,dirs,noplot):
     import numpy as np
 
     NE_conv=[1.9,2.75,1.,1.,1.,1.,1.]
     isdata =[0,0,0,0,0,0,0] 
     size   =[0,0,0,0,0,0,0]
     name   =['INT1','INT2','TCI1','TCI2','TCI3','TCI4','TCI5']
-#    L_weight=[4,4,7.23,5.51,4.60,3.81,2.48]
+    L_PATH =[4,4,7.23,5.51,4.76,3.80,2.52]
     L_weight=[1,1,1,1,1,1,1]
     names2 =['ne_int1','ne_int2','ne_tci1','ne_tci2','ne_tci3','ne_tci4','ne_tci5']
     tciavg =[0,0,0,0,0,0,0]
     tcisig =[1,1,1,1,1,1,1]
     axes   =[0,0,0,0,0,0,0]
 
-    utime = (time+0.5*dt)/1000
-    ltime = (time-0.5*dt)/1000
+    utime = (time0+0.5*dt)/1000
+    ltime = (time0-0.5*dt)/1000
 
     f=open('DATASAVE/'+sys.argv[1]+'/TCI_size','r')
     for k in range(7):
@@ -271,16 +278,24 @@ def post_data(shot,time,dt,dirs,noplot):
         tmax = max(tmax,max(abs(time)))
         lent = len(time); lenn = len(ne); lenm = min(lent,lenn)
         time = time[:lenm]; ne = ne[:lenm]
-        if not noplot: axes[k].plot(time,ne/NE_conv[k])
+
+        drift_corr = 0.;
+        if k>1:
+            drift_corr = drift / L_PATH[k]
+
+        if not noplot: axes[k].plot(time,ne/NE_conv[k]-time*drift_corr)
 
         ind1 = np.where(time>ltime)
         ind2 = np.where(time[ind1]<utime)
         tciavg[k] = np.sum(ne[ind1][ind2])/len(ne[ind1][ind2])/NE_conv[k]
         ind3 = np.where(abs(ne[ind1][ind2]/NE_conv[k]-tciavg[k]) < 0.5)
         if (len(ne[ind1][ind2][ind3])==0): continue
-        tciavg[k] = np.sum(ne[ind1][ind2][ind3])/len(ne[ind1][ind2][ind3])/NE_conv[k]
+        tciavg[k] = np.sum(ne[ind1][ind2][ind3])/len(ne[ind1][ind2][ind3])/NE_conv[k] 
         tcisig[k] = (np.max(ne[ind1][ind2][ind3]) - np.min(ne[ind1][ind2][ind3])) / NE_conv[k] / 4.
         tcisig[k] = np.std(ne[ind1][ind2][ind3]) / NE_conv[k] * 1.5 / L_weight[k]  #*4
+
+        tciavg[k] = tciavg[k] - drift_corr * time0 * 1.e-3
+        print('>>> Correction of TCI%02i at time %6ims %5.3f'%(k,time0,drift_corr * time0 * 1.e-3))
 
         if tciavg[k]<=0.: tciavg[k]= 0.; tcisig[k] = 0.
     
@@ -326,4 +341,4 @@ if __name__=='__main__':
         gprofdat(int(float(sys.argv[1])),'kstar')
     if only_mds == 'y': exit()
     if only_mds == 'px': noplot = True
-    post_data(int(float(sys.argv[1])),int(float(sys.argv[2])),int(float(sys.argv[3])),sys.argv[4],noplot)
+    post_data(int(float(sys.argv[1])),int(float(sys.argv[2])),int(float(sys.argv[3])),float(float(sys.argv[4])),sys.argv[5],noplot)

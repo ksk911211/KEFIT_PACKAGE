@@ -1,4 +1,4 @@
-#!/usr/local/miniconda3/bin/python3
+#!/usr/bin/env python3
 import os,sys
 import numpy as np
 import fortranformat

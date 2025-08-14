@@ -1,4 +1,4 @@
-#!/usr/local/anaconda3/bin/python3
+#!/usr/bin/env python3
 import os,sys
 import ch_tool
 from shutil import copyfile, move
@@ -37,20 +37,20 @@ ch.read_rho_psi_R('CHEASE/RHO_PSI_R')
 f4 = open('CHEASE/log.chease','r')
 linec = 0
 while True:
-	line = f4.readline()
-	if not line: break
+    line = f4.readline()
+    if not line: break
 
-	if (line.find('MKSA') > -1):
-		linec = 1
+    if (line.find('MKSA') > -1):
+        linec = 1
 
-	if ((line.find('POLOIDAL BETA') > -1) and (linec == 1 )):
-		bpc = float(line.split()[0])
-	if ((line.find('WMHD')>-1) and (linec == 1)):
-		wmhd2 = float(line.split()[0])
-	if ((line.find('LI')>-1) and (linec == 1)):
-		li = float(line.split()[0])
+    if ((line.find('POLOIDAL BETA') > -1) and (linec == 1 )):
+        bpc = float(line.split()[0])
+    if ((line.find('WMHD')>-1) and (linec == 1)):
+        wmhd2 = float(line.split()[0])
+    if ((line.find('LI')>-1) and (linec == 1)):
+        li = float(line.split()[0])
 f4.close()
-	
+    
 copyfile('TI.dat_new','NUBEAM/TI.dat')
 copyfile('NE.dat_new','NUBEAM/NE.dat')
 copyfile('TE.dat_new','NUBEAM/TE.dat')
@@ -89,12 +89,12 @@ f.close()
 f = open(save_dir+'/pre_prof','w')
 f.write('%i\n'%len(ch.psin))
 for i in range(len(ch.psin)):
-	f.write('%9.6f\t%9.6f\t%9.6f\n'%(ch.psin[i],ch.pt[i]+ch.pres_ex[i],ch.pres_ex[i]))
+    f.write('%9.6f\t%9.6f\t%9.6f\n'%(ch.psin[i],ch.pt[i]+ch.pres_ex[i],ch.pres_ex[i]))
 f.close()
 
 copyfile(out_dir1+'/EFIT_JCONST',  save_dir+'/EFIT_JCONST')
 copyfile(out_dir1+'/Vneo.dat',     save_dir+'/Vneo.dat')
-copyfile(nubeam_dir+'/chease_pres',save_dir+'/chease_pres')	
+copyfile(nubeam_dir+'/chease_pres',save_dir+'/chease_pres') 
 copyfile(nubeam_dir+'/chease_curr',save_dir+'/chease_curr')
 copyfile(nubeam_dir+'/nubeam_out1d',save_dir+'/nubeam_out1d')
 copyfile(nubeam_dir+'/nubeam_out0d',save_dir+'/nubeam_out0d')

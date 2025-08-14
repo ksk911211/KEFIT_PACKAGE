@@ -76,6 +76,7 @@ Updated for KSTAR 2022 campaign (V.3.1)<br />
 -Ver 3.3: TS CORE/EDGE calibration factor<br />
 -Ver 3.3: GFIT plot tool is added (gfitpt)<br />
 -Ver 3.4: Fitting error and EPED-PROF3 is added<br />
+-Ver 3.5: Uncertainty quantification is added <br />
 <br />
 @JASTAB<br />
 -Ver 1.0: Gui-based ideal pedestal stability tool<br />

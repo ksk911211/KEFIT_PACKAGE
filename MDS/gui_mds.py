@@ -419,7 +419,7 @@ class kstar_diagnostic_tool:
                     val  = self.ts[flag]['core'][ch][1]
                     err  = self.ts[flag]['core_err'][ch][1]
                     rr   = rr[1][0];
-                    
+
                     if time.shape[0]==0: 
                         break           
                     if err.shape[0]==0: 
@@ -447,10 +447,10 @@ class kstar_diagnostic_tool:
                         val  = val.T[:,0]
                         err  = err.T[:,0] 
 
-                    self.ts[flag]['core'][ch] = [time]; 
-                    self.ts[flag]['core'][ch].append(val)
-                    self.ts[flag]['core_err'][ch] = [time];
-                    self.ts[flag]['core_err'][ch].append(err)
+                self.ts[flag]['core'][ch] = [time]; 
+                self.ts[flag]['core'][ch].append(val)
+                self.ts[flag]['core_err'][ch] = [time];
+                self.ts[flag]['core_err'][ch].append(err)
                                     
                 if flag=='te': 
                     self.ts['core']['rr']=np.append(self.ts['core']['rr'],rr/1.e3); 
@@ -515,10 +515,10 @@ class kstar_diagnostic_tool:
                         val  = val.T[:,0]
                         err  = err.T[:,0] 
 
-                    self.ts[flag]['edge'][ch] = [time]; 
-                    self.ts[flag]['edge'][ch].append(val)
-                    self.ts[flag]['edge_err'][ch] = [time];
-                    self.ts[flag]['edge_err'][ch].append(err)
+                self.ts[flag]['edge'][ch] = [time]; 
+                self.ts[flag]['edge'][ch].append(val)
+                self.ts[flag]['edge_err'][ch] = [time];
+                self.ts[flag]['edge_err'][ch].append(err)
                                     
                 if flag=='te': 
                     self.ts['edge']['rr']=np.append(self.ts['edge']['rr'],rr/1.e3); 

@@ -2119,8 +2119,16 @@ class fit_tool:
 
         self.post['errsample'][flag]['vals']    = np.copy(y_samples);
 
-        errnom = np.mean(y_samples, axis=0)
-        errstd = np.std(y_samples, axis=0)
+
+        crit  = 0.5*(1-0.683) * 100.
+
+        upper = np.percentile(y_samples, 100.-crit, axis=0)
+        lower = np.percentile(y_samples, crit, axis=0)
+        errnom= 0.5*(upper+lower)
+        errstd= 0.5*(upper-lower)
+
+        #errnom = np.mean(y_samples, axis=0)
+        #errstd = np.std(y_samples, axis=0)
 
         self.post['errnom'][flag] = errnom
         self.post['errstd'][flag] = errstd
@@ -2317,9 +2325,12 @@ class fit_tool:
         ind = np.where(self.fit_eq['Z'] < (self.fit_eq['zmag']-0.01))
         Z = self.fit_eq['Z'][ind]
         psin0 = psin2[ind]
-        prf = interp1d(psin0,Z,'cubic')     
+        Zind  = np.argmax(psin0)+1
+        Z     =Z[Zind:]
+        psin0 =psin0[Zind:]
+        prf = interp1d(psin0,Z,'cubic')
         try:    Zin0 = prf(1.08)
-        except: Zin0 = min(self.fit_eq['Z'])            
+        except: Zin0 = min(self.fit_eq['Z'])           
 
         self.device['Rin']  = max(self.device['minwR'],Rin0)
         self.device['Rout'] = min(self.device['maxwR'],Rout0)

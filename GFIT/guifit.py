@@ -20,6 +20,8 @@ from exec_dirs import mds_ces,mds_lit,mse_corr,mse_dir,python2_exec,gzip_dir,mds
 from exec_dirs import python3_exec, popup_dir, gfit_info
 import pickle
 
+from scipy.io import savemat
+
 currdir = os.getcwd()
 
 class guifittool:
@@ -3430,6 +3432,7 @@ class guifittool:
             f = open('PROFILES/prof_sample.pickle','wb')
             pickle.dump(self.fit.post['errsample'],f)
             f.close()
+            savemat('PROFILES/prof_sample.mat',self.fit.post['errsample'])
             print('>>> Fit-sample saved')
 
         copyfile(inputf,'fit_opt.save')

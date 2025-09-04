@@ -504,7 +504,9 @@ class eqdsk:
     def make_chease_expeq(self,filename='EXPEQ'):
     
         f4 = open(filename,'w')
-    
+
+        target_psin = self.target_psin
+        if (self.target_psin == 0): target_psin = 1.
         if (self.use_bnd_smooth):
             self.smooth_bnd()
             rz = self.rzbdys
@@ -544,8 +546,8 @@ class eqdsk:
         psint = np.linspace(0,1.0,401)
         ww = 0. #0.5* (1+np.tanh((psint-0.99)/0.005))
 
-        ppf = interp1d(self.psin,self.pp*self.pscale,'cubic')
-        pf  = interp1d(self.psin,self.pres*self.pscale,'cubic')
+        ppf = interp1d(self.psin*(2.-target_psin),self.pp*self.pscale,'cubic')
+        pf  = interp1d(self.psin*(2.-target_psin),self.pres*self.pscale,'cubic')
         ppt = ppf(psint)
         ppt[0] = (ppt[1] - ppt[2])/(psint[1]-psint[2]) * (0.-psint[1]) + ppt[1]
         if ppt[0]*ppt[1] < 0.:  ppt[0] = 0.
@@ -553,11 +555,11 @@ class eqdsk:
         pt  = pf(psint)
         ppt = ppt - ww*ppt[-1]
         if (self.jconst == 1):
-            ffpf = interp1d(self.psin,self.ffp,'cubic')
-            ffpt = ffpf(psint)
-            ffpt = ffpt - ww*ffpt[-1]
+            ffpf  = interp1d(self.psin*(2.-target_psin),self.ffp,'cubic')
+            ffpt  = ffpf(psint)
+            ffpt  = ffpt - ww*ffpt[-1]
         elif (self.jconst ==3):
-            jparf = interp1d(self.psin,self.jpar,'cubic')
+            jparf = interp1d(self.psin*(2.-target_psin),self.jpar,'cubic')
             jpart = jparf(psint)
 
         lenp = len(ppt)-1
@@ -1470,7 +1472,7 @@ class eqdsk:
         f.close()
         os.chdir('../')
         if (save_gfile): os.system('cp temp/EQDSK_COCOS_02.OUT eqdsk.chease')
-        os.system('rm -r temp')
+#        os.system('rm -r temp')
 
         return
 

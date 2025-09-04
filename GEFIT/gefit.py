@@ -1910,7 +1910,7 @@ class gefitk:
             if self.year >=2023:
                 efit_exec2 = efit_exec2+'w'
                 print('>>> W-divertor campaign')
-            if not os.path.isfile(efit_exec):   os.remove(efit_exec)
+            if os.path.isfile(efit_exec):   os.remove(efit_exec)
             try:    copyfile(efit_exec2,efit_exec)
             except: 
                     print('>>> Error in copying efit exe')
@@ -2404,7 +2404,7 @@ class gefitk:
             efit_exec2 = efit_exec2+'w'
             print('>>> W-divertor campaign')
 
-        if not os.path.isfile(efit_exec): os.remove(efit_exec)  
+        if os.path.isfile(efit_exec): os.remove(efit_exec)  
         try:    copyfile(efit_exec2,efit_exec)
         except: 
                 print('>>> Error in copying efit exe')

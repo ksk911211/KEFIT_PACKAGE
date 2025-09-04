@@ -50,6 +50,9 @@ def _make_mse(shot,time,dt):
         mse_dat['sgam'][i] = np.mean(mse_dat['SGAMMA%02i'%ind][ind1][ind2])
         mse_dat['fwt'][i]  = 1.
         if (mse_dat['RRRGAM'][i] < 1.or mse_dat['RRRGAM'][i]>2.1): mse_dat['fwt'][i] = 0.
+        if mse_dat['sgam'][i]<0:
+            mse_dat['sgam'][i] = 1.;
+            mse_dat['fwt'][i] = 0.;
     print('>>> Load MSE from MDS...')
     return mse_dat
 

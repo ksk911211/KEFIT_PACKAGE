@@ -25,7 +25,7 @@ from get_efit import *
 from exec_dirs import gzip_dir, efit_rmp, efit_dir, version
 from exec_dirs import ts_location_core, ts_location_edge, ces_location
 
-#from aeqdsk import _read_afile
+from aeqdsk import _read_afile
 
 class kstar_diagnostic_tool:
 
@@ -735,7 +735,7 @@ class kstar_diagnostic_tool:
 
             self.gkfiles['g'][efit_no] = gfile_sav;
             self.gkfiles['k'][efit_no] = kfile_sav;
-            #self.gkfiles['a'][efit_no] = _read_afile(afile_sav)
+            self.gkfiles['a'][efit_no] = _read_afile(afile_sav)
 
             if not os.path.isfile(gfile_sav):
                 if (efit_no < 3 and self.year<2023):
@@ -1293,7 +1293,7 @@ class kstar_diagnostic_tool:
         for i in glist: line = line + '{:7s} '.format(' EFIT%02i'%i)
         line = line + '\n{:8s}'.format('chisq')
 
-        if False:
+        if True:
             for i in glist: 
                 if self.efit_list['isefit'][i]:line = line + '{:7.2f} '.format(self.gkfiles['a'][i]['tsaisq'])
                 else: line = line + '{:7s} '.format('  -')

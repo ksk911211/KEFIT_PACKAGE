@@ -686,7 +686,7 @@ class gefitk:
                     for i in range(200,200+self.clen3):
                         self.__dict__['CoilVar%d'%(i+1)].set(int(self.fwtgam[i-200]))
 
-                self.MenuVar7.set('eMSE')
+                #self.MenuVar7.set('eMSE')
 
         self.dtgamma = np.copy(self.sgamma)
         for i in range(61,61+len(self.sgamma)):
@@ -696,6 +696,8 @@ class gefitk:
         if not self.ismse:  
             self.MenuVar5.set('sMSE')
             self.MenuVar7.set('sMSE')
+            self.m5["menu"].delete(1)
+            self.m7["menu"].delete(1)
 
             print('>>> No MSE data in K-FILE, please use sMSE option!')
             self.use_smse = True

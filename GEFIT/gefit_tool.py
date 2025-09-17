@@ -1564,6 +1564,8 @@ def load_eq_data(sim,filename,filename2=None,skip=False):
             
                 R = sim.rrrgam[i]
                 Z = sim.zzzgam[i]
+                R = min(R,eq.r[-1])
+                R = max(R,eq.r[0])
                 point = np.array([[R,Z]])
                 
                 br = brf(point)

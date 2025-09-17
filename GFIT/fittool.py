@@ -2221,7 +2221,7 @@ class fit_tool:
         core_multi = np.linspace(minc,maxc,cn)
         edge_multi = np.linspace(mine,maxe,en)
 
-        cmulti = np.linspace(minc,maxc,41)
+        cmulti = np.linspace(minc,maxc,51)
         emulti = np.linspace(mine,maxe,51)
 
         for i in range(cn):
@@ -2237,17 +2237,14 @@ class fit_tool:
                 update_progress(float((i*en+j+1)/cn/en))    
 
         if not self.fit_opt['ascale1d']:        
-            xf = RegularGridInterpolator((edge_multi,core_multi),xis.T)
-            emulti2, cmulti2 = np.meshgrid(emulti, cmulti, indexing='ij')
-            points = np.vstack([emulti2.ravel(), cmulti2.ravel()]).T
-            xif = xf(points).reshape(len(emulti), len(cmulti))
-            ind = np.argmin(xif)
-            ind1 = int((ind+1)/51)
-            ind2 = int(ind - 51*ind1)
-            if ind1 == 41: ind1 = 40; ind2 = 50;
+            xf = RegularGridInterpolator((core_multi,edge_multi),xis)
+            cmulti2, emulti2 = np.meshgrid(cmulti, emulti, indexing='ij')
+            points = np.vstack([cmulti2.ravel(), emulti2.ravel()]).T
+            xif = xf(points).reshape(len(cmulti), len(emulti))
+            ind = np.unravel_index(xif.argmin(), xif.shape)
 
-            self.fit_opt['scale']['ne']['ts']['core'] = round(cmulti[ind1],3)
-            self.fit_opt['scale']['ne']['ts']['edge'] = round(emulti[ind2],3)
+            self.fit_opt['scale']['ne']['ts']['core'] = round(cmulti[ind[0]],3)
+            self.fit_opt['scale']['ne']['ts']['edge'] = round(emulti[ind[1]],3)
 
         else:
             xf = interp1d(core_multi,xis[:,0])

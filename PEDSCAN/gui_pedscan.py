@@ -544,7 +544,7 @@ class gpedscan:
         self.tri = round(self.tri,3)
         self.square = round(self.square,3)
 
-        self.eq.epslon = 4
+        self.eq.epslon = 6
         self.eq.make_chease_input()
         self.eq.run_chease()
         os.remove('chease_namelist')

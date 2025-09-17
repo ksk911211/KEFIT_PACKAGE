@@ -3014,7 +3014,7 @@ class chease:
             self.relax = 0.7
 
         if (self.nomap):
-            self.epslon = 5
+            self.epslon = 6
 
         if not (self.nomap):
             if self.nideal == 8:

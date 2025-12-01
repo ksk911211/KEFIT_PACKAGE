@@ -25,7 +25,7 @@ from get_efit import *
 from exec_dirs import gzip_dir, efit_rmp, efit_dir, version
 from exec_dirs import ts_location_core, ts_location_edge, ces_location
 
-from aeqdsk import _read_afile
+#from aeqdsk import _read_afile
 
 class kstar_diagnostic_tool:
 
@@ -76,6 +76,7 @@ class kstar_diagnostic_tool:
     
         self.mds               = dict()
         self.ces               = dict()
+        self.ces_nn            = dict()
         self.ts                = dict()
         self.int               = dict()
         self.tci               = dict()     
@@ -94,6 +95,7 @@ class kstar_diagnostic_tool:
         self.tci['nch'] = 5
         self.int['nch'] = 2 
         self.ces['nch'] = 0
+        self.ces_nn['nch'] = 0
         self.ts['core'] = dict()
         self.ts['edge'] = dict()
         self.ts['core']['nch'] = 0
@@ -106,7 +108,13 @@ class kstar_diagnostic_tool:
         for ch in ['ti','vt']:
             self.ces[ch] = dict()
             for flag in ['val','err']:
-                self.ces[ch][flag] = dict() 
+                self.ces[ch][flag] = dict()
+
+        for ch in ['ti','vt']:
+            self.ces_nn[ch] = dict()
+            for flag in ['val','err']:
+                self.ces_nn[ch][flag] = dict()
+
         for ch in ['te','ne']:
             self.ts[ch] = dict()
             for flag in ['core','edge','core_err','edge_err']:
@@ -141,7 +149,7 @@ class kstar_diagnostic_tool:
         self.opt['slist']['ces'] = dict()
         self.opt['slist']['ts'] = dict()
         self.opt['slist']['ces']['ti'] = []
-        self.opt['slist']['ces']['vt'] = []
+        self.opt['slist']['ces']['vt'] = []   
         self.opt['slist']['ts']['te'] = []
         self.opt['slist']['ts']['ne'] = []
 
@@ -161,6 +169,7 @@ class kstar_diagnostic_tool:
         self.rr['ts']['core'] = dict()
         self.rr['ts']['edge'] = dict()
         self.rr['ces'] = dict()
+        self.rr['ces_nn'] = dict()
 
 
         self.opt['xmap']  = dict()  
@@ -203,6 +212,7 @@ class kstar_diagnostic_tool:
         self._load_ip_da()
         if not self.nogui: self._load_eq()
         self._load_ces()
+        self._load_cesnn()
         self._load_ts()
         self._load_interf()
         self.g.close()
@@ -227,6 +237,58 @@ class kstar_diagnostic_tool:
             comm=gzip_dir+' '+nfile
             os.system(comm)
             return
+
+    def _load_cesnn(self):
+
+
+        print('>>> Load CESNN...')
+
+        for flag in ['ti','vt']:
+                    
+            if flag == 'ti': 
+                self.ces_nn['rr'] = np.array([])   
+
+            for ch in range(1,50):
+                nfile      = self.savfile+'%s%i_nn.npz'%(flag.upper(),ch)
+                node_name1 = '\\CESNN_%s%02i'%(flag.upper(),ch)
+                node_name2 = '\\CESNN_%s%02i:err_bar'%(flag.upper(),ch)
+                node_name3 = '\\CESNN_RT%02i'%(ch)
+
+                if not os.path.isfile(nfile+'.gz'):
+                    self.ces_nn[flag]['val'][ch]    = self.g.get(node_name1)
+                    self.ces_nn[flag]['err'][ch]    = self.g.get(node_name2)
+                    rr                             = self.g.get(node_name3)
+                    try: 
+                        if len(self.ces_nn[flag]['val'][ch][0])==0: break
+                    except: 
+                        self.ces_nn[flag]['val'][ch] = [[],[]]
+                        self.ces_nn[flag]['err'][ch] = [[],[]]
+                        break
+
+                    rr = rr[1][0];
+
+                    if len(self.ces_nn[flag]['err'][ch][0])==0: self.ces_nn[flag]['err'][ch] = [self.ces_nn[flag]['val'][ch][0],self.ces_nn[flag]['val'][ch][1]/10.]
+                    self._get_save_zipf(nfile,[self.ces_nn[flag]['val'][ch][0],self.ces_nn[flag]['val'][ch][1],self.ces_nn[flag]['err'][ch][1],rr])
+                else:
+                    data  = self._get_save_zipf(nfile)
+                    self.ces_nn[flag]['val'][ch] = [data[0]]; self.ces_nn[flag]['val'][ch].append(data[1])
+                    self.ces_nn[flag]['err'][ch] = [data[0]]; self.ces_nn[flag]['err'][ch].append(data[2])
+                    rr = data[3]
+
+                if flag=='ti': self.ces_nn['rr']=np.append(self.ces_nn['rr'],rr/1.e3); self.ces_nn['nch'] = ch
+
+            if self.ces_nn['nch'] == 0: print('>>> CESNN %s data unavail.'%(flag.upper()));
+            else: 
+                print('>>> CESNN %s CH. %i [#] '%(flag.upper(),self.ces_nn['nch']))
+                self.ces['rr'] = np.copy(self.ces_nn['rr'])
+
+            nfile      = self.savfile+'%s_nn_size'%(flag.upper())
+            if not os.path.isfile(nfile):
+                f = open(nfile,'w')
+                f.write('%i %i %i %i\n'%(len(self.ces_nn[flag]['val'][ch][0]),len(self.mds['da'][0]),self.ces_nn['nch'],self.ces_nn['nch']))
+                f.close()   
+
+        return    
 
     def _load_ces(self):
 
@@ -254,6 +316,7 @@ class kstar_diagnostic_tool:
                         break
 
                     rr = rr[1][0];
+
                     if self.year in ces_location:
                         rr = ces_location[self.year][ch-1]*1.e3
 
@@ -597,8 +660,14 @@ class kstar_diagnostic_tool:
 
         print('>>> Load Ip/Da...')
         node_name1 = '\\pcrc03'
-        node_name2 = '\\tor_ha10'
         node_name3 = '\\wtot_dlm03'
+
+        if self.year>2024:
+            node_name2 = '\\tor_ha10:foo'
+            da_scale   = -1;
+        else:
+            node_name2 = '\\tor_ha10'
+            da_scale   = +1;
 
         nfile1 = self.savfile+'IP.npz'
         nfile2 = self.savfile+'DA.npz'
@@ -626,7 +695,9 @@ class kstar_diagnostic_tool:
             self._get_save_zipf(nfile3,self.mds['wdia'],2)
         else:
             data = self._get_save_zipf(nfile3,[],2)
-            self.mds['wdia'] = [data[0]]; self.mds['wdia'].append(data[1])              
+            self.mds['wdia'] = [data[0]]; self.mds['wdia'].append(data[1])
+
+        self.mds['da'] = [np.array(self.mds['da'][0],dtype='float'),np.array(self.mds['da'][1],dtype='float')*da_scale]
 
         len_nbi = len(nbi_pwr)
         for i in range(len_nbi):
@@ -701,6 +772,10 @@ class kstar_diagnostic_tool:
     def _load_eq(self):
 
         print('>>> Load EFIT...')
+
+        old_shotn=self.shotn
+        self.shotn=36082
+
         self.efit_list = get_efit_list2(self.shotn)
         isefit = False
         for key in self.efit_list['isefit'].keys():
@@ -735,7 +810,7 @@ class kstar_diagnostic_tool:
 
             self.gkfiles['g'][efit_no] = gfile_sav;
             self.gkfiles['k'][efit_no] = kfile_sav;
-            self.gkfiles['a'][efit_no] = _read_afile(afile_sav)
+            #self.gkfiles['a'][efit_no] = _read_afile(afile_sav)
 
             if not os.path.isfile(gfile_sav):
                 if (efit_no < 3 and self.year<2023):
@@ -779,6 +854,7 @@ class kstar_diagnostic_tool:
                     rho_map_ex[i] = 1.+drdp*(psi_map_ex[i]-1.);
 
             self.gkfiles['eq'][efit_no].psi_to_rho = interp1d(psi_map_ex,rho_map_ex)
+        self.shotn = old_shotn
         return
 
     def _get_xmap(self):
@@ -801,6 +877,13 @@ class kstar_diagnostic_tool:
             point = np.array([self.rr['ces'][1],z_array]).T
             self.rr['ces'][2] = self.gkfiles['eq'][self.efit_no_g.get()].psif(point)
             self.rr['ces'][3] = self.gkfiles['eq'][self.efit_no_g.get()].psi_to_rho(self.rr['ces'][2])              
+        if self.ces_nn['nch']>3:
+            self.rr['ces_nn'][1] = self.ces_nn['rr']
+            z_array = np.full_like(self.rr['ces_nn'][1],0)
+            point = np.array([self.rr['ces_nn'][1],z_array]).T
+
+            self.rr['ces_nn'][2] = self.gkfiles['eq'][self.efit_no_g.get()].psif(point)
+            self.rr['ces_nn'][3] = self.gkfiles['eq'][self.efit_no_g.get()].psi_to_rho(self.rr['ces_nn'][2])              
 
         return
 
@@ -1039,10 +1122,22 @@ class kstar_diagnostic_tool:
         if diag == 'ces': 
             ind1 = np.where(self.ces['ti']['val'][1][0]>=tmin/1.e3); ind2 = np.where(self.ces['ti']['val'][1][0][ind1]<=tmax/1.e3)
             tt   = self.ces['ti']['val'][1][0][ind1][ind2]
+
+            ind1 = np.where(self.ces_nn['ti']['val'][1][0]>=tmin/1.e3); ind2 = np.where(self.ces_nn['ti']['val'][1][0][ind1]<=tmax/1.e3)
+            tt_nn= self.ces_nn['ti']['val'][1][0][ind1][ind2]
+
+            lent = max(len(tt),len(tt_nn))
+            lent1= len(tt)
+            lent2= len(tt_nn)
+            for it in range(lent):
+                if it<lent1: self.note_in['l1'].insert('end','%i'%(tt[it]*1.e3))
+                if it<lent2: self.note_in['l1'].insert('end','%i [nn]'%(tt_nn[it]*1.e3))
+
         elif diag== 'ts': 
             ind1 = np.where(self.ts['te']['core'][1][0]>=tmin/1.e3); ind2 = np.where(self.ts['te']['core'][1][0][ind1]<=tmax/1.e3)
             tt   = self.ts['te']['core'][1][0][ind1][ind2]
-        for time in tt: self.note_in['l1'].insert('end','%i'%(time*1.e3))
+            for time in tt: self.note_in['l1'].insert('end','%i'%(time*1.e3))
+
         self.opt['isdata'][diag] = len(tt)>0
         return
 
@@ -1056,6 +1151,18 @@ class kstar_diagnostic_tool:
             self.note_in['l2'].delete(0,'end')
             for item in self.opt['slist'][diag][ch]:
                 self.note_in['l2'].insert('end',item)
+
+    def _check_time_nn(self,item):
+
+        if 'nn' in '%s'%item:
+            time = int(item[:-5])
+            isnn = True
+        else:
+            time = int(item)
+            isnn = False
+
+        return time,isnn
+
 
     def _click_list1(self):
 
@@ -1074,8 +1181,10 @@ class kstar_diagnostic_tool:
         for item in lists:
             self.note_in['l2'].insert('end',item)
             if not item in lists_old:
-                time = int(item)
-                self._draw_time(time)
+
+                time,isnn = self._check_time_nn(item)
+                self._draw_time(time,isnn)
+
             newlist = True;
         if newlist: self._reset_gui()
         return      
@@ -1086,9 +1195,9 @@ class kstar_diagnostic_tool:
         selection = self.note_in['l2'].curselection()
         if len(selection) == 0: return
         item = self.note_in['l2'].get(selection[0])
-        time = int(item)
+        time,isnn = self._check_time_nn(item)      
         self.note_in['l2'].delete(selection[0]);
-        self._delete_time(time)
+        self._delete_time(time,isnn)
         self._reset_gui()
         return
 
@@ -1106,13 +1215,19 @@ class kstar_diagnostic_tool:
             line = self.note_in['l2'].get(selection[0])
             color = 'r'         
 
-        time = int(line)
-        if self.opt['cpage']=='ces': 
-            data = self.ces[self.opt['c_ch']]
-            xx = self.rr['ces'][self.note_in['xmap'].get()]
-            nch = self.ces['nch']
-            self._select_time_ces(time,xx,data,nch,color)
-            
+        time,isnn = self._check_time_nn(line)
+
+        if self.opt['cpage']=='ces':
+
+            if not isnn:
+                data = self.ces[self.opt['c_ch']]
+                xx = self.rr['ces'][self.note_in['xmap'].get()]
+                nch = self.ces['nch']
+            else:
+                data = self.ces_nn[self.opt['c_ch']]
+                xx = self.rr['ces_nn'][self.note_in['xmap'].get()]
+                nch = self.ces_nn['nch']               
+            self._select_time_ces(time,xx,data,nch,color,isnn)
 
         if self.opt['cpage']=='ts':             
             data = self.ts[self.opt['c_ch']]
@@ -1124,7 +1239,7 @@ class kstar_diagnostic_tool:
         self._set_range()
         return      
 
-    def _select_time_ces(self,time,xx,data,nch,color):
+    def _select_time_ces(self,time,xx,data,nch,color,isnn):
 
         self.figure['name']['home'].canvas.draw_idle()
 
@@ -1136,15 +1251,21 @@ class kstar_diagnostic_tool:
         for i in range(1,nch+1):
             yy.append(data['val'][i][1][ind]);
             yerr.append(data['err'][i][1][ind]);
-        np.nan_to_num(yy, copy=False); np.nan_to_num(yerr, copy=False)
+
+        np.nan_to_num(yy, copy=False); np.nan_to_num(yerr, copy=False);
+
         yy = np.array(yy)*factor; yerr = np.array(yerr)*factor
         line1 = self.figure['axes']['home'][1].errorbar(xx,yy,yerr,fmt='o',c=color)
+
+        time_flag = '%i'%time;
+        if isnn: time_flag+='_nn'
+
         self.figure['pegend']['stime'].append(line1)
-        self.figure['legend']['stime'].append(time)
+        self.figure['legend']['stime'].append(time_flag)
 
         line2 = self.figure['axes']['home'][0].axvline(x=time/1.e3,c=color,linestyle='--')
         self.figure['pegend']['stime'].append(line2)
-        self.figure['legend']['stime'].append(time)
+        self.figure['legend']['stime'].append(time_flag)
 
         return
 
@@ -1201,8 +1322,8 @@ class kstar_diagnostic_tool:
         for item in list2:
             self.note_in['l2'].insert('end',item)
             if not item in list2_old:
-                time = int(item)
-                self._draw_time(time)
+                time,isnn = self._check_time_nn(item)        
+                self._draw_time(time,isnn)
 
         self._reset_gui()
         return      
@@ -1213,7 +1334,8 @@ class kstar_diagnostic_tool:
         self.note_in['l2'].delete(0,'end')
         times = copy.deepcopy(self.figure['legend']['time'])
         for time in times:
-            self._delete_time(time)
+            time,isnn = self._check_time_nn(item)
+            self._delete_time(time,isnn)
 
         self._reset_gui()
         return
@@ -1253,8 +1375,8 @@ class kstar_diagnostic_tool:
         for item in list2:
             self.note_in['l2'].insert('end',item)
             if not item in list2_old:
-                time = int(item)
-                self._draw_time(time)
+                time,isnn = self._check_time_nn(item)
+                self._draw_time(time,isnn)
 
         self._reset_gui()
 
@@ -1293,7 +1415,7 @@ class kstar_diagnostic_tool:
         for i in glist: line = line + '{:7s} '.format(' EFIT%02i'%i)
         line = line + '\n{:8s}'.format('chisq')
 
-        if True:
+        if False:
             for i in glist: 
                 if self.efit_list['isefit'][i]:line = line + '{:7.2f} '.format(self.gkfiles['a'][i]['tsaisq'])
                 else: line = line + '{:7s} '.format('  -')
@@ -1409,13 +1531,18 @@ class kstar_diagnostic_tool:
             self.figure['legend']['peak'].append(time)
         return
 
-    def _draw_time(self,time):
+    def _draw_time(self,time,isnn):
 
-        if self.opt['cpage']=='ces': 
-            data = self.ces[self.opt['c_ch']]
-            xx = self.rr['ces'][self.note_in['xmap'].get()]
-            nch = self.ces['nch']
-            self._draw_time_ces(time,xx,data,nch)
+        if self.opt['cpage']=='ces':
+            if not isnn:
+                data = self.ces[self.opt['c_ch']]
+                xx = self.rr['ces'][self.note_in['xmap'].get()]
+                nch = self.ces['nch']
+            else:
+                data = self.ces_nn[self.opt['c_ch']]
+                xx = self.rr['ces_nn'][self.note_in['xmap'].get()]
+                nch = self.ces_nn['nch']               
+            self._draw_time_ces(time,xx,data,nch,isnn)
             
         if self.opt['cpage']=='ts':             
             data = self.ts[self.opt['c_ch']]
@@ -1427,7 +1554,7 @@ class kstar_diagnostic_tool:
         self._set_range()
         return
 
-    def _draw_time_ces(self,time,xx,data,nch):
+    def _draw_time_ces(self,time,xx,data,nch,isnn):
 
         self.figure['name']['home'].canvas.draw_idle()
 
@@ -1442,12 +1569,17 @@ class kstar_diagnostic_tool:
         np.nan_to_num(yy, copy=False); np.nan_to_num(yerr, copy=False)
         yy = np.array(yy)*factor; yerr = np.array(yerr)*factor
         line1 = self.figure['axes']['home'][1].errorbar(xx,yy,yerr,fmt='o',c='b')
+
+
+        time_flag = '%i'%time;
+        if isnn: time_flag+='_nn'
+
         self.figure['pegend']['time'].append(line1)
-        self.figure['legend']['time'].append(time)
+        self.figure['legend']['time'].append(time_flag)
 
         line2 = self.figure['axes']['home'][0].axvline(x=time/1.e3,c='b',linestyle='--')
         self.figure['pegend']['time2'].append(line2)
-        self.figure['legend']['time2'].append(time)
+        self.figure['legend']['time2'].append(time_flag)
 
         return
 
@@ -1518,21 +1650,27 @@ class kstar_diagnostic_tool:
         elif  self.note_in['xmap'].get() ==2: self.figure['axes']['home'][1].set_xlabel('$\\psi_N$')
         else:                             self.figure['axes']['home'][1].set_xlabel('$\\rho_N$')        
 
-        for time in times: self._draw_time(int(time))
+        for time in times:
+            time,isnn = self._check_time_nn(time)
+            self._draw_time(time,isnn)
         return
 
-    def _delete_time(self,time):
+    def _delete_time(self,time,isnn):
 
         self.figure['name']['home'].canvas.draw_idle()
-        ind = self.figure['legend']['time'].index(time)
+
+        time_flag = '%i'%time;
+        if isnn: time_flag+='_nn'
+
+        ind = self.figure['legend']['time'].index(time_flag)
         self.figure['pegend']['time'][ind].remove()
         self.figure['pegend']['time'].remove(self.figure['pegend']['time'][ind])
-        self.figure['legend']['time'].remove(time)
+        self.figure['legend']['time'].remove(time_flag)
 
-        ind = self.figure['legend']['time2'].index(time)
+        ind = self.figure['legend']['time2'].index(time_flag)
         self.figure['pegend']['time2'][ind].remove()
         self.figure['pegend']['time2'].remove(self.figure['pegend']['time2'][ind])
-        self.figure['legend']['time2'].remove(time)
+        self.figure['legend']['time2'].remove(time_flag)
         self._set_range()
         return
 
@@ -1573,7 +1711,9 @@ class kstar_diagnostic_tool:
         self._set_time()
         self._get_list('ces')
         tlist = list(self.note_in['l2'].get(0,'end'))
-        for item in tlist: self._draw_time(int(item))
+        for item in tlist: 
+            time,isnn = self._check_time_nn(item)
+            self._draw_time(time,isnn)
         return
 
     def _ts_page(self,ch='te'):
@@ -1595,7 +1735,9 @@ class kstar_diagnostic_tool:
         self._set_time()
         self._get_list('ts')
         tlist = list(self.note_in['l2'].get(0,'end'))
-        for item in tlist: self._draw_time(int(item))
+        for item in tlist: 
+            time,isnn = self._check_time_nn(item)
+            self._draw_time(time,isnn)
         return
 
     def _generate(self):
@@ -1609,9 +1751,16 @@ class kstar_diagnostic_tool:
             if ch=='ti': f.write('R[m]     Z[m]     TI[eV]   Error[eV]  \n')
             else:        f.write('R[m]     Z[m]     VT[km/s] Error[km/s]\n')
 
-            xx = self.rr['ces'][1]; 
-            tt = self.ces[ch]['val'][1][0]; yy = self.ces[ch]['val']; yerr = self.ces[ch]['err']
+            
             for time in slist:
+                time,isnn = self._check_time_nn(time)
+                if not isnn:
+                    xx = self.rr['ces'][1]; 
+                    tt = self.ces[ch]['val'][1][0]; yy = self.ces[ch]['val']; yerr = self.ces[ch]['err']
+                else:
+                    xx = self.rr['ces_nn'][1]; 
+                    tt = self.ces_nn[ch]['val'][1][0]; yy = self.ces_nn[ch]['val']; yerr = self.ces_nn[ch]['err']
+
                 tind = np.argmin(abs(tt-float(time)/1.e3))
                 for i in range(1,self.ces['nch']+1):
                     f.write('%9.7f  %9.7f  %9.4f  %9.4f\n'%(xx[i-1],0.,np.nan_to_num(yy[i][1][tind]),np.nan_to_num(yerr[i][1][tind])))
@@ -1649,7 +1798,7 @@ class kstar_diagnostic_tool:
 
     def _gui_preset(self):
 
-        if self.ces['nch'] < 3: 
+        if ((self.ces['nch'] < 3) and (self.ces_nn['nch'] < 3)): 
             self.note_in['b1'].config(state='disabled');
             self.note_in['b2'].config(state='disabled');
         if self.ts['core']['nch'] < 3: 

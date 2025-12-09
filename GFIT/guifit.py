@@ -195,7 +195,7 @@ class guifittool:
     def make_note_frame(self):
 
         titles = ['INPUT','FUNC',' TE ',' NE ',' TI ',' VT ','MDS','PLOT','ETC']
-        self.home['nb'] = ttk.Notebook(self.root,width=400,height=710) #665
+        self.home['nb'] = ttk.Notebook(self.root,width=400,height=745) #710 #665
         self.home['nb'].bind('<Button-1>',self.leftclick)
         for i in range(1,len(titles)+1):
             self.home['page%i'%i] = ttk.Frame(self.home['nb'])

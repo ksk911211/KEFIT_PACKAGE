@@ -88,10 +88,10 @@ class kstar_diagnostic_tool:
         self.prev_xmap  = 1
         self.efit_no_g  = tk.IntVar()
         self.efit_no_k  = tk.IntVar()
-        self.efit_no_g.set(1)
-        self.efit_no_k.set(1)
-        self.opt['g_no'] = 1
-        self.opt['k_no'] = 1
+        self.efit_no_g.set(4)
+        self.efit_no_k.set(4)
+        self.opt['g_no'] = 4
+        self.opt['k_no'] = 4
         self.tci['nch'] = 5
         self.int['nch'] = 2 
         self.ces['nch'] = 0
@@ -281,6 +281,7 @@ class kstar_diagnostic_tool:
             else: 
                 print('>>> CESNN %s CH. %i [#] '%(flag.upper(),self.ces_nn['nch']))
                 self.ces['rr'] = np.copy(self.ces_nn['rr'])
+                self.ces['nch']= self.ces_nn['nch']
 
             nfile      = self.savfile+'%s_nn_size'%(flag.upper())
             if not os.path.isfile(nfile):
@@ -773,9 +774,6 @@ class kstar_diagnostic_tool:
 
         print('>>> Load EFIT...')
 
-        old_shotn=self.shotn
-        self.shotn=36082
-
         self.efit_list = get_efit_list2(self.shotn)
         isefit = False
         for key in self.efit_list['isefit'].keys():
@@ -854,7 +852,6 @@ class kstar_diagnostic_tool:
                     rho_map_ex[i] = 1.+drdp*(psi_map_ex[i]-1.);
 
             self.gkfiles['eq'][efit_no].psi_to_rho = interp1d(psi_map_ex,rho_map_ex)
-        self.shotn = old_shotn
         return
 
     def _get_xmap(self):
@@ -1133,12 +1130,14 @@ class kstar_diagnostic_tool:
                 if it<lent1: self.note_in['l1'].insert('end','%i'%(tt[it]*1.e3))
                 if it<lent2: self.note_in['l1'].insert('end','%i [nn]'%(tt_nn[it]*1.e3))
 
+
         elif diag== 'ts': 
             ind1 = np.where(self.ts['te']['core'][1][0]>=tmin/1.e3); ind2 = np.where(self.ts['te']['core'][1][0][ind1]<=tmax/1.e3)
             tt   = self.ts['te']['core'][1][0][ind1][ind2]
             for time in tt: self.note_in['l1'].insert('end','%i'%(time*1.e3))
+            lent   = len(tt)
 
-        self.opt['isdata'][diag] = len(tt)>0
+        self.opt['isdata'][diag] = lent>0
         return
 
     def _sync_list(self,save=True):
@@ -1152,10 +1151,13 @@ class kstar_diagnostic_tool:
             for item in self.opt['slist'][diag][ch]:
                 self.note_in['l2'].insert('end',item)
 
-    def _check_time_nn(self,item):
+    def _check_time_nn(self,item,stype=1):
 
         if 'nn' in '%s'%item:
-            time = int(item[:-5])
+            if stype==1:
+                time = int(item[:-5])
+            elif stype==2:
+                time = int(item[:-3])
             isnn = True
         else:
             time = int(item)
@@ -1257,8 +1259,9 @@ class kstar_diagnostic_tool:
         yy = np.array(yy)*factor; yerr = np.array(yerr)*factor
         line1 = self.figure['axes']['home'][1].errorbar(xx,yy,yerr,fmt='o',c=color)
 
-        time_flag = '%i'%time;
-        if isnn: time_flag+='_nn'
+        time_flag = time;
+        if isnn: 
+            time_flag = '%i_nn'%time;
 
         self.figure['pegend']['stime'].append(line1)
         self.figure['legend']['stime'].append(time_flag)
@@ -1334,7 +1337,7 @@ class kstar_diagnostic_tool:
         self.note_in['l2'].delete(0,'end')
         times = copy.deepcopy(self.figure['legend']['time'])
         for time in times:
-            time,isnn = self._check_time_nn(item)
+            time,isnn = self._check_time_nn(time,2)
             self._delete_time(time,isnn)
 
         self._reset_gui()
@@ -1367,7 +1370,8 @@ class kstar_diagnostic_tool:
 
         self.opt['duty'] = float(self.note_in['e8'].get())
         for item in list1:
-            duty = self._get_duty(float(item))
+            time,isnn = self._check_time_nn(item)
+            duty = self._get_duty(float(time))
             if ((not item in list2) and duty<=self.opt['duty']): list2.append(item)
 
         list2.sort()
@@ -1571,8 +1575,9 @@ class kstar_diagnostic_tool:
         line1 = self.figure['axes']['home'][1].errorbar(xx,yy,yerr,fmt='o',c='b')
 
 
-        time_flag = '%i'%time;
-        if isnn: time_flag+='_nn'
+        time_flag = time
+        if isnn: 
+            time_flag='%i_nn'%time
 
         self.figure['pegend']['time'].append(line1)
         self.figure['legend']['time'].append(time_flag)
@@ -1651,7 +1656,7 @@ class kstar_diagnostic_tool:
         else:                             self.figure['axes']['home'][1].set_xlabel('$\\rho_N$')        
 
         for time in times:
-            time,isnn = self._check_time_nn(time)
+            time,isnn = self._check_time_nn(time,2)
             self._draw_time(time,isnn)
         return
 
@@ -1659,9 +1664,9 @@ class kstar_diagnostic_tool:
 
         self.figure['name']['home'].canvas.draw_idle()
 
-        time_flag = '%i'%time;
-        if isnn: time_flag+='_nn'
-
+        time_flag = time;
+        if isnn: 
+            time_flag = '%i_nn'%time;
         ind = self.figure['legend']['time'].index(time_flag)
         self.figure['pegend']['time'][ind].remove()
         self.figure['pegend']['time'].remove(self.figure['pegend']['time'][ind])
@@ -1760,7 +1765,6 @@ class kstar_diagnostic_tool:
                 else:
                     xx = self.rr['ces_nn'][1]; 
                     tt = self.ces_nn[ch]['val'][1][0]; yy = self.ces_nn[ch]['val']; yerr = self.ces_nn[ch]['err']
-
                 tind = np.argmin(abs(tt-float(time)/1.e3))
                 for i in range(1,self.ces['nch']+1):
                     f.write('%9.7f  %9.7f  %9.4f  %9.4f\n'%(xx[i-1],0.,np.nan_to_num(yy[i][1][tind]),np.nan_to_num(yerr[i][1][tind])))

@@ -295,7 +295,7 @@ def post_data(shot,time0,dt,drift,dirs,noplot):
         tcisig[k] = np.std(ne[ind1][ind2][ind3]) / NE_conv[k] * 1.5 / L_weight[k]  #*4
 
         tciavg[k] = tciavg[k] - drift_corr * time0 * 1.e-3
-        print('>>> Correction of TCI%02i at time %6ims %5.3f'%(k,time0,drift_corr * time0 * 1.e-3))
+        print('>>> Correction of TCI%02i at time %6ims %5.3f'%(k-1,time0,drift_corr * time0 * 1.e-3))
 
         if tciavg[k]<=0.: tciavg[k]= 0.; tcisig[k] = 0.
     

@@ -67,7 +67,7 @@ ces_location[2015] = [1.801,1.822,1.843,1.874,1.895,1.945,1.995,2.016,2.047,2.07
 
 if 'ukstar' in machine:
     python_home     = '/usr/local/analysis/KEFIT/'
-    mds_address     = 'nkstar.kstar.kfe.re.kr:8005' #mds_address
+    mds_address     = 'mdsr.kstar.kfe.re.kr:8005' #mds_address
     efit_source_dir = '/EFIT/'                      #efit_source 
     scheduler       = 'pbs'                         #scheduler
     qsub_exec       = '/opt/pbs/bin/qsub'           
@@ -101,7 +101,7 @@ if 'ukstar' in machine:
 
 else:
     python_home     = '/home/users/ksk911211/PYTHON/KEFIT_PACKAGE/'
-    mds_address     = 'nkstar.kstar.kfe.re.kr:8005'
+    mds_address     = 'mdsr.kstar.kfe.re.kr:8005'
     efit_source_dir = '/EFIT/'
     scheduler       = ''
     qsub_exec       = ''           

@@ -1,5 +1,10 @@
 GFIT
 -------------------------------------------------*
+#2025/12/09
+ NN-based CES (by Dr. J.K.Lee) is added
+ * Shown in MDS loader
+ * Other environment for 2025 is also updated
+
 #2025/02/10
  Uncertainty quantification is added
  * Provides fitting error if well converged

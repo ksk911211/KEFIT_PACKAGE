@@ -1,5 +1,8 @@
 GEFIT
 -------------------------------------------------*
+#2025/05/09
+ EFIT routines are updated for W-divertor compatibility
+
 #2024/02/12
  Version is updated to v3.3
  Updates for W-divertor,MSE,qrat_draw, and code stabilisation

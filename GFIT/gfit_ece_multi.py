@@ -120,6 +120,10 @@ def gefit_ece(shot, t_sample = 0.0002, lfs_option = 'y'):
 #           tt, yy = getmds(g, ch_name,t_start,t_end,t_sample)
             tt = ECE_pll.t[multi_count]
             yy = ECE_pll.y[multi_count]
+            off= np.mean(yy[np.where(np.abs(tt+0.3)<0.2)])
+            yy = yy-off
+            print('\r>>> ECE Ch. %02i offset %21.14e'%(i,off),np.mean(yy[np.where(np.abs(tt-9.5)<0.03)]))
+
             filename= 'DATASAVE/%i/ECE%i.npz'%(shot,count1)
             np.savez(filename,tt,R2,yy)
             comm = 'gzip ' + filename
@@ -190,7 +194,7 @@ def load_ece(shot,time,dt,dirs,fig):
             profv[i,k] = np.mean(te[ind1][ind2])
             profe[i,k] = np.std(te[ind1][ind2])
 
-        if np.mean(profv[:,k]) < 100.:
+        if np.mean(profv[:,k]) < 10.:
             for i in range(tlen): 
                 profv[i,k] = 10.
                 profe[i,k] = 10.

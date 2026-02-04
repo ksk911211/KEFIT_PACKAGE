@@ -3389,6 +3389,11 @@ class fit_tool:
             new = self.post['popt']['ne'][2];   nep = self.post['popt']['ne'][3] - 0.5*new; newe = self.post['popte']['ne'][2]; nehe = self.post['popte']['ne'][1]
         nehe = abs(nehe)
 
+	if (tep<=0.5 or tep>=1.0): tep = 1.;
+	if (nep<=0.5 or nep>=1.0): nep = 1.;
+	if (tip<=0.5 or tip>=1.0): tip = 1.;
+	if (vtp<=0.5 or vtp>=1.0): vtp = 1.;
+
         neped = nef(nep); teped = tef(tep); tiped = tif(tip); vtped = vtf(vtp);
         necor = nef(0.0); tecor = tef(0.0); ticor = tif(0.0); vtcor = vtf(0.0);
         nesep = nef(1.0); tesep = tef(1.0); tisep = tif(1.0); vtsep = vtf(1.0);

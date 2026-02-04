@@ -1262,7 +1262,6 @@ class guifittool:
             self.note_in['e4'].delete(0,'end')
             self.note_in['e4'].insert(10,filename)
         self.make_mds_e2()
-        print('>>> ECE is not loaded, try again')
         return
 
     def make_mds_e(self):

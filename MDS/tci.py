@@ -48,7 +48,7 @@ class _Connection( Connection):
              raise MdsException("Error: no host specified")
         else:
              if self.socket != -1:
-                print(self.socket)
+                #print(self.socket)
                 try:
                     self.closeConnection()
                 except:
@@ -199,7 +199,7 @@ def gprofdat(shot,treename):
         except: 
             print("Error #2")
         else:
-            print(mds.alist)
+            #print(mds.alist)
             for k in range(7):
                 dat = names[k]
                 try:

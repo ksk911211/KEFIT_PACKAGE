@@ -81,7 +81,7 @@ class eped_ftool:
             if not line: break
             if (float(line.split()[0]) > 0.):
                 linec = linec + 1
-        f4.close
+        f4.close()
         
         datR = np.zeros(linec)
         datZ = np.zeros(linec)

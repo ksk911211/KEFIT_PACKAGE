@@ -122,7 +122,8 @@ def gefit_ece(shot, t_sample = 0.0002, lfs_option = 'y'):
             yy = ECE_pll.y[multi_count]
             off= np.mean(yy[np.where(np.abs(tt+0.3)<0.2)])
             yy = yy-off
-            print('\r>>> ECE Ch. %02i offset %21.14e'%(i,off),np.mean(yy[np.where(np.abs(tt-9.5)<0.03)]))
+            mean=np.mean(yy[np.where(np.abs(tt-9.5)<0.03)])
+            print('\r>>> ECE Ch. %02i offset/mean %10.3e/%10.3e'%(i,off,mean))
 
             filename= 'DATASAVE/%i/ECE%i.npz'%(shot,count1)
             np.savez(filename,tt,R2,yy)
@@ -134,7 +135,7 @@ def gefit_ece(shot, t_sample = 0.0002, lfs_option = 'y'):
     print('\n>>> Total avail ch:',count1-1)
     f = open('DATASAVE/%i/ECE_size'%shot,'w')
     f.write('%i\n'%(count1-1))
-    f.close
+    f.close()
         
     endtime = time_check.time() - start
     timedone = '>>> Working time is ... ' + str(endtime) +' [s]'
@@ -148,7 +149,12 @@ def load_ece(shot,time,dt,dirs,fig):
     if str(type(time)) == "<class 'str'>":
         time = np.array(time.strip('\n').split(','),dtype='float')
     f = open('DATASAVE/%i/ECE_size'%shot,'r')
-    nch = int(float(f.readline()))
+    try: 
+        line = f.readline()
+        nch = int(line)
+    except: 
+        line = f.readline()
+        print(line)
     f.close()
     tlen = len(time)
     profv = np.zeros((tlen,nch))

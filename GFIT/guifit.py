@@ -578,7 +578,6 @@ class guifittool:
             else:
                 self.__dict__['note_%s'%flag]['param']['a%i'%(i+1)]['fix'].set(1)
 
-
         return
 
     def fit_param_option(self,frame,flag):
@@ -1255,7 +1254,7 @@ class guifittool:
         if not os.path.isfile('DATASAVE/%i/ECE_size'%shot):
             if self.note_md['ece_hfs'].get() == 0: gefit_ece(shot)
             else:  gefit_ece(shot, lfs_option ='n')
-        #load_ece(shot,[time/1.e3],dt/1.e3,'',None)
+
         self.make_mds_d1(shot,time,dt)
         os.chdir(cdir)
         filename = self.mds_dir+'/te_%06i_%ims_ECE_2nd.dat'%(shot,time)
@@ -1263,6 +1262,7 @@ class guifittool:
             self.note_in['e4'].delete(0,'end')
             self.note_in['e4'].insert(10,filename)
         self.make_mds_e2()
+        print('>>> ECE is not loaded, try again')
         return
 
     def make_mds_e(self):
@@ -1296,7 +1296,6 @@ class guifittool:
         frame.wm_title("ECE Time")
         self.t_close2 = False
         frame.protocol("WM_DELETE_WINDOW", lambda: self.detect_close(2,frame))
-#       frame.resizable(0,0)
     
         fig, ax = plt.subplots(1,1,figsize=(8,5))
         canvas = FigureCanvasTkAgg(fig,master=frame)
@@ -1829,6 +1828,13 @@ class guifittool:
         self.didmfit = False
         self.load_run_save('result_single.save',False)
 
+        if os.path.isfile('fit_opt.save_param'):
+            with open('fit_opt.save_param','rb') as f: self.post_opt['param'] = pickle.load(f)
+
+        for flag in self.fit.prof_list:
+            func = self.note_fn['func_type'][flag].get().lower()
+            self.fit.param[flag] = copy.deepcopy(self.post_opt['param'][flag][func]['val']);
+
         temp = self.note_md['e8'].get()
         self.restore_gui()
         self.plot_type = 0
@@ -1847,13 +1853,25 @@ class guifittool:
         self.times = np.array(self.note_md['e8'].get().split(','),dtype='int')
         isfile = True
         if not os.path.isfile('result_multi.save'): isfile = False
+
         if not isfile: 
             print('>>> No saved mutli run')
             return
+
         self.plot_type = 0  
         self.didmfit = True
         self.runmode = 'multi'
         self.load_run_save('result_multi.save',True)    
+
+        if os.path.isfile('fit_opt.save_param_m'):
+            with open('fit_opt.save_param_m','rb') as f: self.post_opt['param_m'] = pickle.load(f)
+
+        self.post_opt['param'] = copy.deepcopy(self.post_opt['param_m'][self.mfit_opt['times'][self.plotpage]])
+
+        for flag in self.fit.prof_list:
+            func = self.note_fn['func_type'][flag].get().lower()
+            self.fit.param[flag] = copy.deepcopy(self.post_opt['param'][flag][func]['val']);
+
         self.restore_gui()
         self.times = np.array(self.note_md['e8'].get().split(','),dtype='int')
         for flag in self.fit.prof_list: self.fit.fit_opt['file'][flag]['kfile'] = None
@@ -2680,9 +2698,8 @@ class guifittool:
         if g2f: 
             var2 = float(var1.get())
         else: 
-            if (np.isinf(var1) or np.isnan(var1)): var2 = '%s'%var1
-            elif int(var1) == var1: var2 = '%i'%var1    
-            else: var2 = '%5.2f'%var1
+            if (np.isinf(var1) or np.isnan(var1)): var2 = '%5.3f'%var1
+            else: var2 = '%5.3f'%var1
         return var2     
 
     def transfer_name(self,var1,g2f):

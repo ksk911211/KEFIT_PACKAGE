@@ -133,7 +133,7 @@ class fit_tool:
             if not line: break
             if (float(line.split()[0]) > 0.):
                 linec = linec + 1
-        f4.close
+        f4.close()
         datR = np.zeros(linec)
         datZ = np.zeros(linec)
         datX = np.zeros(linec)
@@ -1503,21 +1503,22 @@ class fit_tool:
             if self.fit_opt['use_rho'][flag]:
                 line2, = fig.plot(self.fit_eq['psi_to_rho'](self.fit_eq['psin2']),self.__dict__['%s_prof'%flag]['fit_old'],'blue',linestyle= '--')
             else:
-                line2, = fig.plot(self.fit_eq['psin2'],self.__dict__['%s_prof'%flag]['fit_old'],'blue',linestyle= '--')
+                line2, = fig.plot(self.fit_eq['psin2'],                           self.__dict__['%s_prof'%flag]['fit_old'],'blue',linestyle= '--')
 
-            if not valerr==None: 
-                if (self.post['fit_opt']['use_rho'][flag] == self.fit_opt['use_rho'][flag]):
-                    fig.fill_between(self.fit_eq['psin2'],valerr[0]-valerr[1],valerr[0]+valerr[1],alpha=0.1,facecolor='blue')
-                elif self.fit_opt['use_rho'][flag]:
-                    fig.fill_between(self.fit_eq['psi_to_rho'](self.fit_eq['psin2']),valerr[0]-valerr[1],valerr[0]+valerr[1],alpha=0.1,facecolor='blue')
+            if not valerr==None:
+                if self.fit_opt['use_rho'][flag] == self.post['fit_opt']['use_rho'][flag]:
+                    fig.fill_between(self.fit_eq['psin2'],                           valerr[0]-valerr[1],valerr[0]+valerr[1],alpha=0.1,facecolor='blue')
+                elif not self.fit_opt['use_rho'][flag]:
+                    fig.fill_between(self.fit_eq['rho_to_psi'](self.fit_eq['psin2']),valerr[0]-valerr[1],valerr[0]+valerr[1],alpha=0.1,facecolor='blue')
                 else:
-                    fig.fill_between(self.fit_eq['rho_to_psi'](self.fit_eq['psin2']),valerr[0]-valerr[1],valerr[0]+valerr[1],alpha=0.1,facecolor='blue')    
+                    fig.fill_between(self.fit_eq['psi_to_rho'](self.fit_eq['psin2']),valerr[0]-valerr[1],valerr[0]+valerr[1],alpha=0.1,facecolor='blue')    
 
             plegend.append('Pre Fitted prof')
             llegend.append(line2)
 
         line2, = fig.plot(self.fit_eq['psin2'],self.__dict__['%s_prof'%flag]['fit2'],'red')
         valerr = self.make_error_boundary(flag,self.param,True)
+        self.post['fit_opt']['use_rho'][flag] = self.fit_opt['use_rho'][flag]
 
         if not valerr==None:
             fig.fill_between(self.fit_eq['psin2'],valerr[0]-valerr[1],valerr[0]+valerr[1],alpha=0.1,facecolor='red')
@@ -2119,6 +2120,7 @@ class fit_tool:
 
         self.post['errsample'][flag]['vals']    = np.copy(y_samples);
 
+        if len(y_samples)==0: return errnom, errnom*0.0
 
         crit  = 0.5*(1-0.683) * 100.
 
@@ -3182,7 +3184,9 @@ class fit_tool:
             self.den_scale()
         if (self.post['isdat']['vt']): self.write_chease_rot()
 
-        self.post['fit_opt'] = copy.deepcopy(self.fit_opt)
+        for item in self.fit_opt:
+            if not item=='use_rho': self.post['fit_opt'][item] = copy.deepcopy(self.fit_opt[item])
+            if not 'use_rho' in self.post['fit_opt']: self.post['fit_opt'][item] = copy.deepcopy(self.fit_opt[item]) 
 
         self.first_run = False
         for flag in self.prof_list:

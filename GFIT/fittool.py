@@ -1496,6 +1496,10 @@ class fit_tool:
 
         if np.sum(self.__dict__['%s_prof'%flag]['fit_old']) > 0:
 
+            use_rho_old = self.post['fit_opt']['use_rho'][flag]
+            if 'use_rho_old' in self.__dict__['%s_prof'%flag]:
+                use_rho_old = self.__dict__['%s_prof'%flag]['use_rho_old']
+
             try: 
                 valerr = self.make_error_boundary(flag,self.param_old,False)
             except:
@@ -1506,7 +1510,7 @@ class fit_tool:
                 line2, = fig.plot(self.fit_eq['psin2'],                           self.__dict__['%s_prof'%flag]['fit_old'],'blue',linestyle= '--')
 
             if not valerr==None:
-                if self.fit_opt['use_rho'][flag] == self.post['fit_opt']['use_rho'][flag]:
+                if self.fit_opt['use_rho'][flag] == use_rho_old:
                     fig.fill_between(self.fit_eq['psin2'],                           valerr[0]-valerr[1],valerr[0]+valerr[1],alpha=0.1,facecolor='blue')
                 elif not self.fit_opt['use_rho'][flag]:
                     fig.fill_between(self.fit_eq['rho_to_psi'](self.fit_eq['psin2']),valerr[0]-valerr[1],valerr[0]+valerr[1],alpha=0.1,facecolor='blue')
@@ -2743,6 +2747,7 @@ class fit_tool:
             self.__dict__['%s_prof'%i]['fit2']     = np.zeros(401)
             self.__dict__['%s_prof'%i]['fit2p']    = np.zeros(401)
             self.__dict__['%s_prof'%i]['fit_old']  = np.zeros(401)
+            self.__dict__['%s_prof'%i]['use_rho_old'] = False
             for j in self.__dict__['%s_list'%i]:
                 self.__dict__['%s_prof'%i][j] = dict()
                 self.__dict__['%s_prof'%i][j]['file'] = None
@@ -3058,6 +3063,7 @@ class fit_tool:
         if (self.post['isdat']['ti'] and self.post['opt_change']['ti']):
             if self.post['didfit']['ti']: 
                 self.ti_prof['fit_old'] = np.copy(self.ti_prof['fit2p'])
+                self.ti_prof['use_rho_old'] = self.post['fit_opt']['use_rho']['ti']
                 try:
                     self.post['errnom_old']['ti'] = np.copy(self.post['errnom']['ti'])
                     self.post['errstd_old']['ti'] = np.copy(self.post['errstd']['ti'])
@@ -3116,6 +3122,7 @@ class fit_tool:
         if (self.post['isdat']['ne'] and self.post['opt_change']['ne']):
             if self.post['didfit']['ne']: 
                 self.ne_prof['fit_old'] = np.copy(self.ne_prof['fit2p'])
+                self.ne_prof['use_rho_old'] = self.post['fit_opt']['use_rho']['ne']
                 try:
                     self.post['errnom_old']['ne'] = np.copy(self.post['errnom']['ne'])
                     self.post['errstd_old']['ne'] = np.copy(self.post['errstd']['ne'])
@@ -3139,6 +3146,7 @@ class fit_tool:
         if (self.post['isdat']['te'] and self.post['opt_change']['te']):
             if self.post['didfit']['te']: 
                 self.te_prof['fit_old'] = np.copy(self.te_prof['fit2p'])
+                self.te_prof['use_rho_old'] = self.post['fit_opt']['use_rho']['te']
                 try:
                     self.post['errnom_old']['te'] = np.copy(self.post['errnom']['te'])
                     self.post['errstd_old']['te'] = np.copy(self.post['errstd']['te'])
@@ -3159,6 +3167,7 @@ class fit_tool:
         if (self.post['isdat']['vt'] and self.post['opt_change']['vt']):    
             if self.post['didfit']['vt']: 
                 self.vt_prof['fit_old'] = np.copy(self.vt_prof['fit2p'])
+                self.vt_prof['use_rho_old'] = self.post['fit_opt']['use_rho']['vt']
                 try:
                     self.post['errnom_old']['vt'] = np.copy(self.post['errnom']['vt'])
                     self.post['errstd_old']['vt'] = np.copy(self.post['errstd']['vt'])
@@ -3184,9 +3193,7 @@ class fit_tool:
             self.den_scale()
         if (self.post['isdat']['vt']): self.write_chease_rot()
 
-        for item in self.fit_opt:
-            if not item=='use_rho': self.post['fit_opt'][item] = copy.deepcopy(self.fit_opt[item])
-            if not 'use_rho' in self.post['fit_opt']: self.post['fit_opt'][item] = copy.deepcopy(self.fit_opt[item]) 
+        self.post['fit_opt'] = copy.deepcopy(self.fit_opt)
 
         self.first_run = False
         for flag in self.prof_list:
@@ -3389,10 +3396,10 @@ class fit_tool:
             new = self.post['popt']['ne'][2];   nep = self.post['popt']['ne'][3] - 0.5*new; newe = self.post['popte']['ne'][2]; nehe = self.post['popte']['ne'][1]
         nehe = abs(nehe)
 
-	if (tep<=0.5 or tep>=1.0): tep = 1.;
-	if (nep<=0.5 or nep>=1.0): nep = 1.;
-	if (tip<=0.5 or tip>=1.0): tip = 1.;
-	if (vtp<=0.5 or vtp>=1.0): vtp = 1.;
+        if (tep<=0.5 or tep>=1.0): tep = 1.;
+        if (nep<=0.5 or nep>=1.0): nep = 1.;
+        if (tip<=0.5 or tip>=1.0): tip = 1.;
+        if (vtp<=0.5 or vtp>=1.0): vtp = 1.;
 
         neped = nef(nep); teped = tef(tep); tiped = tif(tip); vtped = vtf(vtp);
         necor = nef(0.0); tecor = tef(0.0); ticor = tif(0.0); vtcor = vtf(0.0);
